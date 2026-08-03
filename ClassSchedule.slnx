@@ -1,0 +1,8 @@
+<Solution>
+  <Project Path="ClassSchedule/ClassSchedule.csproj">
+    <BuildType Project="Debug" />
+  </Project>
+  <Project Path="SchoolScheduleLibrary/SchoolScheduleLibrary.csproj">
+    <BuildType Project="Debug" />
+  </Project>
+</Solution>
