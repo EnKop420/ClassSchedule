@@ -34,12 +34,19 @@ namespace SchoolScheduleLibrary.Context
         {
             Type type = typeof(ModelBuilderUtility);
 
-            MethodInfo[] methods = type.GetMethods(BindingFlags.Static);
+            MethodInfo[] methods = type.GetMethods(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly);
 
             foreach (MethodInfo method in methods)
             {
                 method.Invoke(null, new object[] { modelBuilder });
             }
+            //ModelBuilderUtility.EnumModelBuilder(modelBuilder);
+            //ModelBuilderUtility.ForeignKeyLink(modelBuilder);
+            //ModelBuilderUtility.SimpleIndex(modelBuilder);
+            //ModelBuilderUtility.ManyToMany(modelBuilder);
+            //ModelBuilderUtility.RestrictDelete(modelBuilder);
+            //ModelBuilderUtility.DefaultValue(modelBuilder);
+            //ModelBuilderUtility.UniqueIndexes(modelBuilder);
         }
     }
 }
