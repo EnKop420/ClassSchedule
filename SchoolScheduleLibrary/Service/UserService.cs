@@ -1,10 +1,10 @@
 ﻿using SchoolScheduleLibrary.DTO;
+using SchoolScheduleLibrary.Enums;
 using SchoolScheduleLibrary.Model;
 using SchoolScheduleLibrary.Model.Interface;
 using SchoolScheduleLibrary.Repository.Interface;
 using SchoolScheduleLibrary.Service.Interface;
 using SchoolScheduleLibrary.Utilities.Auth;
-using SchoolScheduleLibrary.Utilities.Authentication;
 using SchoolScheduleLibrary.Utilities.Encryption.Interface;
 using SchoolScheduleLibrary.Utilities.Response;
 using System;
@@ -32,12 +32,13 @@ namespace SchoolScheduleLibrary.Service
 
         public async Task Add(T input)
         {
+            if (!Enum.IsDefined(typeof(UserRoles), input.Role)) throw new HttpResponseException(ServiceReturnCode.BadRequest, "This role is not defined as a valid role!");
+
             input.Username = input.Username.ToLower();
             bool doesUsernameExist = await _genericRepository.DoesUsernameExist<T>(input.Username);
 
             input.Password = await _encryptionHandler.HashString(input.Password.ToLower());
             input.Email = await _encryptionHandler.EncryptString(input.Email);
-            input.Created = DateOnly.FromDateTime(DateTime.Now);
 
             if (doesUsernameExist) throw new HttpResponseException(ServiceReturnCode.Conflict, "Username already exists!");
             await _genericRepository.Create(input, true);
@@ -45,14 +46,25 @@ namespace SchoolScheduleLibrary.Service
 
         public async Task Delete(Guid id)
         {
-            await _genericRepository.DeleteById(id);
+            IUser? user = await _genericRepository.GetByGuid(id);
+            if (user != null)
+            {
+                if (!await _genericRepository.DeleteById(id))
+                {
+                    throw new HttpResponseException(ServiceReturnCode.InternalError, "Something went wrong with deleting value! Id matches a user but unknown error");
+                }
+            }
+            else throw new HttpResponseException(ServiceReturnCode.NotFound, $"No User with this Id \"{id}\" was found");
         }
 
         public async Task<IUser> Login(LoginDTO input)
         {
             input.Username = input.Username.ToLower();
             input.Password = await _encryptionHandler.HashString(input.Password.ToLower());
-            return await _genericRepository.Login<T>(input);
+            IUser user = await _genericRepository.Login<T>(input);
+            user.Email = await _encryptionHandler.DecryptString(user.Email);
+            user.Password = "**********";
+            return user;
         }
 
         public async Task<string> CreateSession(SessionData sessionData, TimeSpan ttl)

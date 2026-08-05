@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SchoolScheduleLibrary.Enums;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -11,6 +12,7 @@ namespace SchoolScheduleLibrary.Model.Interface
         public string Username { get; set; }
         public string Password { get; set; }
         public string Email { get; set; }
-        public DateOnly Created {  get; set; }
+        public UserRoles Role { get; set; }
+        public DateTime CreatedAt {  get; set; }
     }
 }

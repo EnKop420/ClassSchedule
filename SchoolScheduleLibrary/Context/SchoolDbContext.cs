@@ -6,20 +6,18 @@ using System.Text;
 
 namespace SchoolScheduleLibrary.Context
 {
-    // Add-Migration InitDb -Context ScheduleDbContext -OutputDir "Migrations/ScheduleMigration"
+    // Add-Migration InitDb -Context SchoolDbContext -OutputDir "Migrations/ScheduleMigration"
+    // update-database
     public class SchoolDbContext(DbContextOptions<SchoolDbContext> options) : DbContext(options)
     {
-        public DbSet<Admin> Admin {  get; set; }
-        public DbSet<Student> Student { get; set; }
-        public DbSet<Teacher> Teacher { get; set; }
-        public DbSet<Classroom> Classrooms { get; set; }
+        public DbSet<User> User { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Classroom>()
-                .HasMany(c => c.Students)
-                .WithOne(s => s.Classroom)
-                .HasForeignKey(s => s.ClassroomId);
+            // Prevents duplicates per institution. Allows duplicates across institutions.
+            modelBuilder.Entity<User>()
+                .HasIndex(u => new { u.Institution.Id, u.Email })
+                .IsUnique();
         }
     }
 }

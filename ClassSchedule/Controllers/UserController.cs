@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using SchoolScheduleLibrary.DTO;
+using SchoolScheduleLibrary.Enums;
 using SchoolScheduleLibrary.Model;
 using SchoolScheduleLibrary.Service.Interface;
 using SchoolScheduleLibrary.Utilities.Auth;
-using SchoolScheduleLibrary.Utilities.Authentication;
 using SchoolScheduleLibrary.Utilities.Response;
 using AuthorizeAttribute = ClassSchedule.Auth.AuthorizeAttribute;
 
@@ -12,27 +12,31 @@ namespace ClassSchedule.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AdminController : ControllerBase
+    public class UserController : ControllerBase
     {
-        private readonly IUserService<Admin> _userService;
-        public AdminController(IUserService<Admin> adminService)
+        private readonly IUserService<User> _userService;
+        public UserController(IUserService<User> userService)
         {
-            _userService = adminService;
+            _userService = userService;
         }
 
         [HttpPost("Add")]
-        public async Task<IActionResult> AddAdmin([FromBody] AdminDTO adminDTO)
+        public async Task<IActionResult> Add([FromBody] UserDTO userDTO)
         {
             try
             {
-                Admin admin = new Admin
+                User user = new User
                 {
-                    Username = adminDTO.Username,
-                    Password = adminDTO.Password,
-                    Email = adminDTO.Email
+                    FirstName = userDTO.FirstName,
+                    LastName = userDTO.LastName,
+                    DateOfBirth = userDTO.DateOfBirth,
+                    Username = userDTO.Username,
+                    Password = userDTO.Password,
+                    Email = userDTO.Email,
+                    Role = userDTO.Role,
+                    CreatedAt = DateTime.UtcNow
                 };
-
-                await _userService.Add(admin);
+                await _userService.Add(user);
                 return Ok();
             }
             catch (HttpResponseException hre)
@@ -59,13 +63,13 @@ namespace ClassSchedule.Controllers
                     Expires = DateTime.UtcNow.AddDays(ttlDays)
                 };
 
-                Admin admin = (Admin)await _userService.Login(loginDTO);
-                SessionData data = new(admin.Id.ToString(), Roles.ADMIN);
+                User user = (User)await _userService.Login(loginDTO);
+                SessionData data = new(user.Id.ToString(), user.Role);
                 string sessionKey = await _userService.CreateSession(data, TimeSpan.FromDays(ttlDays));
 
                 Response.Cookies.Append("SchoolSession", sessionKey, cookieOptions);
 
-                return Ok(admin);
+                return Ok(user);
             }
             catch (HttpResponseException hre)
             {
@@ -77,7 +81,7 @@ namespace ClassSchedule.Controllers
             }
         }
 
-        [Authorize(Role = Roles.ADMIN)]
+        [Authorize(Role = UserRoles.Admin)]
         [HttpDelete("Delete")]
         public async Task<IActionResult> Delete([FromBody] Guid id)
         {

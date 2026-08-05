@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;
+using SchoolScheduleLibrary.Enums;
 using SchoolScheduleLibrary.Repository.Interface;
 using SchoolScheduleLibrary.Utilities.Auth;
 using SchoolScheduleLibrary.Utilities.Response;
@@ -10,7 +11,7 @@ namespace ClassSchedule.Auth
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true)]
     public class AuthorizeAttribute : Attribute, IAsyncAuthorizationFilter
     {
-        public string Role { get; set; }
+        public UserRoles Role { get; set; }
         public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
         {
             string sessionKey = "";
