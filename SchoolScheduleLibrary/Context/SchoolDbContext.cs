@@ -40,13 +40,6 @@ namespace SchoolScheduleLibrary.Context
             {
                 method.Invoke(null, new object[] { modelBuilder });
             }
-            //ModelBuilderUtility.EnumModelBuilder(modelBuilder);
-            //ModelBuilderUtility.ForeignKeyLink(modelBuilder);
-            //ModelBuilderUtility.SimpleIndex(modelBuilder);
-            //ModelBuilderUtility.ManyToMany(modelBuilder);
-            //ModelBuilderUtility.RestrictDelete(modelBuilder);
-            //ModelBuilderUtility.DefaultValue(modelBuilder);
-            //ModelBuilderUtility.UniqueIndexes(modelBuilder);
         }
     }
 }
