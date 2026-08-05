@@ -5,10 +5,14 @@ using System.Text;
 
 namespace SchoolScheduleLibrary.Model
 {
-    public class Institution : IBaseEntity
+    public class Term : IBaseEntity
     {
         public Guid Id { get; set; } = Guid.NewGuid();
         public string Name { get; set; }
-        DateTime CreatedAt { get; set; }
+        public DateOnly StartDate { get; set; }
+        public DateOnly EndDate { get; set; }
+
+        public Guid InstitutionId { get; set; }
+        public Institution Institution { get; set; }
     }
 }

@@ -29,7 +29,8 @@ namespace ClassSchedule
             Console.WriteLine(builder.Environment.EnvironmentName);
 
             string redisConnection = builder.Configuration.GetConnectionString("RedisConnection");
-            string postgresConnection = builder.Configuration.GetConnectionString("DefaultConnection");
+            string postgresConnection = builder.Configuration.GetConnectionString("DevelopmentConnection");
+            //string postgresConnection = builder.Configuration.GetConnectionString("DefaultConnection");
 
             builder.Services.AddDbContext<SchoolDbContext>(options =>
                 options.UseNpgsql(postgresConnection));

@@ -21,6 +21,7 @@ namespace SchoolScheduleLibrary.Model
 
         public DateTime CreatedAt { get; set; }
 
+        public Guid InstitutionId { get; set; }
         public Institution Institution { get; set; }
     }
 }
