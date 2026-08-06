@@ -6,16 +6,26 @@ using System.Text;
 
 namespace SchoolScheduleLibrary.DTO
 {
-    public class UserDTO
-    {
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public DateOnly DateOfBirth { get; set; }
+    public record UserDTO(
+        Guid Id,
+        string FirstName,
+        string LastName,
+        DateOnly DateOfBirth,
+        string Username,
+        [EmailAddress] string Email,
+        DateTime CreatedAt,
+        UserRoles Role,
+        Guid InstitutionId
+    );
 
-        public string Username { get; set; }
-        public string Password { get; set; }
-        [EmailAddress]
-        public string Email { get; set; }
-        public UserRoles Role { get; set; }
-    }
+    public record CreateUserDTO(
+        string FirstName,
+        string LastName,
+        DateOnly DateOfBirth,
+        string Username,
+        string Password,
+        [EmailAddress] string Email,
+        UserRoles Role,
+        Guid InstitutionId
+    );
 }

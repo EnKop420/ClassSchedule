@@ -14,29 +14,18 @@ namespace ClassSchedule.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        private readonly IUserService<User> _userService;
-        public UserController(IUserService<User> userService)
+        private readonly IUserService _userService;
+        public UserController(IUserService userService)
         {
             _userService = userService;
         }
 
         [HttpPost("Add")]
-        public async Task<IActionResult> Add([FromBody] UserDTO userDTO)
+        public async Task<IActionResult> Add([FromBody] CreateUserDTO userDTO)
         {
             try
             {
-                User user = new User
-                {
-                    FirstName = userDTO.FirstName,
-                    LastName = userDTO.LastName,
-                    DateOfBirth = userDTO.DateOfBirth,
-                    Username = userDTO.Username,
-                    Password = userDTO.Password,
-                    Email = userDTO.Email,
-                    Role = userDTO.Role,
-                    CreatedAt = DateTime.UtcNow
-                };
-                await _userService.Add(user);
+                await _userService.Add(userDTO);
                 return Ok();
             }
             catch (HttpResponseException hre)
@@ -45,7 +34,7 @@ namespace ClassSchedule.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                return StatusCode(500, $"{ex.Message}\n Inner error message:\n{ex.InnerException}");
             }
         }
 
@@ -55,6 +44,11 @@ namespace ClassSchedule.Controllers
             try
             {
                 int ttlDays = 3;
+
+                UserDTO userDTO = await _userService.Login(loginDTO);
+                SessionData data = new(userDTO.Id.ToString(), userDTO.Role, userDTO.InstitutionId.ToString());
+                string sessionKey = await _userService.CreateSession(data, TimeSpan.FromDays(ttlDays));
+
                 CookieOptions cookieOptions = new CookieOptions
                 {
                     HttpOnly = true,
@@ -63,13 +57,9 @@ namespace ClassSchedule.Controllers
                     Expires = DateTime.UtcNow.AddDays(ttlDays)
                 };
 
-                User user = (User)await _userService.Login(loginDTO);
-                SessionData data = new(user.Id.ToString(), user.Role);
-                string sessionKey = await _userService.CreateSession(data, TimeSpan.FromDays(ttlDays));
-
                 Response.Cookies.Append("SchoolSession", sessionKey, cookieOptions);
 
-                return Ok(user);
+                return Ok(userDTO);
             }
             catch (HttpResponseException hre)
             {
@@ -81,7 +71,7 @@ namespace ClassSchedule.Controllers
             }
         }
 
-        [Authorize(Role = UserRoles.Admin)]
+        [Authorize(UserRoles.Admin)]
         [HttpDelete("Delete")]
         public async Task<IActionResult> Delete([FromBody] Guid id)
         {

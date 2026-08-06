@@ -10,61 +10,95 @@ using SchoolScheduleLibrary.Utilities.Response;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using static SchoolScheduleLibrary.Utilities.Response.HttpResponseException;
 
 namespace SchoolScheduleLibrary.Service
 {
-    public class UserService<T> : IUserService<T> where T : class, IBaseEntity, IUser
+    public class UserService : IUserService
     {
-        private readonly IGenericRepository<T> _genericRepository;
+        private readonly IGenericRepository<User> _genericRepository;
+        private readonly IUserRepository _userRepository;
         private readonly IEncryptionHandler _encryptionHandler;
         private readonly IRedisRepository _redisRepository;
 
         public UserService(
-            IGenericRepository<T> genericRepository,
+            IGenericRepository<User> genericRepository,
+            IUserRepository userRepository,
             IEncryptionHandler encryptionHandler,
             IRedisRepository redisRepository
             )
         {
             _genericRepository = genericRepository;
+            _userRepository = userRepository;
             _encryptionHandler = encryptionHandler;
             _redisRepository = redisRepository;
         }
 
-        public async Task Add(T input)
+        public async Task Add(CreateUserDTO input)
         {
-            if (!Enum.IsDefined(typeof(UserRoles), input.Role)) throw new HttpResponseException(ServiceReturnCode.BadRequest, "This role is not defined as a valid role!");
+            if (!Enum.IsDefined(typeof(UserRoles), input.Role)) throw new BadRequestException("This role is not defined as a valid role!");
+            else if (!await _genericRepository.DoesValueExist<Institution>(input.InstitutionId)) throw new NotFoundException($"No institution exists with Id \"{input.InstitutionId}\".");
+            string lowerUsername = input.Username.ToLower();
+            string hashedPassword = await _encryptionHandler.HashString(input.Password);
+            string encryptedEmail = await _encryptionHandler.EncryptString(input.Email);
 
-            input.Username = input.Username.ToLower();
-            bool doesUsernameExist = await _genericRepository.DoesUsernameExist<T>(input.Username);
+            bool doesUsernameExist = await _userRepository.DoesUsernameExist(lowerUsername);
+            if (doesUsernameExist) throw new ConflictException("Username already exists!");
 
-            input.Password = await _encryptionHandler.HashString(input.Password.ToLower());
-            input.Email = await _encryptionHandler.EncryptString(input.Email);
+            User user = new User
+            {
+                FirstName = input.FirstName,
+                LastName = input.LastName,
+                DateOfBirth = input.DateOfBirth,
+                Username = lowerUsername,
+                Password = hashedPassword,
+                Email = encryptedEmail,
+                Role = input.Role,
+                InstitutionId = input.InstitutionId
+            };
 
-            if (doesUsernameExist) throw new HttpResponseException(ServiceReturnCode.Conflict, "Username already exists!");
-            await _genericRepository.Create(input, true);
+            await _genericRepository.Create(user);
         }
 
         public async Task Delete(Guid id)
         {
-            IUser? user = await _genericRepository.GetByGuid(id);
+            
+
+            User? user = await _genericRepository.GetByGuid(id);
             if (user != null)
             {
                 if (!await _genericRepository.DeleteById(id))
                 {
-                    throw new HttpResponseException(ServiceReturnCode.InternalError, "Something went wrong with deleting value! Id matches a user but unknown error");
+                    throw new InternalErrorException("Something went wrong with deleting value! Id matches a user but unknown error");
+                }
+                else
+                {
+                    // TODO DELETE ALL SESSIONS KEY THAT IS ASSOCIATED WITH THE USER ID.
                 }
             }
-            else throw new HttpResponseException(ServiceReturnCode.NotFound, $"No User with this Id \"{id}\" was found");
+            else throw new NotFoundException($"No User with this Id \"{id}\" was found");
         }
 
-        public async Task<IUser> Login(LoginDTO input)
+        public async Task<UserDTO> Login(LoginDTO dto)
         {
-            input.Username = input.Username.ToLower();
-            input.Password = await _encryptionHandler.HashString(input.Password.ToLower());
-            IUser user = await _genericRepository.Login<T>(input);
-            user.Email = await _encryptionHandler.DecryptString(user.Email);
-            user.Password = "**********";
-            return user;
+            string hashedPassword = await _encryptionHandler.HashString(dto.Password);
+            LoginDTO updatedDTO = dto with { Username = dto.Username.ToLower(), Password = hashedPassword };
+
+            User user = await _userRepository.Login(updatedDTO);
+
+            UserDTO userDTO = new (
+                user.Id,
+                user.FirstName,
+                user.LastName,
+                user.DateOfBirth,
+                user.Username,
+                await _encryptionHandler.DecryptString(user.Email),
+                user.CreatedAt,
+                user.Role,
+                user.InstitutionId
+            );
+
+            return userDTO;
         }
 
         public async Task<string> CreateSession(SessionData sessionData, TimeSpan ttl)

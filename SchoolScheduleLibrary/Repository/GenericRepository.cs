@@ -30,6 +30,16 @@ namespace SchoolScheduleLibrary.Repository
             );
         }
 
+        public async Task<List<T>> GetAll()
+        {
+            return await _context.Set<T>().ToListAsync();
+        }
+
+        public async Task<bool> DoesValueExist<TEntity>(Guid id) where TEntity : class, IBaseEntity
+        {
+            return await _context.Set<TEntity>().AnyAsync(e => e.Id == id);
+        }
+
         public async Task<Guid> Create(T entity, bool returnId = true)
         {
             await _context.Set<T>().AddAsync(entity);
@@ -40,20 +50,12 @@ namespace SchoolScheduleLibrary.Repository
 
         public async Task<bool> Delete(T entity)
         {
-            if (_context.Set<T>().Remove(entity) != null)
-            {
-                return await _context.SaveChangesAsync() > 0;
-            }
-            else return false;
+            return await _context.Set<T>().Where(e => e.Id == entity.Id).ExecuteDeleteAsync() > 0;
         }
 
         public async Task<bool> DeleteById(Guid id)
         {
-            if (await _context.Set<T>().Where(e => e.Id == id).ExecuteDeleteAsync() > 0)
-            {
-                return await _context.SaveChangesAsync() > 0;
-            }
-            else return false;
+            return await _context.Set<T>().Where(e => e.Id == id).ExecuteDeleteAsync() > 0;
         }
 
         public async Task<bool> Update(T entity)
@@ -66,21 +68,6 @@ namespace SchoolScheduleLibrary.Repository
         {
             await _context.Set<T>().AddAsync(entity);
             return await _context.SaveChangesAsync() > 0;
-        }
-
-        public async Task<bool> DoesUsernameExist<TUser>(string username) where TUser : class, IUser
-        {
-            return await _context.Set<TUser>().AnyAsync(u => u.Username == username);
-        }
-
-        public async Task<IUser> Login<TUser>(LoginDTO loginDTO) where TUser : class, IUser
-        {
-            Guid userId = Guid.Empty;
-            string unauthenticatedMessage = "No match found for username and password!";
-
-            TUser? user = await _context.Set<TUser>().FirstOrDefaultAsync(u => u.Username == loginDTO.Username && u.Password == loginDTO.Password);
-            if (user == null) throw new HttpResponseException(ServiceReturnCode.Forbidden, unauthenticatedMessage);
-            else return user;
         }
     }
 }

@@ -7,7 +7,7 @@ using System.Text;
 
 namespace SchoolScheduleLibrary.Model
 {
-    public class User : IUser
+    public class User : IBaseEntity
     {
         public Guid Id { get; set; } = Guid.NewGuid();
         public string FirstName { get; set; }
@@ -19,8 +19,9 @@ namespace SchoolScheduleLibrary.Model
         public string Email { get; set; }
         public UserRoles Role { get; set; }
 
-        public DateTime CreatedAt { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        public Institution Institution { get; set; }
+        public Guid InstitutionId { get; set; }
+        public Institution Institution { get; set; } = null!;
     }
 }

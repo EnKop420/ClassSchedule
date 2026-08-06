@@ -22,14 +22,420 @@ namespace SchoolScheduleLibrary.Migrations.ScheduleMigration
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("SchoolScheduleLibrary.Model.Absence", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("LessonId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("RegisteredAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("RegisteredById")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("StudentId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RegisteredById");
+
+                    b.HasIndex("StudentId");
+
+                    b.HasIndex("LessonId", "StudentId")
+                        .IsUnique();
+
+                    b.ToTable("Absences");
+                });
+
+            modelBuilder.Entity("SchoolScheduleLibrary.Model.Enrollment", b =>
+                {
+                    b.Property<Guid>("HoldId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("StudentId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("HoldId", "StudentId");
+
+                    b.HasIndex("StudentId");
+
+                    b.ToTable("Enrollments");
+                });
+
+            modelBuilder.Entity("SchoolScheduleLibrary.Model.GroupTeacher", b =>
+                {
+                    b.Property<Guid>("HoldId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("TeacherId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("HoldId", "TeacherId");
+
+                    b.HasIndex("TeacherId");
+
+                    b.ToTable("GroupTeachers");
+                });
+
+            modelBuilder.Entity("SchoolScheduleLibrary.Model.Hold", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("InstitutionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("SubjectId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("TermId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InstitutionId");
+
+                    b.HasIndex("SubjectId");
+
+                    b.HasIndex("TermId");
+
+                    b.ToTable("Holds");
+                });
+
+            modelBuilder.Entity("SchoolScheduleLibrary.Model.Institution", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Institutions");
+                });
+
+            modelBuilder.Entity("SchoolScheduleLibrary.Model.Lesson", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date");
+
+                    b.Property<TimeOnly>("EndTime")
+                        .HasColumnType("time without time zone");
+
+                    b.Property<Guid>("HoldId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("InstitutionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsModified")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("Note")
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("RoomId")
+                        .HasColumnType("uuid");
+
+                    b.Property<TimeOnly>("StartTime")
+                        .HasColumnType("time without time zone");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("TemplateId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoomId");
+
+                    b.HasIndex("HoldId", "Date");
+
+                    b.HasIndex("InstitutionId", "Date");
+
+                    b.HasIndex("TemplateId", "Date")
+                        .IsUnique();
+
+                    b.ToTable("Lessons");
+                });
+
+            modelBuilder.Entity("SchoolScheduleLibrary.Model.LessonNote", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AuthorId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("LessonId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AuthorId");
+
+                    b.HasIndex("LessonId");
+
+                    b.ToTable("LessonNotes");
+                });
+
+            modelBuilder.Entity("SchoolScheduleLibrary.Model.LessonTeacher", b =>
+                {
+                    b.Property<Guid>("LessonId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("TeacherId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("LessonId", "TeacherId");
+
+                    b.HasIndex("TeacherId");
+
+                    b.ToTable("LessonTeachers");
+                });
+
+            modelBuilder.Entity("SchoolScheduleLibrary.Model.LessonTemplate", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("HoldId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("InstitutionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("PeriodId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("RoomId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateOnly>("ValidFrom")
+                        .HasColumnType("date");
+
+                    b.Property<DateOnly>("ValidTo")
+                        .HasColumnType("date");
+
+                    b.Property<int>("Weekday")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("HoldId");
+
+                    b.HasIndex("InstitutionId");
+
+                    b.HasIndex("PeriodId");
+
+                    b.HasIndex("RoomId");
+
+                    b.ToTable("LessonTemplates");
+                });
+
+            modelBuilder.Entity("SchoolScheduleLibrary.Model.NonTeachingDay", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date");
+
+                    b.Property<Guid>("InstitutionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InstitutionId", "Date")
+                        .IsUnique();
+
+                    b.ToTable("NonTeachingDays");
+                });
+
+            modelBuilder.Entity("SchoolScheduleLibrary.Model.Period", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<TimeOnly>("EndTime")
+                        .HasColumnType("time without time zone");
+
+                    b.Property<Guid>("InstitutionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<TimeOnly>("StartTime")
+                        .HasColumnType("time without time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InstitutionId");
+
+                    b.ToTable("Periods");
+                });
+
+            modelBuilder.Entity("SchoolScheduleLibrary.Model.Room", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int?>("Capacity")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("InstitutionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InstitutionId");
+
+                    b.ToTable("Rooms");
+                });
+
+            modelBuilder.Entity("SchoolScheduleLibrary.Model.Subject", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("InstitutionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InstitutionId");
+
+                    b.ToTable("Subjects");
+                });
+
+            modelBuilder.Entity("SchoolScheduleLibrary.Model.TeacherUnavailability", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date");
+
+                    b.Property<TimeOnly?>("EndTime")
+                        .HasColumnType("time without time zone");
+
+                    b.Property<string>("Reason")
+                        .HasColumnType("text");
+
+                    b.Property<TimeOnly?>("StartTime")
+                        .HasColumnType("time without time zone");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("TeacherId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TeacherId");
+
+                    b.ToTable("TeacherUnavailabilities");
+                });
+
+            modelBuilder.Entity("SchoolScheduleLibrary.Model.Term", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateOnly>("EndDate")
+                        .HasColumnType("date");
+
+                    b.Property<Guid>("InstitutionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateOnly>("StartDate")
+                        .HasColumnType("date");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InstitutionId");
+
+                    b.ToTable("Terms");
+                });
+
             modelBuilder.Entity("SchoolScheduleLibrary.Model.User", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<DateOnly>("Created")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateOnly>("DateOfBirth")
                         .HasColumnType("date");
@@ -42,6 +448,9 @@ namespace SchoolScheduleLibrary.Migrations.ScheduleMigration
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<Guid>("InstitutionId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasColumnType("text");
@@ -50,8 +459,9 @@ namespace SchoolScheduleLibrary.Migrations.ScheduleMigration
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("Role")
-                        .HasColumnType("integer");
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("Username")
                         .IsRequired()
@@ -59,7 +469,296 @@ namespace SchoolScheduleLibrary.Migrations.ScheduleMigration
 
                     b.HasKey("Id");
 
-                    b.ToTable("User");
+                    b.HasIndex("InstitutionId", "Email")
+                        .IsUnique();
+
+                    b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("SchoolScheduleLibrary.Model.Absence", b =>
+                {
+                    b.HasOne("SchoolScheduleLibrary.Model.Lesson", "Lesson")
+                        .WithMany()
+                        .HasForeignKey("LessonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SchoolScheduleLibrary.Model.User", "RegisteredBy")
+                        .WithMany()
+                        .HasForeignKey("RegisteredById")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("SchoolScheduleLibrary.Model.User", "Student")
+                        .WithMany()
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Lesson");
+
+                    b.Navigation("RegisteredBy");
+
+                    b.Navigation("Student");
+                });
+
+            modelBuilder.Entity("SchoolScheduleLibrary.Model.Enrollment", b =>
+                {
+                    b.HasOne("SchoolScheduleLibrary.Model.Hold", "Hold")
+                        .WithMany("Enrollments")
+                        .HasForeignKey("HoldId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SchoolScheduleLibrary.Model.User", "Student")
+                        .WithMany()
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Hold");
+
+                    b.Navigation("Student");
+                });
+
+            modelBuilder.Entity("SchoolScheduleLibrary.Model.GroupTeacher", b =>
+                {
+                    b.HasOne("SchoolScheduleLibrary.Model.Hold", "Hold")
+                        .WithMany("GroupTeachers")
+                        .HasForeignKey("HoldId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SchoolScheduleLibrary.Model.User", "Teacher")
+                        .WithMany()
+                        .HasForeignKey("TeacherId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Hold");
+
+                    b.Navigation("Teacher");
+                });
+
+            modelBuilder.Entity("SchoolScheduleLibrary.Model.Hold", b =>
+                {
+                    b.HasOne("SchoolScheduleLibrary.Model.Institution", "Institution")
+                        .WithMany()
+                        .HasForeignKey("InstitutionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SchoolScheduleLibrary.Model.Subject", "Subject")
+                        .WithMany()
+                        .HasForeignKey("SubjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SchoolScheduleLibrary.Model.Term", "Term")
+                        .WithMany()
+                        .HasForeignKey("TermId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Institution");
+
+                    b.Navigation("Subject");
+
+                    b.Navigation("Term");
+                });
+
+            modelBuilder.Entity("SchoolScheduleLibrary.Model.Lesson", b =>
+                {
+                    b.HasOne("SchoolScheduleLibrary.Model.Hold", "Hold")
+                        .WithMany("Lessons")
+                        .HasForeignKey("HoldId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SchoolScheduleLibrary.Model.Institution", "Institution")
+                        .WithMany()
+                        .HasForeignKey("InstitutionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SchoolScheduleLibrary.Model.Room", "Room")
+                        .WithMany()
+                        .HasForeignKey("RoomId");
+
+                    b.HasOne("SchoolScheduleLibrary.Model.LessonTemplate", "Template")
+                        .WithMany("Lessons")
+                        .HasForeignKey("TemplateId");
+
+                    b.Navigation("Hold");
+
+                    b.Navigation("Institution");
+
+                    b.Navigation("Room");
+
+                    b.Navigation("Template");
+                });
+
+            modelBuilder.Entity("SchoolScheduleLibrary.Model.LessonNote", b =>
+                {
+                    b.HasOne("SchoolScheduleLibrary.Model.User", "Author")
+                        .WithMany()
+                        .HasForeignKey("AuthorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SchoolScheduleLibrary.Model.Lesson", "Lesson")
+                        .WithMany()
+                        .HasForeignKey("LessonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Author");
+
+                    b.Navigation("Lesson");
+                });
+
+            modelBuilder.Entity("SchoolScheduleLibrary.Model.LessonTeacher", b =>
+                {
+                    b.HasOne("SchoolScheduleLibrary.Model.Lesson", "Lesson")
+                        .WithMany()
+                        .HasForeignKey("LessonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SchoolScheduleLibrary.Model.User", "Teacher")
+                        .WithMany()
+                        .HasForeignKey("TeacherId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Lesson");
+
+                    b.Navigation("Teacher");
+                });
+
+            modelBuilder.Entity("SchoolScheduleLibrary.Model.LessonTemplate", b =>
+                {
+                    b.HasOne("SchoolScheduleLibrary.Model.Hold", "Hold")
+                        .WithMany("LessonTemplates")
+                        .HasForeignKey("HoldId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SchoolScheduleLibrary.Model.Institution", "Institution")
+                        .WithMany()
+                        .HasForeignKey("InstitutionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SchoolScheduleLibrary.Model.Period", "Period")
+                        .WithMany()
+                        .HasForeignKey("PeriodId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SchoolScheduleLibrary.Model.Room", "Room")
+                        .WithMany()
+                        .HasForeignKey("RoomId");
+
+                    b.Navigation("Hold");
+
+                    b.Navigation("Institution");
+
+                    b.Navigation("Period");
+
+                    b.Navigation("Room");
+                });
+
+            modelBuilder.Entity("SchoolScheduleLibrary.Model.NonTeachingDay", b =>
+                {
+                    b.HasOne("SchoolScheduleLibrary.Model.Institution", "Institution")
+                        .WithMany()
+                        .HasForeignKey("InstitutionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Institution");
+                });
+
+            modelBuilder.Entity("SchoolScheduleLibrary.Model.Period", b =>
+                {
+                    b.HasOne("SchoolScheduleLibrary.Model.Institution", "Institution")
+                        .WithMany()
+                        .HasForeignKey("InstitutionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Institution");
+                });
+
+            modelBuilder.Entity("SchoolScheduleLibrary.Model.Room", b =>
+                {
+                    b.HasOne("SchoolScheduleLibrary.Model.Institution", "Institution")
+                        .WithMany()
+                        .HasForeignKey("InstitutionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Institution");
+                });
+
+            modelBuilder.Entity("SchoolScheduleLibrary.Model.Subject", b =>
+                {
+                    b.HasOne("SchoolScheduleLibrary.Model.Institution", "Institution")
+                        .WithMany()
+                        .HasForeignKey("InstitutionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Institution");
+                });
+
+            modelBuilder.Entity("SchoolScheduleLibrary.Model.TeacherUnavailability", b =>
+                {
+                    b.HasOne("SchoolScheduleLibrary.Model.User", "Teacher")
+                        .WithMany()
+                        .HasForeignKey("TeacherId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Teacher");
+                });
+
+            modelBuilder.Entity("SchoolScheduleLibrary.Model.Term", b =>
+                {
+                    b.HasOne("SchoolScheduleLibrary.Model.Institution", "Institution")
+                        .WithMany()
+                        .HasForeignKey("InstitutionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Institution");
+                });
+
+            modelBuilder.Entity("SchoolScheduleLibrary.Model.User", b =>
+                {
+                    b.HasOne("SchoolScheduleLibrary.Model.Institution", "Institution")
+                        .WithMany()
+                        .HasForeignKey("InstitutionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Institution");
+                });
+
+            modelBuilder.Entity("SchoolScheduleLibrary.Model.Hold", b =>
+                {
+                    b.Navigation("Enrollments");
+
+                    b.Navigation("GroupTeachers");
+
+                    b.Navigation("LessonTemplates");
+
+                    b.Navigation("Lessons");
+                });
+
+            modelBuilder.Entity("SchoolScheduleLibrary.Model.LessonTemplate", b =>
+                {
+                    b.Navigation("Lessons");
                 });
 #pragma warning restore 612, 618
         }
