@@ -41,6 +41,7 @@ namespace ClassSchedule
             // DI Services
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IInstitutionService, InstitutionService>();
+            builder.Services.AddScoped<ISubjectService, SubjectService>();
             
             // Database Repositories Scoped
             builder.Services.AddScoped<IRedisRepository, RedisRepository>();

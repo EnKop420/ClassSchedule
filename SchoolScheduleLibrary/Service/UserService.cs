@@ -62,12 +62,18 @@ namespace SchoolScheduleLibrary.Service
 
         public async Task Delete(Guid id)
         {
+            
+
             User? user = await _genericRepository.GetByGuid(id);
             if (user != null)
             {
                 if (!await _genericRepository.DeleteById(id))
                 {
                     throw new InternalErrorException("Something went wrong with deleting value! Id matches a user but unknown error");
+                }
+                else
+                {
+                    // TODO DELETE ALL SESSIONS KEY THAT IS ASSOCIATED WITH THE USER ID.
                 }
             }
             else throw new NotFoundException($"No User with this Id \"{id}\" was found");

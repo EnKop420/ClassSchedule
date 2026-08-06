@@ -33,6 +33,8 @@ namespace ClassSchedule.Auth
                     SessionData sessionData = await redisRepository.GetSessionDataFromKey(sessionKey);
                     if (Roles == null || Roles.Length == 0 || Roles.Contains(sessionData.Role))
                     {
+                        // Stores data in a temporary server side dictionary.
+                        context.HttpContext.Items["SessionData"] = sessionData; // Is deleted when request is done.
                         return;
                     }
                 }

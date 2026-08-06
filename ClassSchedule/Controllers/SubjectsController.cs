@@ -16,8 +16,8 @@ namespace ClassSchedule.Controllers
     [Authorize(UserRoles.Admin)]
     public class SubjectsController : BaseController
     {
-        private readonly SubjectService _subjectService;
-        public SubjectsController(SubjectService subjectService)
+        private readonly ISubjectService _subjectService;
+        public SubjectsController(ISubjectService subjectService)
         {
             _subjectService = subjectService;
         }
