@@ -74,17 +74,39 @@ namespace SchoolScheduleLibrary.Context
         }
 
         // Sets the DeleteBehavior to restrict so values can't be deleted before another value is deleted.
-        public static void RestrictDelete(ModelBuilder modelBuilder)
+        public static void DeleteBehaviorOption(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Enrollment>()
                 .HasOne(e => e.Student).WithMany()
                 .HasForeignKey(e => e.StudentId).OnDelete(DeleteBehavior.Restrict);
+
             modelBuilder.Entity<GroupTeacher>()
                 .HasOne(g => g.Teacher).WithMany()
                 .HasForeignKey(g => g.TeacherId).OnDelete(DeleteBehavior.Restrict);
+
             modelBuilder.Entity<LessonTeacher>()
                 .HasOne(lt => lt.Teacher).WithMany()
                 .HasForeignKey(lt => lt.TeacherId).OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Hold>()
+                .HasOne(h => h.Subject).WithMany()
+                .HasForeignKey(h => h.SubjectId).OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Hold>()
+                .HasOne(h => h.Term).WithMany()
+                .HasForeignKey(h => h.TermId).OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<LessonTemplate>()
+                .HasOne(lt => lt.Room).WithMany()
+                .HasForeignKey(lt => lt.RoomId).OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<LessonTemplate>()
+                .HasOne(lt => lt.Period).WithMany()
+                .HasForeignKey(lt => lt.PeriodId).OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Lesson>()
+                .HasOne(lt => lt.Room).WithMany()
+                .HasForeignKey(lt => lt.RoomId).OnDelete(DeleteBehavior.SetNull);
         }
     }
 }
