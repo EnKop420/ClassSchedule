@@ -9,11 +9,13 @@ namespace SchoolScheduleLibrary.Utilities.Auth
     {
         public string UserId { get; set; }
         public UserRoles Role {  get; set; }
+        public string InstitutionId { get; set; }
 
-        public SessionData(string userId, UserRoles role)
+        public SessionData(string userId, UserRoles role, string institutionId)
         {
             UserId = userId;
             Role = role;
+            InstitutionId = institutionId;
         }
     }
 }

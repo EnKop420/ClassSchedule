@@ -37,13 +37,17 @@ namespace ClassSchedule
 
             // DI Scoped
             builder.Services.AddScoped<IEncryptionHandler, EncryptionHandler>();
+
+            // DI Services
+            builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<IInstitutionService, InstitutionService>();
             
             // Database Repositories Scoped
             builder.Services.AddScoped<IRedisRepository, RedisRepository>();
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
 
             // Generic Scoped
             builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-            builder.Services.AddScoped(typeof(IUserService<>), typeof(UserService<>));
 
             builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
             {

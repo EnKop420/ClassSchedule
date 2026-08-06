@@ -9,13 +9,13 @@ using System.Text;
 
 namespace SchoolScheduleLibrary.Service.Interface
 {
-    public interface IUserService<T> where T : class, IUser // T has to be a class and has to implement IUser
+    public interface IUserService
     {
-        public Task Add(T user);
+        public Task Add(CreateUserDTO dto);
 
         public Task Delete(Guid id);
 
-        public Task<IUser> Login(LoginDTO input);
+        public Task<UserDTO> Login(LoginDTO input);
 
         public Task<string> CreateSession(SessionData sessionData, TimeSpan ttl);
     }

@@ -4,5 +4,6 @@ using System.Text;
 
 namespace SchoolScheduleLibrary.DTO
 {
-    public record LoginDTO(string Username, string Password);
+    public record SubjectDTO(Guid Id, string Name);
+    public record CreateSubjectDTO(string Name);
 }
