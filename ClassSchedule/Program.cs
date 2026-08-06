@@ -26,6 +26,18 @@ namespace ClassSchedule
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            // Allowing calls from the Blazor app to the API (CORS)
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowBlazorApp", policy =>
+                {
+                    policy.WithOrigins("https://localhost:7202") // Blazor app URL
+                          .AllowAnyHeader()
+                          .AllowAnyMethod()
+                          .AllowCredentials();
+                });
+            });
+
             Console.WriteLine(builder.Environment.EnvironmentName);
 
             string redisConnection = builder.Configuration.GetConnectionString("RedisConnection");
@@ -59,6 +71,9 @@ namespace ClassSchedule
                 app.MapGet("/", () => Results.Redirect("/swagger"));
                 app.MapOpenApi();
             }
+
+            // Enable CORS for the Blazor app
+            app.UseCors("AllowBlazorApp");
 
             app.UseHttpsRedirection();
 
