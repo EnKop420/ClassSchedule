@@ -34,6 +34,10 @@ namespace SchoolScheduleLibrary.Service
         public async Task<TermDTO> CreateAsync(Guid institutionId, CreateTermDTO dto)
         {
             Term term = new Term { Name = dto.Name, StartDate = dto.StartDate, EndDate = dto.EndDate, InstitutionId = institutionId };
+
+            // Check dates are valid.
+            if (dto.StartDate > dto.EndDate) throw new BadRequestException("Start date has to be before End date!");
+
             await _genericRepository.Create(term);
             return new TermDTO(term.Id, term.Name, term.StartDate, term.EndDate);
         }
@@ -42,13 +46,16 @@ namespace SchoolScheduleLibrary.Service
             Term term = await _genericRepository.GetById(dto.Id) ?? throw new NotFoundException($"Term with ID {dto.Id} does not exist.");
             if (term.InstitutionId != institutionId) throw new BadRequestException("Term is not apart of the Institution!");
 
+            // Check dates are valid.
+            if (dto.StartDate > dto.EndDate) throw new BadRequestException("Start date has to be before End date!");
+
             term.Name = dto.Name;
             term.StartDate = dto.StartDate;
             term.EndDate = dto.EndDate;
 
             Term updatedTerm = await _genericRepository.Update(term);
 
-            return new TermDTO(updatedTerm.Id, updatedTerm.Name, updatedTerm.StartDate, updatedTerm.StartDate);
+            return new TermDTO(updatedTerm.Id, updatedTerm.Name, updatedTerm.StartDate, updatedTerm.EndDate);
         }
 
         public async Task<bool> DeleteAsync(Guid institutionId, Guid id)

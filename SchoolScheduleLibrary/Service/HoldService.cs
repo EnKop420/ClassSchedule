@@ -31,8 +31,7 @@ namespace SchoolScheduleLibrary.Service
 
         public async Task<List<HoldDTO>> GetAllAsync(Guid institutionId)
         {
-            return (await _holdGenericRepository.GetAll())
-                .Where(h => h.InstitutionId == institutionId)
+            return (await _holdRepository.GetAll(institutionId))
                 .Select(h => new HoldDTO(h.Id, h.Name, h.Subject.Name, h.Term.Name)).ToList();
         }
 

@@ -34,6 +34,10 @@ namespace SchoolScheduleLibrary.Service
         public async Task<PeriodDTO> CreateAsync(Guid institutionId, CreatePeriodDTO dto)
         {
             Period period = new Period { Name = dto.Name, StartTime = dto.StartTime, EndTime = dto.EndTime, SortOrder = dto.SortOrder, InstitutionId = institutionId };
+
+            // Check dates are valid.
+            if (dto.StartTime > dto.EndTime) throw new BadRequestException("Start time has to be before End time!");
+
             await _genericRepository.Create(period);
             return new PeriodDTO(period.Id, period.Name, period.StartTime, period.EndTime, period.SortOrder);
         }
@@ -41,6 +45,9 @@ namespace SchoolScheduleLibrary.Service
         {
             Period period = await _genericRepository.GetById(dto.Id) ?? throw new NotFoundException($"Period with ID {dto.Id} does not exist.");
             if (period.InstitutionId != institutionId) throw new BadRequestException("Period is not apart of the Institution!");
+
+            // Check dates are valid.
+            if (dto.StartTime > dto.EndTime) throw new BadRequestException("Start time has to be before End time!");
 
             period.Name = dto.Name;
             period.StartTime = dto.StartTime;

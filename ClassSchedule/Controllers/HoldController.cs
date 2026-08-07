@@ -1,7 +1,9 @@
-﻿using ClassSchedule.Inheritance;
+﻿using ClassSchedule.Auth;
+using ClassSchedule.Inheritance;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SchoolScheduleLibrary.DTO;
+using SchoolScheduleLibrary.Enums;
 using SchoolScheduleLibrary.Service;
 using SchoolScheduleLibrary.Service.Interface;
 using SchoolScheduleLibrary.Utilities.Response;
@@ -10,6 +12,7 @@ namespace ClassSchedule.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(UserRoles.Admin)]
     public class HoldController : BaseController
     {
         private readonly IHoldService _holdService;

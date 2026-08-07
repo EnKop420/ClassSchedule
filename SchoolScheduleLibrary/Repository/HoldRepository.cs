@@ -25,13 +25,22 @@ namespace SchoolScheduleLibrary.Repository
                 .FirstOrDefaultAsync(h => h.Id == id && h.InstitutionId == institutionId);
         }
 
+        public async Task<List<Hold>> GetAll(Guid institutionId)
+        {
+            return await _context.Holds
+                .Where(h => h.InstitutionId == institutionId)
+                .Include(h => h.Subject)
+                .Include(h => h.Term)
+                .ToListAsync();
+        }
+
         public async Task CheckTermAndSubjectForInstitution(Guid institutionId, Guid subjectId, Guid termId)
         {
             bool doesSubjectExist = await _context.Subjects.AnyAsync(s => s.Id == subjectId && s.InstitutionId == institutionId);
             bool doesTermExist = await _context.Terms.AnyAsync(t => t.Id == termId && t.InstitutionId == institutionId);
 
-            if (doesSubjectExist) throw new NotFoundException($"Invalid Subject. No subject exists with id {subjectId} with Institution Id {institutionId}");
-            else if (doesTermExist) throw new NotFoundException($"Invalid Term. No Term exists with id {termId} with Institution Id {institutionId}");
+            if (doesSubjectExist == false) throw new NotFoundException($"Invalid Subject. No subject exists with id {subjectId} with Institution Id {institutionId}");
+            else if (doesTermExist == false) throw new NotFoundException($"Invalid Term. No Term exists with id {termId} with Institution Id {institutionId}");
         }
 
         public async Task<Hold> Update(Hold hold)
