@@ -27,10 +27,10 @@ namespace SchoolScheduleLibrary.Service
             await _genericRepository.Create(institution);
         }
 
-        public async Task<bool> DeleteInstitution(Guid Id)
+        public async Task<bool> DeleteInstitution(Guid id)
         {
-            if (!await _genericRepository.DoesValueExist<Institution>(Id)) throw new NotFoundException($"Institution with Id \"{Id}\" was not found!");
-            return await _genericRepository.DeleteById(Id);
+            if (!await _genericRepository.DoesValueExist(id)) throw new NotFoundException($"Institution with Id \"{id}\" was not found!");
+            return await _genericRepository.DeleteById(id);
         }
 
         public async Task<List<InstitutionDTO>> GetAllInstitutions()
@@ -42,12 +42,23 @@ namespace SchoolScheduleLibrary.Service
                 .ToList();
         }
 
-        public async Task<InstitutionDTO> GetInstitutionById(Guid Id)
+        public async Task<InstitutionDTO> GetInstitutionById(Guid id)
         {
-            Institution? institution = await _genericRepository.GetByGuid(Id);
-            if (institution == null) throw new NotFoundException($"Institution with Id \"{Id}\" was not found!");
+            Institution? institution = await _genericRepository.GetById(id);
+            if (institution == null) throw new NotFoundException($"Institution with Id \"{id}\" was not found!");
 
             return new InstitutionDTO(institution.Id, institution.Name);
+        }
+
+        public async Task<InstitutionDTO> UpdateInstitution(InstitutionDTO dto)
+        {
+            Institution institution = await _genericRepository.GetById(dto.Id) ?? throw new NotFoundException($"Institution with Id \"{dto.Id}\" was not found!");
+
+            institution.Name = dto.Name;
+
+            Institution updatedInstitution = await _genericRepository.Update(institution);
+
+            return new InstitutionDTO(updatedInstitution.Id, updatedInstitution.Name);
         }
     }
 }

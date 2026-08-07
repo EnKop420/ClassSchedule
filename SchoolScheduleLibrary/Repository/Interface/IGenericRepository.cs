@@ -9,13 +9,22 @@ namespace SchoolScheduleLibrary.Repository.Interface
 {
     public interface IGenericRepository<T> where T : class, IBaseEntity
     {
-        public Task<T?> GetByGuid(Guid id);
+
+        public Task<T?> GetById(Guid id);
+
         public Task<List<T>> GetAll();
-        public Task<bool> DoesValueExist<TEntity>(Guid id) where TEntity : class, IBaseEntity;
+
+        public Task<bool> DoesValueExist(Guid id);
+
         public Task<Guid> Create(T entity, bool returnId = true);
+
         public Task<bool> Insert(T entity);
-        public Task<bool> Update(T entity);
+
+        public Task<T> Update(T entity);
+
         public Task<bool> Delete(T entity);
+
         public Task<bool> DeleteById(Guid id);
+
     }
 }

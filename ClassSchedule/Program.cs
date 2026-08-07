@@ -54,10 +54,15 @@ namespace ClassSchedule
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IInstitutionService, InstitutionService>();
             builder.Services.AddScoped<ISubjectService, SubjectService>();
-            
+            builder.Services.AddScoped<IRoomService, RoomService>();
+            builder.Services.AddScoped<IPeriodService, PeriodService>();
+            builder.Services.AddScoped<ITermService, TermService>();
+            builder.Services.AddScoped<IHoldService, HoldService>();
+
             // Database Repositories Scoped
             builder.Services.AddScoped<IRedisRepository, RedisRepository>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
+            builder.Services.AddScoped<IHoldRepository, HoldRepository>();
 
             // Generic Scoped
             builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));

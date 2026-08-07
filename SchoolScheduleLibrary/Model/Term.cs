@@ -5,7 +5,7 @@ using System.Text;
 
 namespace SchoolScheduleLibrary.Model
 {
-    public class Term : IBaseEntity
+    public class Term : IBaseEntity, IInstitutionEntity
     {
         public Guid Id { get; set; } = Guid.NewGuid();
         public string Name { get; set; }

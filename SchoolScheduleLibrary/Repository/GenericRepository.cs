@@ -23,7 +23,7 @@ namespace SchoolScheduleLibrary.Repository
             _context = context;
         }
 
-        public async Task<T?> GetByGuid(Guid id)
+        public async Task<T?> GetById(Guid id)
         {
             return await _context.Set<T>().FirstOrDefaultAsync(e =>
                 e.Id == id
@@ -35,9 +35,9 @@ namespace SchoolScheduleLibrary.Repository
             return await _context.Set<T>().ToListAsync();
         }
 
-        public async Task<bool> DoesValueExist<TEntity>(Guid id) where TEntity : class, IBaseEntity
+        public async Task<bool> DoesValueExist(Guid id)
         {
-            return await _context.Set<TEntity>().AnyAsync(e => e.Id == id);
+            return await _context.Set<T>().AnyAsync(x => x.Id == id);
         }
 
         public async Task<Guid> Create(T entity, bool returnId = true)
@@ -58,10 +58,11 @@ namespace SchoolScheduleLibrary.Repository
             return await _context.Set<T>().Where(e => e.Id == id).ExecuteDeleteAsync() > 0;
         }
 
-        public async Task<bool> Update(T entity)
+        public async Task<T> Update(T entity)
         {
             _context.Set<T>().Update(entity);
-            return await _context.SaveChangesAsync() > 0;
+            await _context.SaveChangesAsync();
+            return entity;
         }
 
         public async Task<bool> Insert(T entity)

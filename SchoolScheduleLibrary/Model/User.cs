@@ -7,7 +7,7 @@ using System.Text;
 
 namespace SchoolScheduleLibrary.Model
 {
-    public class User : IBaseEntity
+    public class User : IBaseEntity, IInstitutionEntity
     {
         public Guid Id { get; set; } = Guid.NewGuid();
         public string FirstName { get; set; }

@@ -17,18 +17,21 @@ namespace SchoolScheduleLibrary.Service
     public class UserService : IUserService
     {
         private readonly IGenericRepository<User> _genericRepository;
+        private readonly IGenericRepository<Institution> _institutionGenericRepository;
         private readonly IUserRepository _userRepository;
         private readonly IEncryptionHandler _encryptionHandler;
         private readonly IRedisRepository _redisRepository;
 
         public UserService(
             IGenericRepository<User> genericRepository,
+            IGenericRepository<Institution> institutionGenericRepository,
             IUserRepository userRepository,
             IEncryptionHandler encryptionHandler,
             IRedisRepository redisRepository
             )
         {
             _genericRepository = genericRepository;
+            _institutionGenericRepository = institutionGenericRepository;
             _userRepository = userRepository;
             _encryptionHandler = encryptionHandler;
             _redisRepository = redisRepository;
@@ -37,7 +40,7 @@ namespace SchoolScheduleLibrary.Service
         public async Task Add(CreateUserDTO input)
         {
             if (!Enum.IsDefined(typeof(UserRoles), input.Role)) throw new BadRequestException("This role is not defined as a valid role!");
-            else if (!await _genericRepository.DoesValueExist<Institution>(input.InstitutionId)) throw new NotFoundException($"No institution exists with Id \"{input.InstitutionId}\".");
+            else if (!await _institutionGenericRepository.DoesValueExist(input.InstitutionId)) throw new NotFoundException($"No institution exists with Id \"{input.InstitutionId}\".");
             string lowerUsername = input.Username.ToLower();
             string hashedPassword = await _encryptionHandler.HashString(input.Password);
             string encryptedEmail = await _encryptionHandler.EncryptString(input.Email);
@@ -64,7 +67,7 @@ namespace SchoolScheduleLibrary.Service
         {
             
 
-            User? user = await _genericRepository.GetByGuid(id);
+            User? user = await _genericRepository.GetById(id);
             if (user != null)
             {
                 if (!await _genericRepository.DeleteById(id))
