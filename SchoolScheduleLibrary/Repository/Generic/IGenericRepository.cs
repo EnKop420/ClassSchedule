@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Text;
 
-namespace SchoolScheduleLibrary.Repository.Generic.Interface
+namespace SchoolScheduleLibrary.Repository.Generic
 {
     public interface IGenericRepository<T> where T : class, IBaseEntity
     {

@@ -2,7 +2,6 @@
 using SchoolScheduleLibrary.Context;
 using SchoolScheduleLibrary.DTO;
 using SchoolScheduleLibrary.Model.Interface;
-using SchoolScheduleLibrary.Repository.Generic.Interface;
 using SchoolScheduleLibrary.Utilities.Encryption;
 using SchoolScheduleLibrary.Utilities.Encryption.Interface;
 using SchoolScheduleLibrary.Utilities.Response;

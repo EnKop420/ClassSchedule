@@ -2,7 +2,7 @@
 using SchoolScheduleLibrary.Enums;
 using SchoolScheduleLibrary.Model;
 using SchoolScheduleLibrary.Model.Interface;
-using SchoolScheduleLibrary.Repository.Generic.Interface;
+using SchoolScheduleLibrary.Repository.Generic;
 using SchoolScheduleLibrary.Repository.Interface;
 using SchoolScheduleLibrary.Service.Interface;
 using SchoolScheduleLibrary.Utilities.Auth;

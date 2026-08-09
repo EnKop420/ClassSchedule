@@ -2,7 +2,6 @@
 using SchoolScheduleLibrary.Model;
 using SchoolScheduleLibrary.Repository;
 using SchoolScheduleLibrary.Repository.Generic;
-using SchoolScheduleLibrary.Repository.Generic.Interface;
 using SchoolScheduleLibrary.Repository.Interface;
 using SchoolScheduleLibrary.Service.Interface;
 using System;

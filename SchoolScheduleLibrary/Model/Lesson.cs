@@ -30,5 +30,6 @@ namespace SchoolScheduleLibrary.Model
         public Guid? RoomId { get; set; }
         public Room? Room { get; set; }
 
+        public List<LessonTeacher> Teachers { get; set; } = new();
     }
 }

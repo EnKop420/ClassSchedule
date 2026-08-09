@@ -1,6 +1,6 @@
 ﻿using SchoolScheduleLibrary.DTO;
 using SchoolScheduleLibrary.Model;
-using SchoolScheduleLibrary.Repository.Generic.Interface;
+using SchoolScheduleLibrary.Repository.Generic;
 using SchoolScheduleLibrary.Service.Interface;
 using System;
 using System.Collections.Generic;
