@@ -1,6 +1,6 @@
 ﻿using SchoolScheduleLibrary.DTO;
 using SchoolScheduleLibrary.Model;
-using SchoolScheduleLibrary.Repository.Interface;
+using SchoolScheduleLibrary.Repository.Generic.Interface;
 using SchoolScheduleLibrary.Service.Interface;
 using System;
 using System.Collections.Generic;
@@ -16,6 +16,7 @@ namespace SchoolScheduleLibrary.Service
         {
             _genericRepository = genericRepository;
         }
+
         public async Task<List<SubjectDTO>> GetAllAsync(Guid institutionId)
         {
             return (await _genericRepository.GetAll())
@@ -25,22 +26,23 @@ namespace SchoolScheduleLibrary.Service
 
         public async Task<SubjectDTO> GetByIdAsync(Guid institutionId, Guid id)
         {
-            Subject subject = await _genericRepository.GetById(id) ?? throw new NotFoundException($"Subject with ID {id} does not exist.");
-            if (subject.InstitutionId != institutionId) throw new BadRequestException("Subject is not apart of the Institution!");
+            Subject subject = await _genericRepository.GetById(s => s.Id == id && s.InstitutionId == institutionId)
+                ?? throw new NotFoundException($"Could not get Subject with Id \"{id}\" in the Institution with Id \"{institutionId}\"");
 
             return new SubjectDTO(subject.Id, subject.Name);
         }
 
         public async Task<SubjectDTO> CreateAsync(Guid institutionId, CreateSubjectDTO dto)
         {
-            Subject subject = new Subject { Name = dto.Name, InstitutionId = institutionId };
+            Subject subject = new(dto.Name, institutionId);
+
             await _genericRepository.Create(subject);
             return new SubjectDTO(subject.Id, subject.Name);
         }
         public async Task<SubjectDTO> UpdateAsync(Guid institutionId, SubjectDTO dto)
         {
-            Subject subject = await _genericRepository.GetById(dto.Id) ?? throw new NotFoundException($"Subject with ID {dto.Id} does not exist.");
-            if (subject.InstitutionId != institutionId) throw new BadRequestException("Subject is not apart of the Institution!");
+            Subject subject = await _genericRepository.GetById(s => s.Id == dto.Id && s.InstitutionId == institutionId)
+                ?? throw new NotFoundException($"Could not get Subject with Id \"{dto.Id}\" in the Institution with Id \"{institutionId}\"");
 
             subject.Name = dto.Name;
 
@@ -51,10 +53,12 @@ namespace SchoolScheduleLibrary.Service
 
         public async Task<bool> DeleteAsync(Guid institutionId, Guid id)
         {
-            Subject subject = await _genericRepository.GetById(id) ?? throw new NotFoundException($"Subject with ID {id} does not exist.");
-            if (subject.InstitutionId != institutionId) throw new BadRequestException("Subject is not apart of the Institution!");
+            if (!await _genericRepository.DoesValueExist(t => t.Id == id && t.InstitutionId == institutionId))
+            {
+                throw new NotFoundException($"Could not find Subject with Id \"{id}\" in the Institution with Id \"{institutionId}\"");
+            }
 
-            return await _genericRepository.Delete(subject);
+            return await _genericRepository.DeleteById(id);
         }
     }
 }

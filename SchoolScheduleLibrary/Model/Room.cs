@@ -15,5 +15,12 @@ namespace SchoolScheduleLibrary.Model
 
         public Guid InstitutionId { get; set; }
         public Institution Institution { get; set; } = null!;
+
+        public Room(string name, int? capacity, Guid institutionId)
+        {
+            Name = name;
+            Capacity = capacity;
+            InstitutionId = institutionId;
+        }
     }
 }

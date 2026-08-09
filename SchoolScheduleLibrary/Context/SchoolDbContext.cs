@@ -32,14 +32,7 @@ namespace SchoolScheduleLibrary.Context
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            Type type = typeof(ModelBuilderUtility);
-
-            MethodInfo[] methods = type.GetMethods(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly);
-
-            foreach (MethodInfo method in methods)
-            {
-                method.Invoke(null, new object[] { modelBuilder });
-            }
+            ModelBuilderUtility.ApplyModelBuilder(modelBuilder);
         }
     }
 }

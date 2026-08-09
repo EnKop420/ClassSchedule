@@ -14,5 +14,13 @@ namespace SchoolScheduleLibrary.Model
 
         public Guid InstitutionId { get; set; }
         public Institution Institution { get; set; }
+
+        public Term(string name, DateOnly startDate, DateOnly endDate, Guid institutionId)
+        {
+            Name = name;
+            StartDate = startDate;
+            EndDate = endDate;
+            InstitutionId = institutionId;
+        }
     }
 }

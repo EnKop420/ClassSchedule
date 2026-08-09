@@ -255,7 +255,7 @@ namespace SchoolScheduleLibrary.Migrations.ScheduleMigration
                     b.Property<DateOnly>("ValidTo")
                         .HasColumnType("date");
 
-                    b.Property<int>("Weekday")
+                    b.Property<int>("WeekDay")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
@@ -550,13 +550,13 @@ namespace SchoolScheduleLibrary.Migrations.ScheduleMigration
                     b.HasOne("SchoolScheduleLibrary.Model.Subject", "Subject")
                         .WithMany()
                         .HasForeignKey("SubjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("SchoolScheduleLibrary.Model.Term", "Term")
                         .WithMany()
                         .HasForeignKey("TermId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Institution");
@@ -582,7 +582,8 @@ namespace SchoolScheduleLibrary.Migrations.ScheduleMigration
 
                     b.HasOne("SchoolScheduleLibrary.Model.Room", "Room")
                         .WithMany()
-                        .HasForeignKey("RoomId");
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("SchoolScheduleLibrary.Model.LessonTemplate", "Template")
                         .WithMany("Lessons")
@@ -652,12 +653,13 @@ namespace SchoolScheduleLibrary.Migrations.ScheduleMigration
                     b.HasOne("SchoolScheduleLibrary.Model.Period", "Period")
                         .WithMany()
                         .HasForeignKey("PeriodId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("SchoolScheduleLibrary.Model.Room", "Room")
                         .WithMany()
-                        .HasForeignKey("RoomId");
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Hold");
 

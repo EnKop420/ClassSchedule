@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using SchoolScheduleLibrary.Context;
 using SchoolScheduleLibrary.Model;
 using SchoolScheduleLibrary.Repository;
+using SchoolScheduleLibrary.Repository.Generic;
+using SchoolScheduleLibrary.Repository.Generic.Interface;
 using SchoolScheduleLibrary.Repository.Interface;
 using SchoolScheduleLibrary.Service;
 using SchoolScheduleLibrary.Service.Interface;
@@ -58,11 +60,11 @@ namespace ClassSchedule
             builder.Services.AddScoped<IPeriodService, PeriodService>();
             builder.Services.AddScoped<ITermService, TermService>();
             builder.Services.AddScoped<IHoldService, HoldService>();
+            builder.Services.AddScoped<ILessonTemplateService, LessonTemplateService>();
 
             // Database Repositories Scoped
             builder.Services.AddScoped<IRedisRepository, RedisRepository>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
-            builder.Services.AddScoped<IHoldRepository, HoldRepository>();
 
             // Generic Scoped
             builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));

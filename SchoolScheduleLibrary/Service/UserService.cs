@@ -2,6 +2,7 @@
 using SchoolScheduleLibrary.Enums;
 using SchoolScheduleLibrary.Model;
 using SchoolScheduleLibrary.Model.Interface;
+using SchoolScheduleLibrary.Repository.Generic.Interface;
 using SchoolScheduleLibrary.Repository.Interface;
 using SchoolScheduleLibrary.Service.Interface;
 using SchoolScheduleLibrary.Utilities.Auth;
@@ -40,7 +41,8 @@ namespace SchoolScheduleLibrary.Service
         public async Task Add(CreateUserDTO input)
         {
             if (!Enum.IsDefined(typeof(UserRoles), input.Role)) throw new BadRequestException("This role is not defined as a valid role!");
-            else if (!await _institutionGenericRepository.DoesValueExist(input.InstitutionId)) throw new NotFoundException($"No institution exists with Id \"{input.InstitutionId}\".");
+            else if (!await _institutionGenericRepository.DoesValueExist(u => u.Id == input.InstitutionId)) throw new NotFoundException($"No institution exists with Id \"{input.InstitutionId}\".");
+
             string lowerUsername = input.Username.ToLower();
             string hashedPassword = await _encryptionHandler.HashString(input.Password);
             string encryptedEmail = await _encryptionHandler.EncryptString(input.Email);
@@ -48,17 +50,16 @@ namespace SchoolScheduleLibrary.Service
             bool doesUsernameExist = await _userRepository.DoesUsernameExist(lowerUsername);
             if (doesUsernameExist) throw new ConflictException("Username already exists!");
 
-            User user = new User
-            {
-                FirstName = input.FirstName,
-                LastName = input.LastName,
-                DateOfBirth = input.DateOfBirth,
-                Username = lowerUsername,
-                Password = hashedPassword,
-                Email = encryptedEmail,
-                Role = input.Role,
-                InstitutionId = input.InstitutionId
-            };
+            User user = new(
+                input.FirstName,
+                input.LastName,
+                input.DateOfBirth,
+                lowerUsername,
+                hashedPassword,
+                encryptedEmail,
+                input.Role,
+                input.InstitutionId
+            );
 
             await _genericRepository.Create(user);
         }
@@ -67,7 +68,7 @@ namespace SchoolScheduleLibrary.Service
         {
             
 
-            User? user = await _genericRepository.GetById(id);
+            User? user = await _genericRepository.GetById(u => u.Id == id);
             if (user != null)
             {
                 if (!await _genericRepository.DeleteById(id))

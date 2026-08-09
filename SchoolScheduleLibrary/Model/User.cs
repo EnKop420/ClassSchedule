@@ -23,5 +23,26 @@ namespace SchoolScheduleLibrary.Model
 
         public Guid InstitutionId { get; set; }
         public Institution Institution { get; set; } = null!;
+
+        public User(
+            string firstName,
+            string lastName,
+            DateOnly dateOfBirth,
+            string username,
+            string password,
+            string email,
+            UserRoles role,
+            Guid institutionId
+        )
+        {
+            FirstName = firstName;
+            LastName = lastName;
+            DateOfBirth = dateOfBirth;
+            Username = username;
+            Password = password;
+            Email = email;
+            Role = role;
+            InstitutionId = institutionId;
+        }
     }
 }

@@ -2,7 +2,7 @@
 using SchoolScheduleLibrary.Context;
 using SchoolScheduleLibrary.DTO;
 using SchoolScheduleLibrary.Model.Interface;
-using SchoolScheduleLibrary.Repository.Interface;
+using SchoolScheduleLibrary.Repository.Generic.Interface;
 using SchoolScheduleLibrary.Utilities.Encryption;
 using SchoolScheduleLibrary.Utilities.Encryption.Interface;
 using SchoolScheduleLibrary.Utilities.Response;
@@ -11,7 +11,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Text;
 
-namespace SchoolScheduleLibrary.Repository
+namespace SchoolScheduleLibrary.Repository.Generic
 {
     // T can be any type, as long as it inherits from BaseEntity. This ensures that T has an Id property of type Guid.
     public class GenericRepository<T> : IGenericRepository<T> where T : class, IBaseEntity
@@ -23,21 +23,60 @@ namespace SchoolScheduleLibrary.Repository
             _context = context;
         }
 
-        public async Task<T?> GetById(Guid id)
+        public async Task<T?> GetById(
+            Expression<Func<T, bool>>? predicate = null,
+            params Expression<Func<T, object>>[] includes)
         {
-            return await _context.Set<T>().FirstOrDefaultAsync(e =>
-                e.Id == id
-            );
+            IQueryable<T> query = _context.Set<T>();
+
+            if (includes != null)
+            {
+                foreach (var include in includes)
+                {
+                    query = query.Include(include);
+                }
+            }
+
+            if (predicate != null)
+            {
+                query = query.Where(predicate);
+            }
+
+            return await query.FirstOrDefaultAsync();
         }
 
-        public async Task<List<T>> GetAll()
+        public async Task<List<T>> GetAll(
+            Expression<Func<T, bool>>? predicate = null,
+            params Expression<Func<T, object>>[] includes)
         {
-            return await _context.Set<T>().ToListAsync();
+            IQueryable<T> query = _context.Set<T>();
+
+            if (includes != null)
+            {
+                foreach (var include in includes)
+                {
+                    query = query.Include(include);
+                }
+            }
+
+            if (predicate != null)
+            {
+                query = query.Where(predicate);
+            }
+
+            return await query.ToListAsync();
         }
 
-        public async Task<bool> DoesValueExist(Guid id)
+        public async Task<bool> DoesValueExist(Expression<Func<T, bool>>? predicate = null)
         {
-            return await _context.Set<T>().AnyAsync(x => x.Id == id);
+            IQueryable<T> query = _context.Set<T>();
+
+            if (predicate != null)
+            {
+                query = query.Where(predicate);
+            }
+
+            return await query.AnyAsync();
         }
 
         public async Task<Guid> Create(T entity, bool returnId = true)

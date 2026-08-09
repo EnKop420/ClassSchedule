@@ -17,5 +17,14 @@ namespace SchoolScheduleLibrary.Model
 
         public Guid InstitutionId { get; set; }
         public Institution Institution { get; set; } = null!;
+
+        public Period(string name, TimeOnly startTime, TimeOnly endTime, int sortOrder, Guid institutionId)
+        {
+            Name = name;
+            StartTime = startTime;
+            EndTime = endTime;
+            SortOrder = sortOrder;
+            InstitutionId = institutionId;
+        }
     }
 }

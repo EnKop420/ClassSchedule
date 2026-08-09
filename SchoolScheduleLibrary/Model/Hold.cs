@@ -26,5 +26,13 @@ namespace SchoolScheduleLibrary.Model
         public List<GroupTeacher> GroupTeachers { get; set; } = new();
         public List<Lesson> Lessons { get; set; } = new();
         public List<LessonTemplate> LessonTemplates { get; set; } = new();
+
+        public Hold(string name, Guid institutionId, Guid termId, Guid subjectId)
+        {
+            Name = name;
+            InstitutionId = institutionId;
+            TermId = termId;
+            SubjectId = subjectId;
+        }
     }
 }

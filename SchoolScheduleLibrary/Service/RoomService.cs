@@ -1,6 +1,6 @@
 ﻿using SchoolScheduleLibrary.DTO;
 using SchoolScheduleLibrary.Model;
-using SchoolScheduleLibrary.Repository.Interface;
+using SchoolScheduleLibrary.Repository.Generic.Interface;
 using SchoolScheduleLibrary.Service.Interface;
 using System;
 using System.Collections.Generic;
@@ -12,13 +12,14 @@ namespace SchoolScheduleLibrary.Service
     public class RoomService : IRoomService
     {
         private readonly IGenericRepository<Room> _genericRepository;
+
         public RoomService(IGenericRepository<Room> genericRepository)
         {
             _genericRepository = genericRepository;
         }
         public async Task<RoomDTO> CreateAsync(Guid institutionId, CreateRoomDTO dto)
         {
-            Room room = new Room { Name = dto.Name, Capacity = dto.Capacity, InstitutionId = institutionId };
+            Room room = new(dto.Name, dto.Capacity, institutionId);
             await _genericRepository.Create(room);
             return new RoomDTO(room.Id, room.Name, room.Capacity);
         }
@@ -32,15 +33,15 @@ namespace SchoolScheduleLibrary.Service
 
         public async Task<RoomDTO> GetByIdAsync(Guid institutionId, Guid id)
         {
-            Room room = await _genericRepository.GetById(id) ?? throw new NotFoundException($"Room with ID {id} does not exist.");
-            if (room.InstitutionId != institutionId) throw new BadRequestException("Room is not apart of the Institution!");
+            Room room = await _genericRepository.GetById(r => r.Id == id && r.InstitutionId == institutionId)
+                ?? throw new NotFoundException($"Could not get Room with Id \"{id}\" in the Institution with Id \"{institutionId}\"");
 
             return new RoomDTO(room.Id, room.Name, room.Capacity);
         }
         public async Task<RoomDTO> UpdateAsync(Guid institutionId, RoomDTO dto)
         {
-            Room room = await _genericRepository.GetById(dto.Id) ?? throw new NotFoundException($"Room with ID {dto.Id} does not exist.");
-            if (room.InstitutionId != institutionId) throw new BadRequestException("Room is not apart of the Institution!");
+            Room room = await _genericRepository.GetById(r => r.Id == dto.Id && r.InstitutionId == institutionId)
+                ?? throw new NotFoundException($"Could not get Room with Id \"{dto.Id}\" in the Institution with Id \"{institutionId}\"");
 
             room.Name = dto.Name;
             room.Capacity = dto.Capacity;
@@ -52,10 +53,12 @@ namespace SchoolScheduleLibrary.Service
 
         public async Task<bool> DeleteAsync(Guid institutionId, Guid id)
         {
-            Room room = await _genericRepository.GetById(id) ?? throw new NotFoundException($"Room with ID {id} does not exist.");
-            if (room.InstitutionId != institutionId) throw new BadRequestException("Room is not apart of the Institution!");
+            if (!await _genericRepository.DoesValueExist(t => t.Id == id && t.InstitutionId == institutionId))
+            {
+                throw new NotFoundException($"Could not find Room with Id \"{id}\" in the Institution with Id \"{institutionId}\"");
+            }
 
-            return await _genericRepository.Delete(room);
+            return await _genericRepository.DeleteById(id);
         }
     }
 }

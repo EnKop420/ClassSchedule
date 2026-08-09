@@ -1,6 +1,6 @@
 ﻿using SchoolScheduleLibrary.DTO;
 using SchoolScheduleLibrary.Model;
-using SchoolScheduleLibrary.Repository.Interface;
+using SchoolScheduleLibrary.Repository.Generic.Interface;
 using SchoolScheduleLibrary.Service.Interface;
 using System;
 using System.Collections.Generic;
@@ -12,6 +12,7 @@ namespace SchoolScheduleLibrary.Service
     public class TermService : ITermService
     {
         private readonly IGenericRepository<Term> _genericRepository;
+
         public TermService(IGenericRepository<Term> genericRepository)
         {
             _genericRepository = genericRepository;
@@ -25,15 +26,15 @@ namespace SchoolScheduleLibrary.Service
 
         public async Task<TermDTO> GetByIdAsync(Guid institutionId, Guid id)
         {
-            Term term = await _genericRepository.GetById(id) ?? throw new NotFoundException($"Term with ID {id} does not exist.");
-            if (term.InstitutionId != institutionId) throw new BadRequestException("Term is not apart of the Institution!");
+            Term term = await _genericRepository.GetById(t => t.Id == id && t.InstitutionId == institutionId)
+                ?? throw new NotFoundException($"Could not get Term with Id \"{id}\" in the Institution with Id \"{institutionId}\"");
 
             return new TermDTO(term.Id, term.Name, term.StartDate, term.StartDate);
         }
 
         public async Task<TermDTO> CreateAsync(Guid institutionId, CreateTermDTO dto)
         {
-            Term term = new Term { Name = dto.Name, StartDate = dto.StartDate, EndDate = dto.EndDate, InstitutionId = institutionId };
+            Term term = new(dto.Name, dto.StartDate, dto.EndDate, institutionId);
 
             // Check dates are valid.
             if (dto.StartDate > dto.EndDate) throw new BadRequestException("Start date has to be before End date!");
@@ -43,8 +44,8 @@ namespace SchoolScheduleLibrary.Service
         }
         public async Task<TermDTO> UpdateAsync(Guid institutionId, TermDTO dto)
         {
-            Term term = await _genericRepository.GetById(dto.Id) ?? throw new NotFoundException($"Term with ID {dto.Id} does not exist.");
-            if (term.InstitutionId != institutionId) throw new BadRequestException("Term is not apart of the Institution!");
+            Term term = await _genericRepository.GetById(t => t.Id == dto.Id && t.InstitutionId == institutionId)
+                ?? throw new NotFoundException($"Could not get Term with Id \"{dto.Id}\" in the Institution with Id \"{institutionId}\"");
 
             // Check dates are valid.
             if (dto.StartDate > dto.EndDate) throw new BadRequestException("Start date has to be before End date!");
@@ -60,10 +61,12 @@ namespace SchoolScheduleLibrary.Service
 
         public async Task<bool> DeleteAsync(Guid institutionId, Guid id)
         {
-            Term term = await _genericRepository.GetById(id) ?? throw new NotFoundException($"Term with ID {id} does not exist.");
-            if (term.InstitutionId != institutionId) throw new BadRequestException("Term is not apart of the Institution!");
+            if (!await _genericRepository.DoesValueExist(t => t.Id == id && t.InstitutionId == institutionId))
+            {
+                throw new NotFoundException($"Could not find Term with Id \"{id}\" in the Institution with Id \"{institutionId}\"");
+            }
 
-            return await _genericRepository.Delete(term);
+            return await _genericRepository.DeleteById(id);
         }
     }
 }

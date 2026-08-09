@@ -14,5 +14,11 @@ namespace SchoolScheduleLibrary.Model
 
         public Guid InstitutionId { get; set; }
         public Institution Institution { get; set; } = null!;
+
+        public Subject(string name, Guid institutionId)
+        {
+            Name = name;
+            InstitutionId = institutionId;
+        }
     }
 }
