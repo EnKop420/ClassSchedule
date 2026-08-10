@@ -27,7 +27,8 @@ namespace SchoolScheduleLibrary.Service
 
         public async Task<int> GenerateForTermAsync(Guid institutionId, Guid termId)
         {
-
+            throw new NotImplementedException();
         }
+
     }
 }
