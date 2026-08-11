@@ -7,7 +7,7 @@ namespace SchoolScheduleLibrary.Repository.Interface
 {
     public interface IRedisRepository
     {
-        public Task<string> AddSessionToDB(SessionData sessionData, TimeSpan ttl);
+        public Task<bool> AddSessionToDB(string key, string sessionValue, TimeSpan ttl);
 
         public Task<SessionData> GetSessionDataFromKey(string key);
 

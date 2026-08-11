@@ -15,7 +15,8 @@ namespace SchoolScheduleLibrary.DTO
         [EmailAddress] string Email,
         DateTime CreatedAt,
         UserRoles Role,
-        Guid InstitutionId
+        Guid InstitutionId,
+        string InstitutionName
     );
 
     public record CreateUserDTO(

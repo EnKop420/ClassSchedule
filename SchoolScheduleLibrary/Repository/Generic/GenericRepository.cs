@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SchoolScheduleLibrary.Context;
 using SchoolScheduleLibrary.DTO;
+using SchoolScheduleLibrary.Enums;
 using SchoolScheduleLibrary.Model.Interface;
 using SchoolScheduleLibrary.Utilities.Encryption;
 using SchoolScheduleLibrary.Utilities.Encryption.Interface;
@@ -13,7 +14,7 @@ using System.Text;
 namespace SchoolScheduleLibrary.Repository.Generic
 {
     // T can be any type, as long as it inherits from BaseEntity. This ensures that T has an Id property of type Guid.
-    public class GenericRepository<T> : IGenericRepository<T> where T : class, IBaseEntity
+    public class GenericRepository<T> : IGenericRepository<T> where T : class
     {
         private readonly SchoolDbContext _context;
 
@@ -22,7 +23,7 @@ namespace SchoolScheduleLibrary.Repository.Generic
             _context = context;
         }
 
-        public async Task<T?> GetById(
+        public async Task<T?> Get(
             Expression<Func<T, bool>>? predicate = null,
             params Expression<Func<T, object>>[] includes)
         {
@@ -78,22 +79,15 @@ namespace SchoolScheduleLibrary.Repository.Generic
             return await query.AnyAsync();
         }
 
-        public async Task<Guid> Create(T entity, bool returnId = true)
+        public async Task<bool> Add(T entity)
         {
             await _context.Set<T>().AddAsync(entity);
-            await _context.SaveChangesAsync();
-            if (returnId) return entity.Id;
-            else return Guid.Empty;
+            return await _context.SaveChangesAsync() > 0;
         }
 
-        public async Task<bool> Delete(T entity)
+        public async Task<bool> Delete(Expression<Func<T, bool>> predicate)
         {
-            return await _context.Set<T>().Where(e => e.Id == entity.Id).ExecuteDeleteAsync() > 0;
-        }
-
-        public async Task<bool> DeleteById(Guid id)
-        {
-            return await _context.Set<T>().Where(e => e.Id == id).ExecuteDeleteAsync() > 0;
+            return await _context.Set<T>().Where(predicate).ExecuteDeleteAsync() > 0;
         }
 
         public async Task<T> Update(T entity)
@@ -103,9 +97,18 @@ namespace SchoolScheduleLibrary.Repository.Generic
             return entity;
         }
 
-        public async Task<bool> Insert(T entity)
+        public async Task<bool> AddRange(List<T> entities)
         {
-            await _context.Set<T>().AddAsync(entity);
+            if (entities.Count == 0) return false; // Skip
+            await _context.Set<T>().AddRangeAsync(entities);
+            return await _context.SaveChangesAsync() > 0;
+        }
+
+        public async Task<bool> RemoveRange(List<T> entities)
+        {
+            if (entities.Count == 0) return false; // Skip
+            _context.Set<T>().RemoveRange(entities);
+
             return await _context.SaveChangesAsync() > 0;
         }
     }

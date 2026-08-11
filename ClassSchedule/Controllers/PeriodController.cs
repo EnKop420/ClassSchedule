@@ -10,7 +10,7 @@ using SchoolScheduleLibrary.Utilities.Response;
 
 namespace ClassSchedule.Controllers
 {
-    [Route("api/period")]
+    [Route("api/Period")]
     [ApiController]
     [Authorize(UserRoles.Admin)]
     public class PeriodController : BaseController

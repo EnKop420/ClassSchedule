@@ -10,7 +10,7 @@ using SchoolScheduleLibrary.Utilities.Response;
 
 namespace ClassSchedule.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/Hold")]
     [ApiController]
     [Authorize(UserRoles.Admin)]
     public class HoldController : BaseController

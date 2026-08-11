@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
+﻿using ClassSchedule.Inheritance;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using SchoolScheduleLibrary.DTO;
 using SchoolScheduleLibrary.Enums;
@@ -10,9 +12,9 @@ using AuthorizeAttribute = ClassSchedule.Auth.AuthorizeAttribute;
 
 namespace ClassSchedule.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/User")]
     [ApiController]
-    public class UserController : ControllerBase
+    public class UserController : BaseController
     {
         private readonly IUserService _userService;
         public UserController(IUserService userService)
@@ -49,7 +51,7 @@ namespace ClassSchedule.Controllers
                 SessionData data = new(userDTO.Id.ToString(), userDTO.Role, userDTO.InstitutionId.ToString());
                 string sessionKey = await _userService.CreateSession(data, TimeSpan.FromDays(ttlDays));
 
-                CookieOptions cookieOptions = new CookieOptions
+                CookieOptions sessionCookieOption = new CookieOptions
                 {
                     HttpOnly = true,
                     //Secure = true, // Only sent over HTTPS. But for development this is disabled.
@@ -57,7 +59,18 @@ namespace ClassSchedule.Controllers
                     Expires = DateTime.UtcNow.AddDays(ttlDays)
                 };
 
-                Response.Cookies.Append("SchoolSession", sessionKey, cookieOptions);
+                //CookieOptions normalCookieOption = new CookieOptions
+                //{
+                //    HttpOnly = false,
+                //    //Secure = true, // Only sent over HTTPS. But for development this is disabled.
+                //    SameSite = SameSiteMode.Strict,
+                //    Expires = DateTime.UtcNow.AddDays(ttlDays)
+                //};
+
+                //UserCookieData userCookieData = new(userDTO.FirstName, userDTO.LastName, userDTO.DateOfBirth, user)
+
+                Response.Cookies.Append("SchoolSession", sessionKey, sessionCookieOption);
+                //Response.Cookies.Append("SchoolSchedule", , sessionCookieOption);
 
                 return Ok(userDTO);
             }
@@ -79,6 +92,43 @@ namespace ClassSchedule.Controllers
             {
                 await _userService.Delete(id);
                 return Ok();
+            }
+            catch (HttpResponseException hre)
+            {
+                return StatusCode((int)hre.StatusCode, hre.ResponseMessage);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [Authorize(UserRoles.Admin, UserRoles.Teacher, UserRoles.Student)]
+        [HttpGet("Get-User-Information")]
+        public async Task<IActionResult> GetUserInformation(Guid id)
+        {
+            try
+            {
+                return Ok(await _userService.GetUserInfo(id, CurrentUserId, CurrentUserRole));
+            }
+            catch (HttpResponseException hre)
+            {
+                return StatusCode((int)hre.StatusCode, hre.ResponseMessage);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        // Development Function will not be included in the real production endpoint.
+        [LocalhostOnly]
+        [HttpGet("Get-All-Users")]
+        public async Task<IActionResult> GetAllUsers([FromQuery] Guid institutionId)
+        {
+            try
+            {
+                return Ok(await _userService.GetAllUsers(institutionId));
             }
             catch (HttpResponseException hre)
             {

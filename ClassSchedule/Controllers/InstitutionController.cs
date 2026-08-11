@@ -11,15 +11,13 @@ using System.Xml.Linq;
 
 namespace ClassSchedule.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/Institution")]
     [ApiController]
 
     /**
      * Institution Controller made to perform CRUD action on the Institution data.
      * This data can only be created, modified or deleted from the Localhost port to limit its usage to only us "Product Owners"
-     * The "Get" is available to all roles (Student, Teacher, Admin). However the "Get All" is still locked for "Product Owners"
-     * 
-     * 
+     * The "Get" is available to all roles (Student, Teacher, Admin). However the "Get All" is still locked and only usable by "Product Owners"
      */
     public class InstitutionController : ControllerBase
     {

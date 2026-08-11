@@ -4,30 +4,28 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SchoolScheduleLibrary.DTO;
 using SchoolScheduleLibrary.Enums;
-using SchoolScheduleLibrary.Model;
-using SchoolScheduleLibrary.Service;
 using SchoolScheduleLibrary.Service.Interface;
 using SchoolScheduleLibrary.Utilities.Response;
 
 namespace ClassSchedule.Controllers
 {
-    [Route("api/Subject")]
+    [Route("api/holds/{holdId}")]
     [ApiController]
     [Authorize(UserRoles.Admin)]
-    public class SubjectsController : BaseController
+    public class HoldMemberController : BaseController
     {
-        private readonly ISubjectService _subjectService;
-        public SubjectsController(ISubjectService subjectService)
+        private readonly IHoldMemberService _holdMemberService;
+        public HoldMemberController(IHoldMemberService holdMemberService)
         {
-            _subjectService = subjectService;
+            _holdMemberService = holdMemberService;
         }
 
-        [HttpGet("get-all-subjects")]
-        public async Task<IActionResult> GetAll()
+        [HttpPost("teacher/{teacherId}")]
+        public async Task<IActionResult> GroupTeacher(Guid holdId, Guid teacherId)
         {
             try
             {
-                return Ok(await _subjectService.GetAllAsync(CurrentInstitutionId));
+                return Ok(await _holdMemberService.GroupTeacherAsync(CurrentInstitutionId, holdId, teacherId));
             }
             catch (HttpResponseException hre)
             {
@@ -39,12 +37,12 @@ namespace ClassSchedule.Controllers
             }
         }
 
-        [HttpGet("get-subject")]
-        public async Task<IActionResult> GetById([FromQuery] Guid id)
+        [HttpDelete("teacher/{teacherId}")]
+        public async Task<IActionResult> UngroupTeacher(Guid holdId, Guid teacherId)
         {
             try
             {
-                return Ok(await _subjectService.GetByIdAsync(CurrentInstitutionId, id));
+                return Ok(await _holdMemberService.UngroupTeacherAsync(CurrentInstitutionId, holdId, teacherId));
             }
             catch (HttpResponseException hre)
             {
@@ -56,12 +54,12 @@ namespace ClassSchedule.Controllers
             }
         }
 
-        [HttpPost("create-subject")]
-        public async Task<IActionResult> Create([FromBody] CreateSubjectDTO dto)
+        [HttpGet("teacher")]
+        public async Task<IActionResult> GetGroupedTeachers(Guid holdId)
         {
             try
             {
-                return Ok(await _subjectService.CreateAsync(CurrentInstitutionId, dto));
+                return Ok(await _holdMemberService.GetTeachersAsync(holdId));
             }
             catch (HttpResponseException hre)
             {
@@ -73,12 +71,12 @@ namespace ClassSchedule.Controllers
             }
         }
 
-        [HttpPut("update-subject")]
-        public async Task<IActionResult> Update([FromBody] SubjectDTO dto)
+        [HttpPost("student/{studentId}")]
+        public async Task<IActionResult> EnrollStudent(Guid holdId, Guid studentId)
         {
             try
             {
-                return Ok(await _subjectService.UpdateAsync(CurrentInstitutionId, dto));
+                return Ok(await _holdMemberService.EnrollStudentAsync(CurrentInstitutionId, holdId, studentId));
             }
             catch (HttpResponseException hre)
             {
@@ -90,12 +88,29 @@ namespace ClassSchedule.Controllers
             }
         }
 
-        [HttpDelete("delete-subject")]
-        public async Task<IActionResult> Delete([FromQuery] Guid id)
+        [HttpDelete("student/{studentId}")]
+        public async Task<IActionResult> UnenrollStudent(Guid holdId, Guid studentId)
         {
             try
             {
-                return Ok(await _subjectService.DeleteAsync(CurrentInstitutionId, id));
+                return Ok(await _holdMemberService.UnenrollStudentAsync(CurrentInstitutionId, holdId, studentId));
+            }
+            catch (HttpResponseException hre)
+            {
+                return StatusCode((int)hre.StatusCode, hre.ResponseMessage);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpGet("student")]
+        public async Task<IActionResult> GetEnrolledStudents(Guid holdId)
+        {
+            try
+            {
+                return Ok(await _holdMemberService.GetStudentsAsync(holdId));
             }
             catch (HttpResponseException hre)
             {

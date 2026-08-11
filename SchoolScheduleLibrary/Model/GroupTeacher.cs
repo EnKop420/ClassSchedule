@@ -14,5 +14,11 @@ namespace SchoolScheduleLibrary.Model
 
         public Guid TeacherId { get; set; }
         public User Teacher { get; set; } = null!;
+
+        public GroupTeacher(Guid holdId, Guid teacherId)
+        {
+            HoldId = holdId;
+            TeacherId = teacherId;
+        }
     }
 }

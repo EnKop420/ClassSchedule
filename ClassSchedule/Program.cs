@@ -41,9 +41,9 @@ namespace ClassSchedule
 
             Console.WriteLine(builder.Environment.EnvironmentName);
 
-            string redisConnection = builder.Configuration.GetConnectionString("RedisConnection");
-            string postgresConnection = builder.Configuration.GetConnectionString("DevelopmentConnection");
-            //string postgresConnection = builder.Configuration.GetConnectionString("DefaultConnection");
+            string redisConnection = builder.Configuration.GetConnectionString("RedisConnection") ?? throw new Exception("No redis connection string!");
+            string postgresConnection = builder.Configuration.GetConnectionString("DevelopmentConnection") ?? throw new Exception("No Postgres connection string!");
+            //string postgresConnection = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new Exception("No Postgres connection string!");
 
             builder.Services.AddDbContext<SchoolDbContext>(options =>
                 options.UseNpgsql(postgresConnection));
@@ -60,10 +60,12 @@ namespace ClassSchedule
             builder.Services.AddScoped<ITermService, TermService>();
             builder.Services.AddScoped<IHoldService, HoldService>();
             builder.Services.AddScoped<ILessonTemplateService, LessonTemplateService>();
+            builder.Services.AddScoped<ILessonGenerationService, LessonGeneratorService>();
+            builder.Services.AddScoped<INonTeachingDayService, NonTeachingDayService>();
+            builder.Services.AddScoped<IHoldMemberService, HoldMemberService>();
 
             // Database Repositories Scoped
             builder.Services.AddScoped<IRedisRepository, RedisRepository>();
-            builder.Services.AddScoped<IUserRepository, UserRepository>();
 
             // Generic Scoped
             builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));

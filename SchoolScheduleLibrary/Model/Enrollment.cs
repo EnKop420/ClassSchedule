@@ -13,5 +13,11 @@ namespace SchoolScheduleLibrary.Model
 
         public Guid StudentId { get; set; }
         public User Student { get; set; } = null!;
+
+        public Enrollment(Guid holdId, Guid studentId)
+        {
+            HoldId = holdId;
+            StudentId = studentId;
+        }
     }
 }

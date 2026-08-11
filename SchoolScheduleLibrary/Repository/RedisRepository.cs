@@ -20,28 +20,15 @@ namespace SchoolScheduleLibrary.Repository
         {
             _redisDb = redisDb.GetDatabase();
         }
-        public async Task<string> AddSessionToDB(SessionData sessionData, TimeSpan ttl)
+        public async Task<bool> AddSessionToDB(string key, string sessionValue, TimeSpan ttl)
         {
-            string sessionKey;
-            bool created = false;
-            do
-            {
-                sessionKey = SessionIdGenerator();
-                var key = $"session:{sessionKey}";
-
-                var sessionValue = JsonSerializer.Serialize(sessionData);
-
-                // Try to create the key only if it doesn't already exist
-                created = await _redisDb.StringSetAsync(
-                    key: key,
-                    value: sessionValue,
-                    expiry: ttl,
-                    when: When.NotExists
-                );
-
-            } while (!created);
-            // TODO FIX SESSION KEY AS IT DOESN*T ADD IT TO REDIS DATABASE!
-            return sessionKey;
+            // Try to create the key only if it doesn't already exist
+            return await _redisDb.StringSetAsync(
+                key: key,
+                value: sessionValue,
+                expiry: ttl,
+                when: When.NotExists
+            );
         }
 
         public async Task<SessionData> GetSessionDataFromKey(string sessionKey)
@@ -66,17 +53,6 @@ namespace SchoolScheduleLibrary.Repository
         public async Task<bool> ValidateSession(string sessionKey)
         {
             return await _redisDb.KeyExistsAsync($"session:{sessionKey}");
-        }
-
-        // Generates a random string as a session id/key
-        private static string SessionIdGenerator()
-        {
-            var bytes = new byte[32];
-            RandomNumberGenerator.Fill(bytes);
-            return Convert.ToBase64String(bytes)
-                    .Replace("+", "-")
-                    .Replace("/", "_")
-                    .TrimEnd('=');
         }
     }
 }

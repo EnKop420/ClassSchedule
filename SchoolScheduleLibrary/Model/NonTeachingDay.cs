@@ -10,10 +10,19 @@ namespace SchoolScheduleLibrary.Model
     public class NonTeachingDay : IBaseEntity, IInstitutionEntity
     {
         public Guid Id { get; set; } = Guid.NewGuid();
-        public DateOnly Date {  get; set; }
+        public DateOnly StartDate {  get; set; }
+        public DateOnly EndDate {  get; set; }
         public string Reason { get; set; }
 
         public Guid InstitutionId { get; set; }
         public Institution Institution { get; set; } = null!;
+
+        public NonTeachingDay(DateOnly startDate, DateOnly endDate, string reason, Guid institutionId)
+        {
+            StartDate = startDate;
+            EndDate = endDate;
+            Reason = reason;
+            InstitutionId = institutionId;
+        }
     }
 }

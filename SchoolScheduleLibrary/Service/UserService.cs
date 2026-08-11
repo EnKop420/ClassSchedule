@@ -10,30 +10,29 @@ using SchoolScheduleLibrary.Utilities.Encryption.Interface;
 using SchoolScheduleLibrary.Utilities.Response;
 using System;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 using static SchoolScheduleLibrary.Utilities.Response.HttpResponseException;
 
 namespace SchoolScheduleLibrary.Service
 {
     public class UserService : IUserService
     {
-        private readonly IGenericRepository<User> _genericRepository;
+        private readonly IGenericRepository<User> _userGenericRepository;
         private readonly IGenericRepository<Institution> _institutionGenericRepository;
-        private readonly IUserRepository _userRepository;
         private readonly IEncryptionHandler _encryptionHandler;
         private readonly IRedisRepository _redisRepository;
 
         public UserService(
-            IGenericRepository<User> genericRepository,
+            IGenericRepository<User> userGenericRepository,
             IGenericRepository<Institution> institutionGenericRepository,
-            IUserRepository userRepository,
             IEncryptionHandler encryptionHandler,
             IRedisRepository redisRepository
             )
         {
-            _genericRepository = genericRepository;
+            _userGenericRepository = userGenericRepository;
             _institutionGenericRepository = institutionGenericRepository;
-            _userRepository = userRepository;
             _encryptionHandler = encryptionHandler;
             _redisRepository = redisRepository;
         }
@@ -44,10 +43,11 @@ namespace SchoolScheduleLibrary.Service
             else if (!await _institutionGenericRepository.DoesValueExist(u => u.Id == input.InstitutionId)) throw new NotFoundException($"No institution exists with Id \"{input.InstitutionId}\".");
 
             string lowerUsername = input.Username.ToLower();
+            bool doesUsernameExist = await _userGenericRepository.DoesValueExist(u => u.Username == lowerUsername);
+
             string hashedPassword = await _encryptionHandler.HashString(input.Password);
             string encryptedEmail = await _encryptionHandler.EncryptString(input.Email);
 
-            bool doesUsernameExist = await _userRepository.DoesUsernameExist(lowerUsername);
             if (doesUsernameExist) throw new ConflictException("Username already exists!");
 
             User user = new(
@@ -61,17 +61,17 @@ namespace SchoolScheduleLibrary.Service
                 input.InstitutionId
             );
 
-            await _genericRepository.Create(user);
+            await _userGenericRepository.Add(user);
         }
 
         public async Task Delete(Guid id)
         {
             
 
-            User? user = await _genericRepository.GetById(u => u.Id == id);
+            User? user = await _userGenericRepository.Get(u => u.Id == id);
             if (user != null)
             {
-                if (!await _genericRepository.DeleteById(id))
+                if (!await _userGenericRepository.Delete(u => u.Id == id))
                 {
                     throw new InternalErrorException("Something went wrong with deleting value! Id matches a user but unknown error");
                 }
@@ -86,9 +86,10 @@ namespace SchoolScheduleLibrary.Service
         public async Task<UserDTO> Login(LoginDTO dto)
         {
             string hashedPassword = await _encryptionHandler.HashString(dto.Password);
-            LoginDTO updatedDTO = dto with { Username = dto.Username.ToLower(), Password = hashedPassword };
+            string lowerUsername = dto.Username.ToLower();
 
-            User user = await _userRepository.Login(updatedDTO);
+            User user = await _userGenericRepository.Get(u => u.Username == lowerUsername && u.Password == hashedPassword, u => u.Institution)
+                ?? throw new UnauthorizedException("No match found for username and password!");
 
             UserDTO userDTO = new (
                 user.Id,
@@ -99,7 +100,8 @@ namespace SchoolScheduleLibrary.Service
                 await _encryptionHandler.DecryptString(user.Email),
                 user.CreatedAt,
                 user.Role,
-                user.InstitutionId
+                user.InstitutionId,
+                user.Institution.Name
             );
 
             return userDTO;
@@ -107,7 +109,57 @@ namespace SchoolScheduleLibrary.Service
 
         public async Task<string> CreateSession(SessionData sessionData, TimeSpan ttl)
         {
-            return await _redisRepository.AddSessionToDB(sessionData, ttl);
+            bool duplicateKey = true;
+            string sessionId = string.Empty;
+            do
+            {
+                sessionId = SessionIdGenerator();
+                duplicateKey = await _redisRepository.ValidateSession(sessionId);
+            }
+            while (duplicateKey);
+
+            string key = $"session:{sessionId}";
+            string sessionValue = JsonSerializer.Serialize(sessionData);
+            if (await _redisRepository.AddSessionToDB(key, sessionValue, ttl)) return sessionId;
+            else throw new InternalErrorException("Something went wrong trying to create the session!");
+        }
+
+        public async Task<UserDTO> GetUserInfo(Guid id, Guid currentUserId, UserRoles role)
+        {
+            if (id != currentUserId && role == UserRoles.Student) throw new UnauthorizedException("Students can only get their own user information!");
+
+            User user = await _userGenericRepository.Get(u => u.Id == id, u => u.Institution)
+                ?? throw new NotFoundException($"No User with ID {id} exists");
+
+            string decryptedEmail = await _encryptionHandler.DecryptString(user.Email);
+            return new UserDTO(
+                user.Id,
+                user.FirstName,
+                user.LastName,
+                user.DateOfBirth,
+                user.Username,
+                decryptedEmail,
+                user.CreatedAt,
+                user.Role,
+                user.InstitutionId,
+                user.Institution.Name);
+        }
+
+        // Generates a random string as a session id/key
+        private static string SessionIdGenerator()
+        {
+            var bytes = new byte[32];
+            RandomNumberGenerator.Fill(bytes);
+            return Convert.ToBase64String(bytes)
+                    .Replace("+", "-")
+                    .Replace("/", "_")
+                    .TrimEnd('=');
+        }
+
+        public async Task<List<UserDTO>> GetAllUsers(Guid institutionId)
+        {
+            return (await _userGenericRepository.GetAll(u => u.InstitutionId == institutionId, u => u.Institution))
+                .Select(u => new UserDTO(u.Id, u.FirstName, u.LastName, u.DateOfBirth, u.Username, u.Email, u.CreatedAt, u.Role, u.InstitutionId, u.Institution.Name)).ToList();
         }
     }
 }

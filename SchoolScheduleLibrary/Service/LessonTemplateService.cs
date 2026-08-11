@@ -53,7 +53,7 @@ namespace SchoolScheduleLibrary.Service
 
         public async Task<LessonTemplateDTO> GetByIdAsync(Guid institutionId, Guid id)
         {
-            LessonTemplate lessonTemplate = await _lessonTemplateGenericRepository.GetById(
+            LessonTemplate lessonTemplate = await _lessonTemplateGenericRepository.Get(
                 lt => lt.Id == id && lt.InstitutionId == institutionId,
                 lt => lt.Period,
                 lt => lt.Room!,
@@ -80,17 +80,17 @@ namespace SchoolScheduleLibrary.Service
             // Check dates are valid.
             if (dto.ValidFrom > dto.ValidTo) throw new BadRequestException("Valid From has to be before Valid To!");
 
-            Period period = await _periodGenericRepository.GetById(p => p.Id == dto.PeriodId && p.InstitutionId == institutionId)
+            Period period = await _periodGenericRepository.Get(p => p.Id == dto.PeriodId && p.InstitutionId == institutionId)
                 ?? throw new NotFoundException($"Could not get Period with Id \"{dto.PeriodId}\" in the Institution with Id \"{institutionId}\"");
 
-            Hold hold = await _holdGenericRepository.GetById(h => h.Id == dto.HoldId && h.InstitutionId == institutionId)
+            Hold hold = await _holdGenericRepository.Get(h => h.Id == dto.HoldId && h.InstitutionId == institutionId)
                 ?? throw new NotFoundException($"Could not get Hold with Id \"{dto.HoldId}\" in the Institution with Id \"{institutionId}\"");
 
             Room? room = null;
 
             if (dto.RoomId != null)
             {
-                room = await _roomGenericRepository.GetById(r => r.Id == dto.RoomId && r.InstitutionId == institutionId)
+                room = await _roomGenericRepository.Get(r => r.Id == dto.RoomId && r.InstitutionId == institutionId)
                     ?? throw new NotFoundException($"Could not get Room with Id \"{dto.RoomId}\" in the Institution with Id \"{institutionId}\"");
             }
 
@@ -105,7 +105,7 @@ namespace SchoolScheduleLibrary.Service
 
             LessonTemplate lessonTemplate = new(dto.WeekDay, dto.ValidFrom, dto.ValidTo, dto.PeriodId, dto.RoomId, dto.HoldId, institutionId);
 
-            await _lessonTemplateGenericRepository.Create(lessonTemplate);
+            await _lessonTemplateGenericRepository.Add(lessonTemplate);
 
             return new LessonTemplateDTO(
                 lessonTemplate.Id,
@@ -126,7 +126,7 @@ namespace SchoolScheduleLibrary.Service
             // Check dates are valid.
             if (dto.ValidFrom > dto.ValidTo) throw new BadRequestException("Valid From has to be before Valid To!");
 
-            LessonTemplate lessonTemplate = await _lessonTemplateGenericRepository.GetById(h => h.Id == dto.Id && h.InstitutionId == institutionId)
+            LessonTemplate lessonTemplate = await _lessonTemplateGenericRepository.Get(h => h.Id == dto.Id && h.InstitutionId == institutionId)
                 ?? throw new NotFoundException($"Could not get LessonTemplate with Id \"{dto.Id}\" in the Institution with Id \"{institutionId}\"");
 
             // Check period, room and hold are valid.
@@ -162,7 +162,7 @@ namespace SchoolScheduleLibrary.Service
 
             await _lessonTemplateGenericRepository.Update(lessonTemplate);
 
-            LessonTemplate updatedLessonTemplate = await _lessonTemplateGenericRepository.GetById(
+            LessonTemplate updatedLessonTemplate = await _lessonTemplateGenericRepository.Get(
                 lt => lt.Id == dto.Id && lt.InstitutionId == institutionId, // Predicate
                 lt => lt.Period, // Include
                 lt => lt.Room!, // Include
@@ -188,7 +188,7 @@ namespace SchoolScheduleLibrary.Service
                 throw new NotFoundException($"Could not find LessonTemplate with Id \"{id}\" in the Institution with Id \"{institutionId}\"");
             }
 
-            return await _lessonTemplateGenericRepository.DeleteById(id);
+            return await _lessonTemplateGenericRepository.Delete(lt => lt.Id == id);
         }
     }
 }

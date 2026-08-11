@@ -13,7 +13,7 @@ namespace SchoolScheduleLibrary.Model
         public DateOnly EndDate { get; set; }
 
         public Guid InstitutionId { get; set; }
-        public Institution Institution { get; set; }
+        public Institution Institution { get; set; } = null!;
 
         public Term(string name, DateOnly startDate, DateOnly endDate, Guid institutionId)
         {

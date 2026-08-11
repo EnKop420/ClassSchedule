@@ -44,7 +44,7 @@ namespace SchoolScheduleLibrary.Context
                 .HasIndex(u => new { u.InstitutionId, u.Email }).IsUnique();
 
             modelBuilder.Entity<NonTeachingDay>()
-                .HasIndex(n => new { n.InstitutionId, n.Date }).IsUnique();
+                .HasIndex(n => new { n.InstitutionId, n.StartDate, n.EndDate }).IsUnique();
 
             modelBuilder.Entity<Lesson>()
                 .HasIndex(l => new { l.TemplateId, l.Date }).IsUnique();
