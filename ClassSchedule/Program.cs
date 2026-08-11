@@ -32,7 +32,7 @@ namespace ClassSchedule
             {
                 options.AddPolicy("AllowBlazorApp", policy =>
                 {
-                    policy.WithOrigins("https://localhost:7202") // Blazor app URL
+                    policy.WithOrigins("https://localhost:7010") // Blazor app URL
                           .AllowAnyHeader()
                           .AllowAnyMethod()
                           .AllowCredentials();
