@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SchoolScheduleLibrary.Enums;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -14,5 +15,9 @@ namespace SchoolScheduleLibrary.DTO
         string Status,
         List<string> Teachers);
 
-
+    public record GetScheduleLessonDTO(
+        Guid institutionId,
+        Guid callerId,
+        UserRoles role,
+        Guid targetId, DateOnly from, DateOnly to);
 }
