@@ -88,7 +88,7 @@ namespace SchoolScheduleLibrary.Service
             string hashedPassword = await _encryptionHandler.HashString(dto.Password);
             string lowerUsername = dto.Username.ToLower();
 
-            User user = await _userGenericRepository.Get(u => u.Username == lowerUsername && u.Password == hashedPassword && u.InstitutionId == dto.institutionId, u => u.Institution)
+            User user = await _userGenericRepository.Get(u => u.Username == lowerUsername && u.Password == hashedPassword && u.InstitutionId == dto.InstitutionId, u => u.Institution)
                 ?? throw new UnauthorizedException("No match found for username and password in this institution!");
 
             UserDTO userDTO = new (
