@@ -65,7 +65,6 @@ namespace ClassSchedule.Controllers
         }
 
         [HttpGet("get-all-institution")]
-        [LocalhostOnly]
         public async Task<IActionResult> GetAllInstitutions()
         {
             try

@@ -15,8 +15,8 @@ namespace SchoolScheduleLibrary.Utilities.Encryption
         public EncryptionHandler(IConfiguration config)
         {
             _config = config;
-            _SALT = _config["Salt"];
-            _EncryptionKey = _config["EncryptionKey"];
+            _SALT = _config["Salt"] ?? throw new Exception("Salt is not configured");
+            _EncryptionKey = _config["EncryptionKey"] ?? throw new Exception("EncryptionKey is not configured");
         }
         public async Task<string> DecryptString(string input)
         {
