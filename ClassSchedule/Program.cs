@@ -42,8 +42,8 @@ namespace ClassSchedule
             Console.WriteLine(builder.Environment.EnvironmentName);
 
             string redisConnection = builder.Configuration.GetConnectionString("RedisConnection") ?? throw new Exception("No redis connection string!");
-            string postgresConnection = builder.Configuration.GetConnectionString("DevelopmentConnection") ?? throw new Exception("No Postgres connection string!");
-            //string postgresConnection = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new Exception("No Postgres connection string!");
+            //string postgresConnection = builder.Configuration.GetConnectionString("DevelopmentConnection") ?? throw new Exception("No Postgres connection string!");
+            string postgresConnection = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new Exception("No Postgres connection string!");
 
             builder.Services.AddDbContext<SchoolDbContext>(options =>
                 options.UseNpgsql(postgresConnection));

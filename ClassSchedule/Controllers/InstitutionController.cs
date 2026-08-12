@@ -29,11 +29,11 @@ namespace ClassSchedule.Controllers
 
         [HttpPost("create-institution")]
         [LocalhostOnly]
-        public async Task<IActionResult> CreateInstitution([FromBody] string name)
+        public async Task<IActionResult> CreateInstitution([FromBody] CreateInstitutionDTO dto)
         {
             try
             {
-                await _institutionService.CreateInstitution(name);
+                await _institutionService.CreateInstitution(dto);
                 return Ok("Institution has been created successfully");
             }
             catch (HttpResponseException hre)

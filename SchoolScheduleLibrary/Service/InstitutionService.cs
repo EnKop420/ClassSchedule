@@ -17,9 +17,9 @@ namespace SchoolScheduleLibrary.Service
             _genericRepository = genericRepository;
         }
 
-        public async Task CreateInstitution(string name)
+        public async Task CreateInstitution(CreateInstitutionDTO dto)
         {
-            Institution institution = new(name);
+            Institution institution = new(dto.Name);
 
             await _genericRepository.Add(institution);
         }

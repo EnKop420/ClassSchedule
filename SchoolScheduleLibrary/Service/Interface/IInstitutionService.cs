@@ -9,7 +9,7 @@ namespace SchoolScheduleLibrary.Service.Interface
     {
         public Task<List<InstitutionDTO>> GetAllInstitutions();
         public Task<InstitutionDTO> GetInstitutionById(Guid id);
-        public Task CreateInstitution(string name);
+        public Task CreateInstitution(CreateInstitutionDTO dto);
         public Task<InstitutionDTO> UpdateInstitution(InstitutionDTO dto);
         public Task<bool> DeleteInstitution(Guid id);
     }
