@@ -8,6 +8,7 @@ using SchoolScheduleLibrary.Model;
 using SchoolScheduleLibrary.Service.Interface;
 using SchoolScheduleLibrary.Utilities.Auth;
 using SchoolScheduleLibrary.Utilities.Response;
+using static SchoolScheduleLibrary.Utilities.Response.HttpResponseException;
 using AuthorizeAttribute = ClassSchedule.Auth.AuthorizeAttribute;
 
 namespace ClassSchedule.Controllers
@@ -22,12 +23,34 @@ namespace ClassSchedule.Controllers
             _userService = userService;
         }
 
+        [Authorize(UserRoles.Admin)]
         [HttpPost("Add")]
-        public async Task<IActionResult> Add([FromBody] CreateUserDTO userDTO)
+        public async Task<IActionResult> Add([FromBody] CreateUserDTO dto)
         {
             try
             {
-                await _userService.Add(userDTO);
+                if (dto.Role == UserRoles.Admin) throw new BadRequestException("You cannot make an Admin account!");
+
+                await _userService.Add(CurrentInstitutionId, dto);
+                return Ok();
+            }
+            catch (HttpResponseException hre)
+            {
+                return StatusCode((int)hre.StatusCode, hre.ResponseMessage);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"{ex.Message}\n Inner error message:\n{ex.InnerException}");
+            }
+        }
+
+        [LocalhostOnly]
+        [HttpPost("Add-Admin")]
+        public async Task<IActionResult> AddAdmin([FromBody] CreateUserAdminDTO dto)
+        {
+            try
+            {
+                await _userService.AddAdmin(dto);
                 return Ok();
             }
             catch (HttpResponseException hre)
@@ -41,38 +64,37 @@ namespace ClassSchedule.Controllers
         }
 
         [HttpPost("Login")]
-        public async Task<IActionResult> Login([FromBody] LoginDTO loginDTO)
+        public async Task<IActionResult> Login([FromBody] LoginDTO dto)
         {
             try
             {
                 int ttlDays = 3;
 
-                UserDTO userDTO = await _userService.Login(loginDTO);
-                SessionData data = new(userDTO.Id.ToString(), userDTO.Role, userDTO.InstitutionId.ToString());
-                string sessionKey = await _userService.CreateSession(data, TimeSpan.FromDays(ttlDays));
-
-                CookieOptions sessionCookieOption = new CookieOptions
-                {
-                    HttpOnly = true,
-                    //Secure = true, // Only sent over HTTPS. But for development this is disabled.
-                    SameSite = SameSiteMode.Strict,
-                    Expires = DateTime.UtcNow.AddDays(ttlDays)
-                };
-
-                //CookieOptions normalCookieOption = new CookieOptions
-                //{
-                //    HttpOnly = false,
-                //    //Secure = true, // Only sent over HTTPS. But for development this is disabled.
-                //    SameSite = SameSiteMode.Strict,
-                //    Expires = DateTime.UtcNow.AddDays(ttlDays)
-                //};
-
-                //UserCookieData userCookieData = new(userDTO.FirstName, userDTO.LastName, userDTO.DateOfBirth, user)
-
-                Response.Cookies.Append("SchoolSession", sessionKey, sessionCookieOption);
-                //Response.Cookies.Append("SchoolSchedule", , sessionCookieOption);
-
+                UserDTO userDTO = await _userService.Login(dto, Response.Cookies);
                 return Ok(userDTO);
+            }
+            catch (HttpResponseException hre)
+            {
+                return StatusCode((int)hre.StatusCode, hre.ResponseMessage);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpPost("Logout")]
+        public async Task<IActionResult> Logout()
+        {
+            try
+            {
+                Request.Cookies.TryGetValue("SchoolSession", out string? sessionKey);
+                if (sessionKey == null) throw new BadRequestException("No Session cookie!");
+
+                await _userService.Logout(sessionKey);
+
+                Response.Cookies.Delete("SchoolSession");
+                return Ok();
             }
             catch (HttpResponseException hre)
             {

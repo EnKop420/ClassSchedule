@@ -13,6 +13,8 @@ namespace SchoolScheduleLibrary.Repository.Interface
 
         public Task<bool> DeleteSessionFromDB(string sessionKey);
 
+        public Task DeleteAllSessionsFromUserId(string inputValue);
+
         public Task<bool> ValidateSession(string sessionKey);
     }
 }

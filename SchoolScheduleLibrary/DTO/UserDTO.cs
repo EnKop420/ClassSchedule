@@ -23,10 +23,19 @@ namespace SchoolScheduleLibrary.DTO
         string FirstName,
         string LastName,
         DateOnly DateOfBirth,
-        string Username,
-        string Password,
+        [MinLength(4), MaxLength(16)] string Username,
+        [MinLength(8), MaxLength(16)] string Password,
         [EmailAddress] string Email,
-        UserRoles Role,
+        UserRoles Role
+    );
+
+    public record CreateUserAdminDTO(
+        string FirstName,
+        string LastName,
+        DateOnly DateOfBirth,
+        [MinLength(4), MaxLength(16)] string Username,
+        [MinLength(8), MaxLength(16)] string Password,
+        [EmailAddress] string Email,
         Guid InstitutionId
     );
 }

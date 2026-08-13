@@ -1,4 +1,6 @@
-﻿using SchoolScheduleLibrary.DTO;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Internal;
+using SchoolScheduleLibrary.DTO;
 using SchoolScheduleLibrary.Enums;
 using SchoolScheduleLibrary.Model;
 using SchoolScheduleLibrary.Model.Interface;
@@ -12,11 +14,17 @@ namespace SchoolScheduleLibrary.Service.Interface
 {
     public interface IUserService
     {
-        public Task Add(CreateUserDTO dto);
+        public Task Add(Guid institutionId, CreateUserDTO dto);
+
+        public Task AddAdmin(CreateUserAdminDTO dto);
 
         public Task Delete(Guid id);
 
-        public Task<UserDTO> Login(LoginDTO input);
+        public Task DeleteAdmin(Guid id);
+
+        public Task<UserDTO> Login(LoginDTO input, IResponseCookies cookies);
+
+        public Task Logout(string sessionKey);
 
         public Task<string> CreateSession(SessionData sessionData, TimeSpan ttl);
 

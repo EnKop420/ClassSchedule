@@ -1,4 +1,5 @@
-﻿using SchoolScheduleLibrary.DTO;
+﻿using Microsoft.AspNetCore.Http;
+using SchoolScheduleLibrary.DTO;
 using SchoolScheduleLibrary.Enums;
 using SchoolScheduleLibrary.Model;
 using SchoolScheduleLibrary.Model.Interface;
@@ -37,10 +38,11 @@ namespace SchoolScheduleLibrary.Service
             _redisRepository = redisRepository;
         }
 
-        public async Task Add(CreateUserDTO input)
+        public async Task Add(Guid institutionId, CreateUserDTO input)
         {
             if (!Enum.IsDefined(typeof(UserRoles), input.Role)) throw new BadRequestException("This role is not defined as a valid role!");
-            else if (!await _institutionGenericRepository.DoesValueExist(u => u.Id == input.InstitutionId)) throw new NotFoundException($"No institution exists with Id \"{input.InstitutionId}\".");
+
+            if (!await _institutionGenericRepository.DoesValueExist(u => u.Id == institutionId)) throw new NotFoundException($"No institution exists with Id \"{institutionId}\".");
 
             string lowerUsername = input.Username.ToLower();
             bool doesUsernameExist = await _userGenericRepository.DoesValueExist(u => u.Username == lowerUsername);
@@ -58,33 +60,68 @@ namespace SchoolScheduleLibrary.Service
                 hashedPassword,
                 encryptedEmail,
                 input.Role,
-                input.InstitutionId
+                institutionId
             );
 
             await _userGenericRepository.Add(user);
         }
 
+        public async Task AddAdmin(CreateUserAdminDTO dto)
+        {
+            CreateUserDTO userDTO = new(
+                dto.FirstName,
+                dto.LastName,
+                dto.DateOfBirth,
+                dto.Username,
+                dto.Password,
+                dto.Email,
+                UserRoles.Admin);
+
+            await Add(dto.InstitutionId, userDTO);
+        }
+
         public async Task Delete(Guid id)
         {
-            
-
             User? user = await _userGenericRepository.Get(u => u.Id == id);
             if (user != null)
             {
+                if (user.Role == UserRoles.Admin) throw new UnauthorizedException("You are not authorized to delete an Admin account!");
+
                 if (!await _userGenericRepository.Delete(u => u.Id == id))
                 {
                     throw new InternalErrorException("Something went wrong with deleting value! Id matches a user but unknown error");
                 }
                 else
                 {
-                    // TODO DELETE ALL SESSIONS KEY THAT IS ASSOCIATED WITH THE USER ID.
+                    await _redisRepository.DeleteAllSessionsFromUserId(user.Id.ToString());
                 }
             }
             else throw new NotFoundException($"No User with this Id \"{id}\" was found");
         }
 
-        public async Task<UserDTO> Login(LoginDTO dto)
+        public async Task DeleteAdmin(Guid id)
         {
+            User? user = await _userGenericRepository.Get(u => u.Id == id);
+            if (user != null)
+            {
+                if (user.Role != UserRoles.Admin) throw new BadRequestException("You can only delete an admin account using this Endpoint!");
+
+                if (!await _userGenericRepository.Delete(u => u.Id == id))
+                {
+                    throw new InternalErrorException("Something went wrong with deleting value! Id matches a user but unknown error");
+                }
+                else
+                {
+                    await _redisRepository.DeleteAllSessionsFromUserId(user.Id.ToString());
+                }
+            }
+            else throw new NotFoundException($"No User with this Id \"{id}\" was found");
+        }
+
+        public async Task<UserDTO> Login(LoginDTO dto, IResponseCookies cookies)
+        {
+            int ttlDays = 3;
+
             string hashedPassword = await _encryptionHandler.HashString(dto.Password);
             string lowerUsername = dto.Username.ToLower();
 
@@ -103,6 +140,19 @@ namespace SchoolScheduleLibrary.Service
                 user.InstitutionId,
                 user.Institution.Name
             );
+
+            SessionData data = new(userDTO.Id.ToString(), userDTO.Role, userDTO.InstitutionId.ToString());
+            string sessionKey = await CreateSession(data, TimeSpan.FromDays(ttlDays));
+
+            CookieOptions sessionCookieOption = new CookieOptions
+            {
+                HttpOnly = true,
+                //Secure = true, // Only sent over HTTPS. But for development this is disabled.
+                SameSite = SameSiteMode.Strict,
+                Expires = DateTime.UtcNow.AddDays(ttlDays)
+            };
+
+            cookies.Append("SchoolSession", sessionKey, sessionCookieOption);
 
             return userDTO;
         }
@@ -145,6 +195,18 @@ namespace SchoolScheduleLibrary.Service
                 user.Institution.Name);
         }
 
+        public async Task<List<UserDTO>> GetAllUsers(Guid institutionId)
+        {
+            return (await _userGenericRepository.GetAll(u => u.InstitutionId == institutionId, u => u.Institution))
+                .Select(u => new UserDTO(u.Id, u.FirstName, u.LastName, u.DateOfBirth, u.Username, u.Email, u.CreatedAt, u.Role, u.InstitutionId, u.Institution.Name)).ToList();
+        }
+
+        public async Task Logout(string key)
+        {
+            bool success = await _redisRepository.DeleteSessionFromDB($"session:{key}");
+            if (success == false) throw new InternalErrorException("Something went wrong trying to delete the sessionKey");
+        }
+
         // Generates a random string as a session id/key
         private static string SessionIdGenerator()
         {
@@ -154,12 +216,6 @@ namespace SchoolScheduleLibrary.Service
                     .Replace("+", "-")
                     .Replace("/", "_")
                     .TrimEnd('=');
-        }
-
-        public async Task<List<UserDTO>> GetAllUsers(Guid institutionId)
-        {
-            return (await _userGenericRepository.GetAll(u => u.InstitutionId == institutionId, u => u.Institution))
-                .Select(u => new UserDTO(u.Id, u.FirstName, u.LastName, u.DateOfBirth, u.Username, u.Email, u.CreatedAt, u.Role, u.InstitutionId, u.Institution.Name)).ToList();
         }
     }
 }
