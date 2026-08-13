@@ -212,12 +212,12 @@ namespace SchoolScheduleLibrary.Service
             else throw new InternalErrorException("Something went wrong trying to create the session!");
         }
 
-        public async Task<UserDTO> GetUserInfo(Guid id, Guid currentUserId, UserRoles role)
+        public async Task<UserDTO> GetUserInfo(Guid targetId, Guid callerId, UserRoles role)
         {
-            if (id != currentUserId && role == UserRoles.Student) throw new UnauthorizedException("Students can only get their own user information!");
+            if (targetId != callerId && role == UserRoles.Student) throw new UnauthorizedException("Students can only get their own user information!");
 
-            User user = await _userGenericRepository.Get(u => u.Id == id, u => u.Institution)
-                ?? throw new NotFoundException($"No User with ID {id} exists");
+            User user = await _userGenericRepository.Get(u => u.Id == targetId, u => u.Institution)
+                ?? throw new NotFoundException($"No User with ID {targetId} exists");
 
             string decryptedEmail = await _encryptionHandler.DecryptString(user.Email);
             return new UserDTO(

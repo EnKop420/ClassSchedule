@@ -146,11 +146,11 @@ namespace ClassSchedule.Controllers
 
         [Authorize(UserRoles.Admin, UserRoles.Teacher, UserRoles.Student)]
         [HttpGet("Get-User-Information")]
-        public async Task<IActionResult> GetUserInformation(Guid id)
+        public async Task<IActionResult> GetUserInformation(Guid targetId)
         {
             try
             {
-                return Ok(await _userService.GetUserInfo(id, CurrentUserId, CurrentUserRole));
+                return Ok(await _userService.GetUserInfo(targetId, CurrentUserId, CurrentUserRole));
             }
             catch (HttpResponseException hre)
             {

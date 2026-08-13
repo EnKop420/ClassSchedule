@@ -32,7 +32,7 @@ namespace SchoolScheduleLibrary.Service.Interface
 
         public Task<string> CreateSession(SessionData sessionData, TimeSpan ttl);
 
-        public Task<UserDTO> GetUserInfo(Guid id, Guid currentUserId, UserRoles role);
+        public Task<UserDTO> GetUserInfo(Guid targetId, Guid callerId, UserRoles role);
 
         public Task<List<UserDTO>> GetAllUsers(Guid institutionId);
     }
