@@ -125,6 +125,25 @@ namespace ClassSchedule.Controllers
             }
         }
 
+        [LocalhostOnly]
+        [HttpDelete("Delete-Admin")]
+        public async Task<IActionResult> DeleteAdmin([FromBody] Guid id)
+        {
+            try
+            {
+                await _userService.DeleteAdmin(id);
+                return Ok();
+            }
+            catch (HttpResponseException hre)
+            {
+                return StatusCode((int)hre.StatusCode, hre.ResponseMessage);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
         [Authorize(UserRoles.Admin, UserRoles.Teacher, UserRoles.Student)]
         [HttpGet("Get-User-Information")]
         public async Task<IActionResult> GetUserInformation(Guid id)
