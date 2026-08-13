@@ -11,13 +11,10 @@ namespace SchoolScheduleLibrary.DTO
         TimeOnly StartTime,
         TimeOnly EndTime,
         string SubjectName,
+        string HoldName,
         string? RoomName,
         string Status,
         List<string> Teachers);
 
-    public record GetScheduleLessonDTO(
-        Guid institutionId,
-        Guid callerId,
-        UserRoles role,
-        Guid targetId, DateOnly from, DateOnly to);
+    public record GetScheduleLessonDTO(Guid TargetId, DateOnly From, DateOnly To);
 }

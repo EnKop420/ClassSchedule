@@ -8,6 +8,6 @@ namespace SchoolScheduleLibrary.Service.Interface
 {
     public interface IScheduleService
     {
-        public Task<List<ScheduleLessonDTO>> GetScheduleAsync(GetScheduleLessonDTO dto);
+        public Task<List<ScheduleLessonDTO>> GetScheduleAsync(Guid institutionId, Guid callerId, UserRoles callerRole, GetScheduleLessonDTO dto);
     }
 }

@@ -29,7 +29,7 @@ namespace SchoolScheduleLibrary.Repository.Generic
         {
             IQueryable<T> query = _context.Set<T>();
 
-            if (includes != null)
+            if (includes != null && includes.Length > 0)
             {
                 foreach (var include in includes)
                 {

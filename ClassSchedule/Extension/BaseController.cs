@@ -5,8 +5,6 @@ using SchoolScheduleLibrary.Utilities.Auth;
 
 namespace ClassSchedule.Inheritance
 {
-    [Route("api/[controller]")]
-    [ApiController]
     public class BaseController : ControllerBase
     {
         protected SessionData Session =>

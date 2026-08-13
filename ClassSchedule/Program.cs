@@ -67,6 +67,7 @@ namespace ClassSchedule
 
             // Database Repositories Scoped
             builder.Services.AddScoped<IRedisRepository, RedisRepository>();
+            builder.Services.AddScoped<IScheduleRepository, ScheduleRepository>();
 
             // Generic Scoped
             builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
