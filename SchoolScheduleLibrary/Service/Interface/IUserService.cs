@@ -18,7 +18,11 @@ namespace SchoolScheduleLibrary.Service.Interface
 
         public Task AddAdmin(CreateUserAdminDTO dto);
 
-        public Task Delete(Guid id);
+        public Task<UserDTO> UpdateUserInformation(Guid userId, Guid institutionId, UpdateUserInformationDTO dto);
+
+        public Task<string> ChangeUserCredentials(Guid userId, Guid institutionId, ChangeUserCredentialsDTO dto);
+
+        public Task Delete(Guid id, Guid institutionId);
 
         public Task DeleteAdmin(Guid id);
 

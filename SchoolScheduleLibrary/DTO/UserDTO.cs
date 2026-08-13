@@ -38,4 +38,15 @@ namespace SchoolScheduleLibrary.DTO
         [EmailAddress] string Email,
         Guid InstitutionId
     );
+
+    public record UpdateUserInformationDTO(
+        string FirstName,
+        string LastName,
+        DateOnly DateOfBirth,
+        [EmailAddress] string Email);
+
+    public record ChangeUserCredentialsDTO(
+        string Username,
+        string OldPassword,
+        string NewPassword);
 }

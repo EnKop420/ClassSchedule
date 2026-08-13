@@ -72,7 +72,7 @@ namespace ClassSchedule.Controllers
             }
         }
 
-        [HttpPut("update-period")]
+        [HttpPatch("update-period")]
         public async Task<IActionResult> Update([FromBody] PeriodDTO dto)
         {
             try

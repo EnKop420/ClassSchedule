@@ -73,7 +73,7 @@ namespace ClassSchedule.Controllers
             }
         }
 
-        [HttpPut("update-subject")]
+        [HttpPatch("update-subject")]
         public async Task<IActionResult> Update([FromBody] SubjectDTO dto)
         {
             try

@@ -72,7 +72,7 @@ namespace ClassSchedule.Controllers
             }
         }
 
-        [HttpPut("update-term")]
+        [HttpPatch("update-term")]
         public async Task<IActionResult> Update([FromBody] TermDTO dto)
         {
             try

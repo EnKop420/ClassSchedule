@@ -46,7 +46,7 @@ namespace ClassSchedule.Controllers
             }
         }
 
-        [HttpPut("update-institution")]
+        [HttpPatch("update-institution")]
         [LocalhostOnly]
         public async Task<IActionResult> UpdateInstitution([FromBody] InstitutionDTO dto)
         {

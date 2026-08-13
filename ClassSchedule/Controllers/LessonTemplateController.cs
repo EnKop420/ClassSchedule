@@ -71,7 +71,7 @@ namespace ClassSchedule.Controllers
             }
         }
 
-        [HttpPut("update-lessontemplate")]
+        [HttpPatch("update-lessontemplate")]
         public async Task<IActionResult> Update([FromBody] UpdateLessonTemplateDTO dto)
         {
             try

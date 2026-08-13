@@ -112,7 +112,7 @@ namespace ClassSchedule.Controllers
         {
             try
             {
-                await _userService.Delete(id);
+                await _userService.Delete(id, CurrentInstitutionId);
                 return Ok();
             }
             catch (HttpResponseException hre)
@@ -170,6 +170,42 @@ namespace ClassSchedule.Controllers
             try
             {
                 return Ok(await _userService.GetAllUsers(institutionId));
+            }
+            catch (HttpResponseException hre)
+            {
+                return StatusCode((int)hre.StatusCode, hre.ResponseMessage);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [Authorize(UserRoles.Admin, UserRoles.Teacher, UserRoles.Student)]
+        [HttpPatch("Update-User-Information")]
+        public async Task<IActionResult> UpdateUserInformation(UpdateUserInformationDTO dto)
+        {
+            try
+            {
+                return Ok(await _userService.UpdateUserInformation(CurrentUserId, CurrentInstitutionId, dto));
+            }
+            catch (HttpResponseException hre)
+            {
+                return StatusCode((int)hre.StatusCode, hre.ResponseMessage);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [Authorize(UserRoles.Admin, UserRoles.Teacher, UserRoles.Student)]
+        [HttpPatch("Change-User-Credentials")]
+        public async Task<IActionResult> ChangeUserCredentials(ChangeUserCredentialsDTO dto)
+        {
+            try
+            {
+                return Ok(await _userService.ChangeUserCredentials(CurrentUserId, CurrentInstitutionId, dto));
             }
             catch (HttpResponseException hre)
             {

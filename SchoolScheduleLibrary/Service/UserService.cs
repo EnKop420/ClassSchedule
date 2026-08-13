@@ -80,42 +80,80 @@ namespace SchoolScheduleLibrary.Service
             await Add(dto.InstitutionId, userDTO);
         }
 
-        public async Task Delete(Guid id)
+        public async Task<UserDTO> UpdateUserInformation(Guid userId, Guid institutionId, UpdateUserInformationDTO dto)
         {
-            User? user = await _userGenericRepository.Get(u => u.Id == id);
-            if (user != null)
-            {
-                if (user.Role == UserRoles.Admin) throw new UnauthorizedException("You are not authorized to delete an Admin account!");
+            User user = await _userGenericRepository.Get(u => u.Id == userId && u.InstitutionId == institutionId, u => u.Institution)
+                ?? throw new NotFoundException($"No User with this Id \"{userId}\" was found in Institution \"{institutionId}\"");
 
-                if (!await _userGenericRepository.Delete(u => u.Id == id))
-                {
-                    throw new InternalErrorException("Something went wrong with deleting value! Id matches a user but unknown error");
-                }
-                else
-                {
-                    await _redisRepository.DeleteAllSessionsFromUserId(user.Id.ToString());
-                }
+            user.FirstName = dto.FirstName;
+            user.LastName = dto.LastName;
+            user.DateOfBirth = dto.DateOfBirth;
+            user.Email = await _encryptionHandler.EncryptString(dto.Email);
+
+            User updatedUser = await _userGenericRepository.Update(user);
+            UserDTO userDTO = new(
+                updatedUser.Id,
+                updatedUser.FirstName,
+                updatedUser.LastName,
+                updatedUser.DateOfBirth,
+                updatedUser.Username,
+                await _encryptionHandler.DecryptString(updatedUser.Email),
+                updatedUser.CreatedAt,
+                updatedUser.Role,
+                institutionId,
+                user.Institution.Name);
+
+            return userDTO;
+        }
+
+        public async Task<string> ChangeUserCredentials(Guid userId, Guid institutionId, ChangeUserCredentialsDTO dto)
+        {
+            string hashedOldPassword = await _encryptionHandler.HashString(dto.OldPassword);
+            string hashedNewPassword = await _encryptionHandler.HashString(dto.NewPassword);
+
+            User user = await _userGenericRepository.Get(u => u.Id == userId && u.InstitutionId == institutionId)
+                ?? throw new NotFoundException($"No User with this Id \"{userId}\" was found in Institution \"{institutionId}\"");
+
+            if (user.Password != hashedOldPassword) throw new UnauthorizedException("Password does not match with the current Password!");
+
+            user.Username = dto.Username.ToLower();
+            user.Password = hashedNewPassword;
+
+            return (await _userGenericRepository.Update(user)).Username;
+        }
+
+        public async Task Delete(Guid id, Guid institutionId)
+        {
+            User user = await _userGenericRepository.Get(u => u.Id == id && u.InstitutionId == institutionId)
+                ?? throw new NotFoundException($"No User with this Id \"{id}\" was found in Institution \"{institutionId}\"");
+
+            if (user.Role == UserRoles.Admin) throw new UnauthorizedException("You are not authorized to delete an Admin account!");
+
+            if (!await _userGenericRepository.Delete(u => u.Id == id))
+            {
+                throw new InternalErrorException("Something went wrong with deleting value! Id matches a user but unknown error");
             }
-            else throw new NotFoundException($"No User with this Id \"{id}\" was found");
+            else
+            {
+                await _redisRepository.DeleteAllSessionsFromUserId(user.Id.ToString());
+            }
         }
 
         public async Task DeleteAdmin(Guid id)
         {
-            User? user = await _userGenericRepository.Get(u => u.Id == id);
-            if (user != null)
-            {
-                if (user.Role != UserRoles.Admin) throw new BadRequestException("You can only delete an admin account using this Endpoint!");
+            User user = await _userGenericRepository.Get(u => u.Id == id)
+                ?? throw new NotFoundException($"No User with this Id \"{id}\" was found!");
 
-                if (!await _userGenericRepository.Delete(u => u.Id == id))
-                {
-                    throw new InternalErrorException("Something went wrong with deleting value! Id matches a user but unknown error");
-                }
-                else
-                {
-                    await _redisRepository.DeleteAllSessionsFromUserId(user.Id.ToString());
-                }
+            if (user.Role != UserRoles.Admin) throw new BadRequestException("You can only delete an admin account using this Endpoint!");
+
+            if (!await _userGenericRepository.Delete(u => u.Id == id))
+            {
+                throw new InternalErrorException("Something went wrong with deleting value! Id matches a user but unknown error");
             }
-            else throw new NotFoundException($"No User with this Id \"{id}\" was found");
+            else
+            {
+                await _redisRepository.DeleteAllSessionsFromUserId(user.Id.ToString());
+            }
         }
 
         public async Task<UserDTO> Login(LoginDTO dto, IResponseCookies cookies)

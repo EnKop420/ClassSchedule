@@ -72,7 +72,7 @@ namespace ClassSchedule.Controllers
             }
         }
 
-        [HttpPut("update-nonteachingday")]
+        [HttpPatch("update-nonteachingday")]
         public async Task<IActionResult> Update([FromBody] NonTeachingDayDTO dto)
         {
             try

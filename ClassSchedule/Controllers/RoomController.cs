@@ -72,7 +72,7 @@ namespace ClassSchedule.Controllers
             }
         }
 
-        [HttpPut("update-room")]
+        [HttpPatch("update-room")]
         public async Task<IActionResult> Update([FromBody] RoomDTO dto)
         {
             try
