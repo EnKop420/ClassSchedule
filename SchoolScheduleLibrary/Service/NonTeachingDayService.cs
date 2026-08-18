@@ -41,7 +41,7 @@ namespace SchoolScheduleLibrary.Service
             bool doesDatesOverlap = await _nonTeachingDayGenericRepository.DoesValueExist(ntd => 
                 ntd.InstitutionId == institutionId
                 && ntd.StartDate <= dto.EndDate
-                && ntd.StartDate >= dto.StartDate);
+                && ntd.EndDate >= dto.StartDate);
 
             if (doesDatesOverlap) throw new BadRequestException("Dates overlap with existing Non Teaching Day(s)");
 
@@ -59,7 +59,7 @@ namespace SchoolScheduleLibrary.Service
             bool doesDatesOverlap = await _nonTeachingDayGenericRepository.DoesValueExist(ntd =>
                 ntd.InstitutionId == institutionId
                 && ntd.StartDate <= dto.EndDate
-                && ntd.StartDate >= dto.StartDate);
+                && ntd.EndDate >= dto.StartDate);
 
             if (doesDatesOverlap) throw new BadRequestException("Dates overlap with existing Non Teaching Day(s)");
 
