@@ -60,6 +60,7 @@ namespace SchoolScheduleLibrary.Service
             period.Name = dto.Name;
             period.StartTime = dto.StartTime;
             period.EndTime = dto.EndTime;
+            period.SortOrder = dto.SortOrder;
 
             Period updatedPeriod = await _periodGenericRepository.Update(period);
 

@@ -49,7 +49,7 @@ namespace ClassScheduleTests.UnitTests.Controllers
         }
 
         [Fact]
-        public async Task Create_Institution_Return_200()
+        public async Task Create_Institution_Return_Ok()
         {
             // Arrange
             CreateInstitutionDTO dto = new("TEC");
