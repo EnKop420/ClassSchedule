@@ -42,7 +42,7 @@ namespace SchoolScheduleLibrary.Service
             bool doesDatesOverlap = await _termGenericRepository.DoesValueExist(t =>
                 t.InstitutionId == institutionId
                 && t.StartDate <= dto.EndDate
-                && t.StartDate >= dto.StartDate);
+                && t.EndDate >= dto.StartDate);
 
             if (doesDatesOverlap) throw new BadRequestException("Dates overlap with an existing Term");
 
@@ -59,7 +59,7 @@ namespace SchoolScheduleLibrary.Service
             bool doesDatesOverlap = await _termGenericRepository.DoesValueExist(t =>
                 t.InstitutionId == institutionId
                 && t.StartDate <= dto.EndDate
-                && t.StartDate >= dto.StartDate);
+                && t.EndDate >= dto.StartDate);
 
             if (doesDatesOverlap) throw new BadRequestException("Dates overlap with an existing Term");
 

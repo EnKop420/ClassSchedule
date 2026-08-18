@@ -131,7 +131,7 @@ namespace ClassScheduleTests.UnitTests.Controllers
 
             Assert.Equal(200, okResult.StatusCode);
             Assert.NotNull(okResult.Value);
-            Assert.Null(await _context.Institutions.FirstOrDefaultAsync(x => x.Id == id));
+            Assert.True(_context.Institutions.Any(i => i.Id == id) == false);
         }
 
         [Fact]

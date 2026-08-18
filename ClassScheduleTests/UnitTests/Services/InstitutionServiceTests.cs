@@ -38,11 +38,62 @@ namespace ClassScheduleTests.UnitTests.Services
         }
 
         [Fact]
-        public async Task Create_Institution_Return_InstitutionDTO()
+        public async Task Create_Institution()
         {
             // Arrange
             CreateInstitutionDTO dto = new("TEC");
 
+            // Act
+            await _service.CreateInstitution(dto);
+
+            // Assert
+            Assert.True(_context.Institutions.Any(i => i.Name == dto.Name));
         }
+
+        [Fact]
+        public async Task Update_Institution_Return_InstitutionDTO()
+        {
+            Institution institution = new("TEC");
+            await _context.Institutions.AddAsync(institution);
+            await _context.SaveChangesAsync();
+
+            if (_context.Institutions.Any(i => i.Id == institution.Id))
+            {
+                InstitutionDTO dto = new(institution.Id, "Updated TEC");
+                InstitutionDTO updatedDTO = await _service.UpdateInstitution(dto);
+                Assert.True(_context.Institutions.Any(i => i.Name == dto.Name && i.Id == institution.Id));
+            }
+
+        }
+
+        [Fact]
+        public async Task Delete_Institution()
+        {
+            Institution institution = new("TEC");
+            await _context.Institutions.AddAsync(institution);
+            await _context.SaveChangesAsync();
+
+            if (_context.Institutions.Any(i => i.Id == institution.Id))
+            {
+                await _service.DeleteInstitution(institution.Id);
+            }
+
+            Assert.True(_context.Institutions.Any(i => i.Id == institution.Id) == false);
+        }
+
+        public async Task Get_Institution_Return_InstitutionDTO()
+        {
+            Institution institution = new("TEC");
+            await _context.Institutions.AddAsync(institution);
+            await _context.SaveChangesAsync();
+
+            InstitutionDTO? institutionDTO = await _service.GetInstitutionById(institution.Id);
+
+            Assert.NotNull(institutionDTO);
+            Assert.Equal(institution.Id, institutionDTO.Id);
+        }
+
+        [Fact]
+        public async 
     }
 }
