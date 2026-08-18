@@ -22,7 +22,7 @@ namespace ClassSchedule.Controllers
         }
 
         [HttpGet("get-all-periods")]
-        public async Task<IActionResult> GetAllSubjects()
+        public async Task<IActionResult> GetAllPeriods()
         {
             try
             {
@@ -56,7 +56,7 @@ namespace ClassSchedule.Controllers
         }
 
         [HttpPost("create-period")]
-        public async Task<IActionResult> CreateSubject([FromBody] CreatePeriodDTO dto)
+        public async Task<IActionResult> CreatePeriod([FromBody] CreatePeriodDTO dto)
         {
             try
             {

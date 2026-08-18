@@ -92,8 +92,5 @@ namespace ClassScheduleTests.UnitTests.Services
             Assert.NotNull(institutionDTO);
             Assert.Equal(institution.Id, institutionDTO.Id);
         }
-
-        [Fact]
-        public async 
     }
 }

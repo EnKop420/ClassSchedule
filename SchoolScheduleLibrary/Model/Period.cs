@@ -13,17 +13,15 @@ namespace SchoolScheduleLibrary.Model
         public string Name { get; set; }
         public TimeOnly StartTime { get; set; }
         public TimeOnly EndTime { get; set; }
-        public int SortOrder { get; set; }
 
         public Guid InstitutionId { get; set; }
         public Institution Institution { get; set; } = null!;
 
-        public Period(string name, TimeOnly startTime, TimeOnly endTime, int sortOrder, Guid institutionId)
+        public Period(string name, TimeOnly startTime, TimeOnly endTime, Guid institutionId)
         {
             Name = name;
             StartTime = startTime;
             EndTime = endTime;
-            SortOrder = sortOrder;
             InstitutionId = institutionId;
         }
     }
