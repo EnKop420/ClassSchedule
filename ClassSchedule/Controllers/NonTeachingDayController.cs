@@ -22,7 +22,7 @@ namespace ClassSchedule.Controllers
         }
 
         [HttpGet("get-all-nonteachingday")]
-        public async Task<IActionResult> GetAllSubjects()
+        public async Task<IActionResult> GetAll()
         {
             try
             {
@@ -56,7 +56,7 @@ namespace ClassSchedule.Controllers
         }
 
         [HttpPost("create-nonteachingday")]
-        public async Task<IActionResult> CreateSubject([FromBody] CreateNonTeachingDayDTO dto)
+        public async Task<IActionResult> Create([FromBody] CreateNonTeachingDayDTO dto)
         {
             try
             {

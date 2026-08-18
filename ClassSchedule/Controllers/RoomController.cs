@@ -22,7 +22,7 @@ namespace ClassSchedule.Controllers
         }
 
         [HttpGet("get-all-rooms")]
-        public async Task<IActionResult> GetAllSubjects()
+        public async Task<IActionResult> GetAll()
         {
             try
             {
@@ -56,7 +56,7 @@ namespace ClassSchedule.Controllers
         }
 
         [HttpPost("create-room")]
-        public async Task<IActionResult> CreateSubject([FromBody] CreateRoomDTO dto)
+        public async Task<IActionResult> Create([FromBody] CreateRoomDTO dto)
         {
             try
             {

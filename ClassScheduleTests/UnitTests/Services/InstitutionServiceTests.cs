@@ -9,6 +9,7 @@ using SchoolScheduleLibrary.Service;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using static SchoolScheduleLibrary.Utilities.Response.HttpResponseException;
 
 namespace ClassScheduleTests.UnitTests.Services
 {
@@ -81,6 +82,7 @@ namespace ClassScheduleTests.UnitTests.Services
             Assert.True(_context.Institutions.Any(i => i.Id == institution.Id) == false);
         }
 
+        [Fact]
         public async Task Get_Institution_Return_InstitutionDTO()
         {
             Institution institution = new("TEC");
@@ -91,6 +93,44 @@ namespace ClassScheduleTests.UnitTests.Services
 
             Assert.NotNull(institutionDTO);
             Assert.Equal(institution.Id, institutionDTO.Id);
+        }
+
+        [Fact]
+        public async Task Get_All_Institutions()
+        {
+            List<Institution> institutions = new List<Institution>
+            {
+                new Institution("TEC"),
+                new Institution("Harvard"),
+                new Institution("HC. Ørsted")
+            };
+
+            await _context.Institutions.AddRangeAsync(institutions);
+            await _context.SaveChangesAsync();
+
+            List<InstitutionDTO> dtos = await _service.GetAllInstitutions();
+
+            Assert.NotEmpty(dtos);
+            Assert.Equal(_context.Institutions.Count(), dtos.Count);
+            Assert.True(dtos.All(d => institutions.Any(i => i.Id == d.Id)));
+        }
+
+        [Fact]
+        public async Task Get_Return_NotFound_Error()
+        {
+            await Assert.ThrowsAsync<NotFoundException>(async () =>
+            {
+                await _service.GetInstitutionById(Guid.NewGuid());
+            });
+        }
+
+        [Fact]
+        public async Task Delete_Return_NotFound_Error()
+        {
+            await Assert.ThrowsAsync<NotFoundException>(async () =>
+            {
+                await _service.DeleteInstitution(Guid.NewGuid());
+            });
         }
     }
 }

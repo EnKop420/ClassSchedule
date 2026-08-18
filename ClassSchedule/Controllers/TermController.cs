@@ -22,7 +22,7 @@ namespace ClassSchedule.Controllers
         }
 
         [HttpGet("get-all-terms")]
-        public async Task<IActionResult> GetAllSubjects()
+        public async Task<IActionResult> GetAll()
         {
             try
             {
@@ -56,7 +56,7 @@ namespace ClassSchedule.Controllers
         }
 
         [HttpPost("create-term")]
-        public async Task<IActionResult> CreateSubject([FromBody] CreateTermDTO dto)
+        public async Task<IActionResult> Create([FromBody] CreateTermDTO dto)
         {
             try
             {
