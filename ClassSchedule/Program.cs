@@ -13,7 +13,7 @@ using StackExchange.Redis;
 
 namespace ClassSchedule
 {
-    public class Program
+    public partial class Program
     {
         public static void Main(string[] args)
         {
@@ -100,5 +100,6 @@ namespace ClassSchedule
 
             app.Run();
         }
+
     }
 }

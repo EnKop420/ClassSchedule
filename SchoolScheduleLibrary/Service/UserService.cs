@@ -235,8 +235,24 @@ namespace SchoolScheduleLibrary.Service
 
         public async Task<List<UserDTO>> GetAllUsers(Guid institutionId)
         {
-            return (await _userGenericRepository.GetAll(u => u.InstitutionId == institutionId, u => u.Institution))
-                .Select(u => new UserDTO(u.Id, u.FirstName, u.LastName, u.DateOfBirth, u.Username, u.Email, u.CreatedAt, u.Role, u.InstitutionId, u.Institution.Name)).ToList();
+            List<User> users = await _userGenericRepository.GetAll(u => u.InstitutionId == institutionId, u => u.Institution);
+
+            List<UserDTO> userDTOs = new List<UserDTO>();
+            foreach (User user in users)
+            {
+                userDTOs.Add(new UserDTO(
+                    user.Id,
+                    user.FirstName,
+                    user.LastName,
+                    user.DateOfBirth,
+                    user.Username,
+                    await _encryptionHandler.DecryptString(user.Email),
+                    user.CreatedAt,
+                    user.Role,
+                    user.InstitutionId,
+                    user.Institution.Name));
+            }
+            return userDTOs;
         }
 
         public async Task Logout(string key)

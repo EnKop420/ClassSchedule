@@ -2,6 +2,7 @@
   <Project Path="ClassSchedule/ClassSchedule.csproj">
     <BuildType Project="Debug" />
   </Project>
+  <Project Path="ClassScheduleTests/ClassScheduleTests.csproj" Id="d6d89a84-a581-4711-acd1-7da65262845e" />
   <Project Path="SchoolScheduleLibrary/SchoolScheduleLibrary.csproj">
     <BuildType Project="Debug" />
   </Project>

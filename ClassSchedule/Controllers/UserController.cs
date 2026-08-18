@@ -68,8 +68,6 @@ namespace ClassSchedule.Controllers
         {
             try
             {
-                int ttlDays = 3;
-
                 UserDTO userDTO = await _userService.Login(dto, Response.Cookies);
                 return Ok(userDTO);
             }
@@ -146,11 +144,11 @@ namespace ClassSchedule.Controllers
 
         [Authorize(UserRoles.Admin, UserRoles.Teacher, UserRoles.Student)]
         [HttpGet("Get-User-Information")]
-        public async Task<IActionResult> GetUserInformation(Guid targetId)
+        public async Task<IActionResult> GetUserInformation([FromQuery] Guid id)
         {
             try
             {
-                return Ok(await _userService.GetUserInfo(targetId, CurrentUserId, CurrentUserRole));
+                return Ok(await _userService.GetUserInfo(id, CurrentUserId, CurrentUserRole));
             }
             catch (HttpResponseException hre)
             {

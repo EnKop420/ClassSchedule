@@ -18,7 +18,7 @@ namespace SchoolScheduleLibrary.Repository.Generic
     {
         private readonly SchoolDbContext _context;
 
-        public GenericRepository(SchoolDbContext context, IEncryptionHandler encryptionHandler)
+        public GenericRepository(SchoolDbContext context)
         {
             _context = context;
         }

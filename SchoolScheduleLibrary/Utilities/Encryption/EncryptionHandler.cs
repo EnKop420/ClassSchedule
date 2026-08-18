@@ -11,12 +11,10 @@ namespace SchoolScheduleLibrary.Utilities.Encryption
     {
         private readonly string _SALT = "";
         private readonly string _EncryptionKey = "";
-        private readonly IConfiguration _config;
         public EncryptionHandler(IConfiguration config)
         {
-            _config = config;
-            _SALT = _config["Salt"] ?? throw new Exception("Salt is not configured");
-            _EncryptionKey = _config["EncryptionKey"] ?? throw new Exception("EncryptionKey is not configured");
+            _SALT = config["Salt"] ?? throw new Exception("Salt is not configured");
+            _EncryptionKey = config["EncryptionKey"] ?? throw new Exception("EncryptionKey is not configured");
         }
         public async Task<string> DecryptString(string input)
         {
