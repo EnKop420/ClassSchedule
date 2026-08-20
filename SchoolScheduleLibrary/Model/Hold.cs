@@ -27,7 +27,7 @@ namespace SchoolScheduleLibrary.Model
         public List<Lesson> Lessons { get; set; } = new();
         public List<LessonTemplate> LessonTemplates { get; set; } = new();
 
-        public Hold(string name, Guid institutionId, Guid termId, Guid subjectId)
+        public Hold(string name, Guid institutionId, Guid subjectId, Guid termId)
         {
             Name = name;
             InstitutionId = institutionId;

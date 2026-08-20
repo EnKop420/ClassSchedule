@@ -34,6 +34,6 @@ namespace SchoolScheduleLibrary.Service.Interface
 
         public Task<UserDTO> GetUserInfo(Guid targetId, Guid callerId, UserRoles role);
 
-        public Task<List<UserDTO>> GetAllUsers(Guid institutionId);
+        public Task<List<UserDTO>> GetAllUsers(Guid institutionId, UserRoles currentUserRole, UserRoles? role = null);
     }
 }

@@ -34,7 +34,7 @@ namespace SchoolScheduleLibrary.Service
                 h => h.Term // Include
                 )
             )
-            .Select(h => new HoldDTO(h.Id, h.Name, h.Subject.Name, h.Term.Name)).ToList();
+            .Select(h => new HoldDTO(h.Id, h.Name, h.SubjectId, h.TermId, h.Subject.Name, h.Term.Name)).ToList();
         }
 
         public async Task<HoldDTO> GetByIdAsync(Guid institutionId, Guid id)
@@ -46,7 +46,7 @@ namespace SchoolScheduleLibrary.Service
             )
             ?? throw new NotFoundException($"Could not get Hold with Id \"{id}\" in the Institution with Id \"{institutionId}\"");
 
-            return new HoldDTO(hold.Id, hold.Name, hold.Subject.Name, hold.Term.Name);
+            return new HoldDTO(hold.Id, hold.Name, hold.SubjectId, hold.TermId, hold.Subject.Name, hold.Term.Name);
         }
 
         public async Task<HoldDTO> CreateAsync(Guid institutionId, CreateHoldDTO dto)
@@ -57,12 +57,12 @@ namespace SchoolScheduleLibrary.Service
             Term term = await _termGenericRepository.Get(t => t.Id == dto.TermId && t.InstitutionId == institutionId)
                 ?? throw new NotFoundException($"Could not get Term with Id \"{dto.TermId}\" in the Institution with Id \"{institutionId}\"");
 
-            Hold hold = new(dto.Name, institutionId, dto.TermId, dto.SubjectId);
+            Hold hold = new(dto.Name, institutionId, dto.SubjectId, dto.TermId);
 
             await _holdGenericRepository.Add(hold);
-            return new HoldDTO(hold.Id, hold.Name, subject.Name, term.Name);
+            return new HoldDTO(hold.Id, hold.Name, subject.Id, term.Id, subject.Name, term.Name);
         }
-        public async Task<HoldDTO> UpdateAsync(Guid institutionId, UpdateHoldDTO dto)
+        public async Task<HoldDTO> UpdateAsync(Guid institutionId, HoldDTO dto)
         {
             Hold hold = await _holdGenericRepository.Get(h => h.Id == dto.Id && h.InstitutionId == institutionId)
                 ?? throw new NotFoundException($"Could not get Hold with Id \"{dto.Id}\" in the Institution with Id \"{institutionId}\"");
@@ -86,7 +86,7 @@ namespace SchoolScheduleLibrary.Service
                 h => h.Term // Include
             ) ?? throw new InternalErrorException("Something went wrong after updating and could not retrieve it!");
 
-            return new HoldDTO(updatedHold.Id, updatedHold.Name, updatedHold.Subject.Name, updatedHold.Term.Name);
+            return new HoldDTO(updatedHold.Id, updatedHold.Name, updatedHold.SubjectId, updatedHold.TermId, updatedHold.Subject.Name, updatedHold.Term.Name);
         }
 
         public async Task<bool> DeleteAsync(Guid institutionId, Guid id)

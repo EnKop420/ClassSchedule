@@ -160,14 +160,13 @@ namespace ClassSchedule.Controllers
             }
         }
 
-        // Development Function will not be included in the real production endpoint.
-        [LocalhostOnly]
+        [Authorize(UserRoles.Admin, UserRoles.Teacher)]
         [HttpGet("Get-All-Users")]
-        public async Task<IActionResult> GetAllUsers([FromQuery] Guid institutionId)
+        public async Task<IActionResult> GetAllUsers([FromQuery] Guid institutionId, [FromQuery] UserRoles? role = null)
         {
             try
             {
-                return Ok(await _userService.GetAllUsers(institutionId));
+                return Ok(await _userService.GetAllUsers(institutionId, CurrentUserRole, role));
             }
             catch (HttpResponseException hre)
             {

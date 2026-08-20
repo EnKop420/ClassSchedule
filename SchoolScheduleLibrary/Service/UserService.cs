@@ -233,9 +233,27 @@ namespace SchoolScheduleLibrary.Service
                 user.Institution.Name);
         }
 
-        public async Task<List<UserDTO>> GetAllUsers(Guid institutionId)
+        public async Task<List<UserDTO>> GetAllUsers(Guid institutionId, UserRoles currentUserRole, UserRoles? role = null)
         {
-            List<User> users = await _userGenericRepository.GetAll(u => u.InstitutionId == institutionId, u => u.Institution);
+            List<User> users = [];
+
+            if (role != null)
+            {
+                if (currentUserRole == UserRoles.Teacher && role == UserRoles.Admin) throw new UnauthorizedException("Teachers can not gather all Admin accounts!");
+
+                users = await _userGenericRepository.GetAll(u => u.InstitutionId == institutionId && u.Role == role, u => u.Institution);
+            }
+            else
+            {
+                if (currentUserRole == UserRoles.Teacher)
+                {
+                    users = await _userGenericRepository.GetAll(u => u.InstitutionId == institutionId && u.Role != UserRoles.Admin, u => u.Institution);
+                }
+                else
+                {
+                    users = await _userGenericRepository.GetAll(u => u.InstitutionId == institutionId, u => u.Institution);
+                }
+            }
 
             List<UserDTO> userDTOs = new List<UserDTO>();
             foreach (User user in users)
