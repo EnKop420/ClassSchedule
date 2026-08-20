@@ -29,23 +29,33 @@ namespace SchoolScheduleLibrary.Service
             _enrollmentGenericRepository = enrollmentGenericRepository;
         }
 
-        public async Task<bool> GroupTeacherAsync(Guid institutionId, Guid holdId, Guid teacherId)
+        public async Task<bool> GroupTeacherAsync(Guid institutionId, Guid holdId, List<Guid> teacherIds)
         {
             bool doesHoldExist = await _holdGenericRepository.DoesValueExist(h => h.Id == holdId && h.InstitutionId == institutionId);
             if (doesHoldExist == false) throw new NotFoundException($"Could not get Hold with Id \"{holdId}\" in the Institution with Id \"{institutionId}\"");
 
-            User user = await _userGenericRepository.Get(u => u.Id == teacherId && u.InstitutionId == institutionId)
-                ?? throw new NotFoundException($"Could not get Teacher with Id \"{teacherId}\" in the Institution with Id \"{institutionId}\"");
-            if (user.Role != UserRoles.Teacher) throw new BadRequestException("User is not a Teacher!");
+            List<GroupTeacher> groupTeachers = [];
 
-            bool isTeacherGrouped = await _groupTeacherGenericRepository.DoesValueExist(e =>
-                e.HoldId == holdId && e.TeacherId == teacherId);
+            foreach (Guid teacher in teacherIds)
+            {
+                User user = await _userGenericRepository.Get(u => u.Id == teacher && u.InstitutionId == institutionId)
+                    ?? throw new NotFoundException($"Could not get Teacher with Id \"{teacher}\" in the Institution with Id \"{institutionId}\"");
+                if (user.Role != UserRoles.Teacher) throw new BadRequestException("User is not a Teacher!");
 
-            if (isTeacherGrouped) throw new BadRequestException("Teacher is already grouped into this hold");
+                bool isTeacherGrouped = await _groupTeacherGenericRepository.DoesValueExist(e =>
+                    e.HoldId == holdId && e.TeacherId == teacher);
 
-            GroupTeacher groupTeacher = new(holdId, teacherId);
+                if (isTeacherGrouped)
+                {
+                    throw new ConflictException($"{user.FirstName} {user.LastName} {teacher} Teacher is already grouped into this hold");
+                }
+                else
+                {
+                    groupTeachers.Add(new(holdId, teacher));
+                }
+            }
 
-            return await _groupTeacherGenericRepository.Add(groupTeacher);
+            return await _groupTeacherGenericRepository.AddRange(groupTeachers);
         }
 
         public async Task<bool> UngroupTeacherAsync(Guid institutionId, Guid holdId, Guid teacherId)
@@ -58,23 +68,34 @@ namespace SchoolScheduleLibrary.Service
             return await _groupTeacherGenericRepository.Delete(e => e.HoldId == holdId && e.TeacherId == teacherId);
         }
 
-        public async Task<bool> EnrollStudentAsync(Guid institutionId, Guid holdId, Guid studentId)
+        public async Task<bool> EnrollStudentAsync(Guid institutionId, Guid holdId, List<Guid> studentIds)
         {
             bool doesHoldExist = await _holdGenericRepository.DoesValueExist(h => h.Id == holdId && h.InstitutionId == institutionId);
             if (doesHoldExist == false) throw new NotFoundException($"Could not get Hold with Id \"{holdId}\" in the Institution with Id \"{institutionId}\"");
 
-            User user = await _userGenericRepository.Get(u => u.Id == studentId && u.InstitutionId == institutionId)
-                ?? throw new NotFoundException($"Could not get Student with Id \"{studentId}\" in the Institution with Id \"{institutionId}\"");
-            if (user.Role != UserRoles.Student) throw new BadRequestException("User is not a student!");
+            List<Enrollment> enrollments = [];
 
-            bool isStudentEnrolled = await _enrollmentGenericRepository.DoesValueExist(e =>
-                e.HoldId == holdId && e.StudentId == studentId);
 
-            if (isStudentEnrolled) throw new BadRequestException("Student is already enrolled into this hold");
+            foreach (Guid student in studentIds)
+            {
+                User user = await _userGenericRepository.Get(u => u.Id == student && u.InstitutionId == institutionId)
+                    ?? throw new NotFoundException($"Could not get Student with Id \"{studentIds}\" in the Institution with Id \"{institutionId}\"");
+                if (user.Role != UserRoles.Student) throw new BadRequestException("User is not a student!");
 
-            Enrollment enrollment = new(holdId, studentId);
+                bool isStudentEnrolled = await _enrollmentGenericRepository.DoesValueExist(e =>
+                    e.HoldId == holdId && e.StudentId == student);
 
-            return await _enrollmentGenericRepository.Add(enrollment);
+                if (isStudentEnrolled)
+                {
+                    throw new ConflictException($"{user.FirstName} {user.LastName} {student} Student is already enrolled into this hold");
+                }
+                else
+                {
+                    enrollments.Add(new(holdId, student));
+                }
+            }
+
+            return await _enrollmentGenericRepository.AddRange(enrollments);
         }
 
         public async Task<bool> UnenrollStudentAsync(Guid institutionId, Guid holdId, Guid studentId)

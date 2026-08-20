@@ -72,7 +72,7 @@ namespace ClassSchedule.Controllers
             }
         }
 
-        [HttpPut("update-hold")]
+        [HttpPatch("update-hold")]
         public async Task<IActionResult> Update([FromBody] HoldDTO dto)
         {
             try
