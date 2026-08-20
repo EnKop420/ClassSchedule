@@ -180,7 +180,7 @@ namespace ClassSchedule.Controllers
 
         [Authorize(UserRoles.Admin, UserRoles.Teacher, UserRoles.Student)]
         [HttpPatch("Update-User-Information")]
-        public async Task<IActionResult> UpdateUserInformation(UpdateUserInformationDTO dto)
+        public async Task<IActionResult> UpdateUserInformation([FromBody] UpdateUserInformationDTO dto)
         {
             try
             {
@@ -198,7 +198,7 @@ namespace ClassSchedule.Controllers
 
         [Authorize(UserRoles.Admin, UserRoles.Teacher, UserRoles.Student)]
         [HttpPatch("Change-User-Credentials")]
-        public async Task<IActionResult> ChangeUserCredentials(ChangeUserCredentialsDTO dto)
+        public async Task<IActionResult> ChangeUserCredentials([FromBody] ChangeUserCredentialsDTO dto)
         {
             try
             {

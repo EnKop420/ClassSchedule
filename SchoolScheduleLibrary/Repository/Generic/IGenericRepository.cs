@@ -30,5 +30,7 @@ namespace SchoolScheduleLibrary.Repository.Generic
         public Task<bool> Delete(Expression<Func<T, bool>> predicate);
 
         public Task<bool> RemoveRange(List<T> entities);
+
+        public Task<int> Count(Expression<Func<T, bool>> predicate);
     }
 }

@@ -56,7 +56,7 @@ namespace ClassSchedule.Controllers
         }
 
         [HttpPost("create-hold")]
-        public async Task<IActionResult> Create(CreateHoldDTO dto)
+        public async Task<IActionResult> Create([FromBody] CreateHoldDTO dto)
         {
             try
             {
