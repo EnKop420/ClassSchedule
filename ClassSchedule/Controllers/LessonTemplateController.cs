@@ -55,7 +55,7 @@ namespace ClassSchedule.Controllers
         }
 
         [HttpPost("create-lessontemplate")]
-        public async Task<IActionResult> Create(CreateLessonTemplateDTO dto)
+        public async Task<IActionResult> Create([FromBody] CreateLessonTemplateDTO dto)
         {
             try
             {

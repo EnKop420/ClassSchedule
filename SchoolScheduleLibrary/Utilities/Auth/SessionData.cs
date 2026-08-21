@@ -5,6 +5,10 @@ using System.Text;
 
 namespace SchoolScheduleLibrary.Utilities.Auth
 {
+    /// <summary>
+    /// Used by the Redis Repository and Login endpoint for making the Session Data to store in the Redis database.
+    /// Contains all the information that is needed throughout the project
+    /// </summary>
     public class SessionData
     {
         public string UserId { get; set; }

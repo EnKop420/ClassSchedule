@@ -1,7 +1,7 @@
 ﻿using SchoolScheduleLibrary.DTO;
 using SchoolScheduleLibrary.Enums;
 using SchoolScheduleLibrary.Model;
-using SchoolScheduleLibrary.Repository.Generic;
+using SchoolScheduleLibrary.Repository.Interface;
 using SchoolScheduleLibrary.Service.Interface;
 using System;
 using System.Collections.Generic;
@@ -58,23 +58,24 @@ namespace SchoolScheduleLibrary.Service
             return await _groupTeacherGenericRepository.AddRange(groupTeachers);
         }
 
-        public async Task<bool> UngroupTeacherAsync(Guid institutionId, Guid holdId, Guid teacherId)
+        public async Task<bool> UngroupTeacherAsync(Guid institutionId, Guid holdId, List<Guid> teacherIds)
         {
-            bool isTeacherGrouped = await _groupTeacherGenericRepository.DoesValueExist(e =>
-                e.HoldId == holdId && e.TeacherId == teacherId);
+            int groupedTeachers = await _groupTeacherGenericRepository.Count(tg =>
+                tg.HoldId == holdId && teacherIds.Contains(tg.TeacherId));
 
-            if (isTeacherGrouped == false) throw new BadRequestException("Teacher is not grouped into this hold");
+            if (groupedTeachers != teacherIds.Distinct().Count()) throw new BadRequestException("One or more teacher(s) is not grouped into this hold");
 
-            return await _groupTeacherGenericRepository.Delete(e => e.HoldId == holdId && e.TeacherId == teacherId);
+            return await _groupTeacherGenericRepository.Delete(tg => tg.HoldId == holdId && teacherIds.Contains(tg.TeacherId));
         }
 
         public async Task<bool> EnrollStudentAsync(Guid institutionId, Guid holdId, List<Guid> studentIds)
         {
+            if (studentIds == null || studentIds.Count == 0) return false;
+
             bool doesHoldExist = await _holdGenericRepository.DoesValueExist(h => h.Id == holdId && h.InstitutionId == institutionId);
             if (doesHoldExist == false) throw new NotFoundException($"Could not get Hold with Id \"{holdId}\" in the Institution with Id \"{institutionId}\"");
 
             List<Enrollment> enrollments = [];
-
 
             foreach (Guid student in studentIds)
             {
@@ -98,14 +99,16 @@ namespace SchoolScheduleLibrary.Service
             return await _enrollmentGenericRepository.AddRange(enrollments);
         }
 
-        public async Task<bool> UnenrollStudentAsync(Guid institutionId, Guid holdId, Guid studentId)
+        public async Task<bool> UnenrollStudentAsync(Guid institutionId, Guid holdId, List<Guid> studentIds)
         {
-            bool isStudentEnrolled = await _enrollmentGenericRepository.DoesValueExist(e =>
-                e.HoldId == holdId && e.StudentId == studentId);
+            if (studentIds == null || studentIds.Count == 0) return false;
 
-            if (isStudentEnrolled == false) throw new BadRequestException("Student is not enrolled into this hold");
+            int enrolledStudents = await _enrollmentGenericRepository.Count(e =>
+                e.HoldId == holdId && studentIds.Contains(e.StudentId));
 
-            return await _enrollmentGenericRepository.Delete(e => e.HoldId == holdId && e.StudentId == studentId);
+            if (enrolledStudents != studentIds.Distinct().Count()) throw new BadRequestException("One or more student(s) is not enrolled into this hold");
+
+            return await _enrollmentGenericRepository.Delete(e => e.HoldId == holdId && studentIds.Contains(e.StudentId));
         }
 
         public async Task<List<HoldMemberDTO>> GetTeachersAsync(Guid holdId)

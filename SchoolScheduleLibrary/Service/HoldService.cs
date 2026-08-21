@@ -1,7 +1,5 @@
 ﻿using SchoolScheduleLibrary.DTO;
 using SchoolScheduleLibrary.Model;
-using SchoolScheduleLibrary.Repository;
-using SchoolScheduleLibrary.Repository.Generic;
 using SchoolScheduleLibrary.Repository.Interface;
 using SchoolScheduleLibrary.Service.Interface;
 using System;
@@ -13,14 +11,17 @@ namespace SchoolScheduleLibrary.Service
 {
     public class HoldService : IHoldService
     {
+        private readonly IHoldMemberService _holdMemberService;
         private readonly IGenericRepository<Hold> _holdGenericRepository;
         private readonly IGenericRepository<Term> _termGenericRepository;
         private readonly IGenericRepository<Subject> _subjectGenericRepository;
         public HoldService(
+            IHoldMemberService holdMemberService,
             IGenericRepository<Hold> genericRepository,
             IGenericRepository<Term> termGenericRepository,
             IGenericRepository<Subject> subjectGenericRepository)
         {
+            _holdMemberService = holdMemberService;
             _holdGenericRepository = genericRepository;
             _termGenericRepository = termGenericRepository;
             _subjectGenericRepository = subjectGenericRepository;
@@ -28,13 +29,34 @@ namespace SchoolScheduleLibrary.Service
 
         public async Task<List<HoldDTO>> GetAllAsync(Guid institutionId)
         {
-            return (await _holdGenericRepository.GetAll(
-                h => h.InstitutionId == institutionId, // Predicate
-                h => h.Subject, // Include
-                h => h.Term // Include
-                )
-            )
-            .Select(h => new HoldDTO(h.Id, h.Name, h.SubjectId, h.TermId, h.Subject.Name, h.Term.Name)).ToList();
+            // Get all holds
+            List<Hold> holds = await _holdGenericRepository.GetAll(
+                h => h.InstitutionId == institutionId,
+                h => h.Subject,
+                h => h.Term
+            );
+
+            List<HoldDTO> dtoList = new();
+
+            // Get students and teachers sequentially.
+            foreach (var hold in holds)
+            {
+                List<Guid> students = (await _holdMemberService.GetStudentsAsync(hold.Id)).Select(s => s.UserId).ToList();
+                List<Guid> teachers = (await _holdMemberService.GetTeachersAsync(hold.Id)).Select(t => t.UserId).ToList();
+
+                dtoList.Add(new HoldDTO(
+                    hold.Id,
+                    hold.Name,
+                    hold.SubjectId,
+                    hold.TermId,
+                    hold.Subject.Name,
+                    hold.Term.Name,
+                    teachers,
+                    students
+                ));
+            }
+
+            return dtoList;
         }
 
         public async Task<HoldDTO> GetByIdAsync(Guid institutionId, Guid id)
@@ -46,7 +68,10 @@ namespace SchoolScheduleLibrary.Service
             )
             ?? throw new NotFoundException($"Could not get Hold with Id \"{id}\" in the Institution with Id \"{institutionId}\"");
 
-            return new HoldDTO(hold.Id, hold.Name, hold.SubjectId, hold.TermId, hold.Subject.Name, hold.Term.Name);
+            List<Guid> students = (await _holdMemberService.GetStudentsAsync(hold.Id)).Select(s => s.UserId).ToList();
+            List<Guid> teachers = (await _holdMemberService.GetTeachersAsync(hold.Id)).Select(t => t.UserId).ToList();
+
+            return new HoldDTO(hold.Id, hold.Name, hold.SubjectId, hold.TermId, hold.Subject.Name, hold.Term.Name, teachers, students);
         }
 
         public async Task<HoldDTO> CreateAsync(Guid institutionId, CreateHoldDTO dto)
@@ -59,8 +84,16 @@ namespace SchoolScheduleLibrary.Service
 
             Hold hold = new(dto.Name, institutionId, dto.SubjectId, dto.TermId);
 
-            await _holdGenericRepository.Add(hold);
-            return new HoldDTO(hold.Id, hold.Name, subject.Id, term.Id, subject.Name, term.Name);
+            List<Guid> students = dto.Students.Distinct().ToList();
+            List<Guid> teachers = dto.Teachers.Distinct().ToList();
+
+            if (await _holdGenericRepository.Add(hold))
+            {
+                await _holdMemberService.EnrollStudentAsync(institutionId, hold.Id, students);
+                await _holdMemberService.GroupTeacherAsync(institutionId, hold.Id, teachers);
+            }
+
+            return new HoldDTO(hold.Id, hold.Name, subject.Id, term.Id, subject.Name, term.Name, teachers, students);
         }
         public async Task<HoldDTO> UpdateAsync(Guid institutionId, HoldDTO dto)
         {
@@ -80,13 +113,19 @@ namespace SchoolScheduleLibrary.Service
 
             await _holdGenericRepository.Update(hold);
 
+            List<Guid> students = dto.Students.Distinct().ToList();
+            List<Guid> teachers = dto.Teachers.Distinct().ToList();
+
+            await _holdMemberService.EnrollStudentAsync(institutionId, dto.Id, students);
+            await _holdMemberService.GroupTeacherAsync(institutionId, dto.Id, teachers);
+
             Hold updatedHold = await _holdGenericRepository.Get(
                 h => h.Id == dto.Id && h.InstitutionId == institutionId, // Predicate
                 h => h.Subject, // Include
                 h => h.Term // Include
             ) ?? throw new InternalErrorException("Something went wrong after updating and could not retrieve it!");
 
-            return new HoldDTO(updatedHold.Id, updatedHold.Name, updatedHold.SubjectId, updatedHold.TermId, updatedHold.Subject.Name, updatedHold.Term.Name);
+            return new HoldDTO(updatedHold.Id, updatedHold.Name, updatedHold.SubjectId, updatedHold.TermId, updatedHold.Subject.Name, updatedHold.Term.Name, teachers, students);
         }
 
         public async Task<bool> DeleteAsync(Guid institutionId, Guid id)

@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using SchoolScheduleLibrary.Context;
 using SchoolScheduleLibrary.Model;
 using SchoolScheduleLibrary.Repository;
-using SchoolScheduleLibrary.Repository.Generic;
 using SchoolScheduleLibrary.Repository.Interface;
 using SchoolScheduleLibrary.Service;
 using SchoolScheduleLibrary.Service.Interface;

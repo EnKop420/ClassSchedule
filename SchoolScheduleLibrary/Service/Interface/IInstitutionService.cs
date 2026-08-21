@@ -5,6 +5,9 @@ using System.Text;
 
 namespace SchoolScheduleLibrary.Service.Interface
 {
+    /// <summary>
+    /// Used to perform the business logic for the Institution Model data.
+    /// </summary>
     public interface IInstitutionService
     {
         public Task<List<InstitutionDTO>> GetAllInstitutions();

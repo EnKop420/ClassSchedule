@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using SchoolScheduleLibrary.Context;
 using SchoolScheduleLibrary.DTO;
 using SchoolScheduleLibrary.Model;
-using SchoolScheduleLibrary.Repository.Generic;
+using SchoolScheduleLibrary.Repository;
 using SchoolScheduleLibrary.Service;
 using SchoolScheduleLibrary.Utilities.Encryption;
 using SchoolScheduleLibrary.Utilities.Response;
