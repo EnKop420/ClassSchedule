@@ -1,11 +1,7 @@
-﻿using SchoolScheduleLibrary.Model;
-using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace SchoolScheduleLibrary.DTO
+﻿namespace SchoolScheduleLibrary.DTO
 {
-    public record StudentGroupDTO(Guid Id, string Name, List<User> UserList);
-    public record CreateStudentGroupDTO(string Name, List<User> UserList);
+    public record StudentGroupMemberDTO(string StudentName, Guid StudentId);
+    public record StudentGroupDTO(Guid Id, string Name, List<StudentGroupMemberDTO> Students);
+    public record CreateStudentGroupDTO(string Name, List<Guid> StudentIds);
     public record UpdateStudentGroupDTO(Guid Id, string Name);
 }

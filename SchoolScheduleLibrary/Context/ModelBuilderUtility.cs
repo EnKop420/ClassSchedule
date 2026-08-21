@@ -35,6 +35,7 @@ namespace SchoolScheduleLibrary.Context
             modelBuilder.Entity<Enrollment>().HasKey(e => new { e.HoldId, e.StudentId });
             modelBuilder.Entity<GroupTeacher>().HasKey(g => new { g.HoldId, g.TeacherId });
             modelBuilder.Entity<LessonTeacher>().HasKey(lt => new { lt.LessonId, lt.TeacherId });
+            modelBuilder.Entity<StudentGroupMember>().HasKey(sgm => new { sgm.StudentGroupId, sgm.StudentId });
         }
 
         // Prevents duplicates in the same group. Allows duplicates across different groups.
@@ -82,6 +83,18 @@ namespace SchoolScheduleLibrary.Context
                 .WithMany()
                 .HasForeignKey(a => a.RegisteredById)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<StudentGroupMember>()
+                .HasOne(sgm => sgm.StudentGroup)
+                .WithMany()
+                .HasForeignKey(sgm => sgm.StudentGroupId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<StudentGroupMember>()
+                .HasOne(sgm => sgm.Student)
+                .WithMany()
+                .HasForeignKey(sgm => sgm.StudentId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
 
         // Sets the DeleteBehavior to restrict so values can't be deleted before another value is deleted.
