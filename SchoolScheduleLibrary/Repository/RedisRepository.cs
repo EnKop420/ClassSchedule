@@ -37,10 +37,17 @@ namespace SchoolScheduleLibrary.Repository
 
         public async Task<SessionData> GetSessionDataFromKey(string sessionKey)
         {
+            // Get the value from the database using the key.
             RedisValue value = await _redisDb.StringGetAsync($"session:{sessionKey}");
-            if ( value.IsNullOrEmpty) throw new NotFoundException("This session key does not exist!");
+
+            if ( value.IsNullOrEmpty)
+            {
+                // If the value is null or empty throw a NotFound Http Response.
+                throw new NotFoundException("This session key does not exist!");
+            }
             else if (value.HasValue)
             {
+                // If the value is not null or empty deserialize the value string back into a SessionData class.
                 SessionData? session = JsonSerializer.Deserialize<SessionData>((string)value!);
                 if (session != null) return session;
                 else throw new NoContentException("Session key exists but could not deserialize value!");
@@ -67,20 +74,22 @@ namespace SchoolScheduleLibrary.Repository
             // IDatabase is used only for GET, SET, DEL actions while IServer is for server scoped commands like SCAN, KEYS, CONFIG etc.
             IServer server = _connection.GetServer(endpoint); // get a handle to THAT specific server
 
-            var keysToDelete = new List<RedisKey>();
+            List<RedisKey> keysToDelete = new();
 
-            foreach (var key in server.Keys(database: _redisDb.Database, pattern: "*", pageSize: 250))
+            // Loops through all the keys that matches a wildcard pattern which also means just everything.
+            foreach (RedisKey key in server.Keys(database: _redisDb.Database, pattern: "*", pageSize: 250))
             {
                 RedisValue value = await _redisDb.StringGetAsync(key);
                 if (!value.HasValue) continue;
 
                 SessionData? session = JsonSerializer.Deserialize<SessionData>((string)value!);
-                if (session != null 
-                    && string.Equals(session.UserId, userId, StringComparison.OrdinalIgnoreCase)) keysToDelete.Add(key);
+
+                // Check if the deserialized value is not null and if it matches the userId and add it to the list of keys to delete.
+                if (session != null && string.Equals(session.UserId, userId, StringComparison.OrdinalIgnoreCase)) keysToDelete.Add(key);
             }
 
-            if (keysToDelete.Count > 0)
-                await _redisDb.KeyDeleteAsync(keysToDelete.ToArray());
+            // If the list is not empty delete every key.
+            if (keysToDelete.Count > 0) await _redisDb.KeyDeleteAsync(keysToDelete.ToArray());
         }
     }
 }

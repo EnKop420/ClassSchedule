@@ -23,19 +23,18 @@ namespace SchoolScheduleLibrary.Service
             _studentGroupMemberGenericRepository = studentGroupMemberGenericRepository;
         }
 
-        public async Task<bool> AddStudentListAsync(Guid institutionId, Guid studentGroupId, List<Guid> studentIds)
+        public async Task<List<StudentGroupMemberDTO>> AddStudentListAsync(Guid institutionId, Guid studentGroupId, List<Guid> studentIds)
         {
             bool doesStudentGroupExist = await _studentGroupGenericRepository.DoesValueExist(sg => sg.Id == studentGroupId && sg.InstitutionId == institutionId);
             if (doesStudentGroupExist == false) throw new NotFoundException($"Could not get Student Group with Id \"{studentGroupId}\" in the Institution with Id \"{institutionId}\"");
 
             List<StudentGroupMember> studentGroupMembers = [];
+            List<StudentGroupMemberDTO> studentGroupMemberDTOs = [];
 
             foreach (Guid student in studentIds.Distinct())
             {
-                User user = await _userGenericRepository.Get(u => u.Id == student && u.InstitutionId == institutionId)
+                User user = await _userGenericRepository.Get(u => u.Id == student && u.InstitutionId == institutionId && u.Role == UserRoles.Student)
                     ?? throw new NotFoundException($"Could not get Student with Id \"{student}\" in the Institution with Id \"{institutionId}\"");
-
-                if (user.Role != UserRoles.Student) throw new BadRequestException("User is not a student!");
 
                 bool isStudentInStudentGroup = await _studentGroupMemberGenericRepository.DoesValueExist(sgm =>
                     sgm.StudentGroupId == studentGroupId && sgm.StudentId == student);
@@ -46,19 +45,19 @@ namespace SchoolScheduleLibrary.Service
                 }
 
                 studentGroupMembers.Add(new(studentGroupId, student));
+                studentGroupMemberDTOs.Add(new($"{user.FirstName} {user.LastName}", user.Id));
             }
 
-            if (studentGroupMembers.Count == 0)
+            if (await _studentGroupMemberGenericRepository.AddRange(studentGroupMembers))
             {
-                return true;
+                return studentGroupMemberDTOs;
             }
-
-            return await _studentGroupMemberGenericRepository.AddRange(studentGroupMembers);
+            else throw new InternalErrorException("Something went wrong trying to save to database.");
         }
 
         public async Task<List<StudentGroupMemberDTO>> GetStudentsAsync(Guid studentGroupId)
         {
-            return (await _studentGroupMemberGenericRepository.GetAll(sgm => sgm.StudentGroupId == studentGroupId,sgm => sgm.Student))
+            return (await _studentGroupMemberGenericRepository.GetAll(sgm => sgm.StudentGroupId == studentGroupId, sgm => sgm.Student))
                 .Select(sgm => new StudentGroupMemberDTO(
                     $"{sgm.Student.FirstName} {sgm.Student.LastName}",
                     sgm.StudentId

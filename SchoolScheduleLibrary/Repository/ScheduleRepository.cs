@@ -20,6 +20,10 @@ namespace SchoolScheduleLibrary.Repository
 
         public async Task<List<Lesson>> GetStudentLessonsAsync(Guid institutionId, GetScheduleLessonDTO dto)
         {
+            // Get lessons asynchronously with the following LINQ:
+            // 1. Filter: Match institution, fall within date range, and ensure target student is enrolled in the hold.
+            // 2. Include: Eagerly load related entities (Hold -> Subject, Room, Teachers -> Teacher).
+            // 3. Order: Sort chronologically by date, then start time.
             return await _context.Lessons
                 .Where(l =>
                     l.InstitutionId == institutionId
@@ -34,6 +38,10 @@ namespace SchoolScheduleLibrary.Repository
 
         public async Task<List<Lesson>> GetTeacherLessonsAsync(Guid institutionId, GetScheduleLessonDTO dto)
         {
+            // Get lessons asynchronously with the following LINQ:
+            // 1. Filter: Match institution, fall within date range, and ensure target teacher is in the hold.
+            // 2. Include: Eagerly load related entities (Hold -> Subject, Room, Teachers -> Teacher).
+            // 3. Order: Sort chronologically by date, then start time.
             return await _context.Lessons
                 .Where(l =>
                     l.InstitutionId == institutionId

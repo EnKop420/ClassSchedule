@@ -14,7 +14,7 @@ using System.Text;
 
 namespace SchoolScheduleLibrary.Repository
 {
-    // T can be any type, as long as it inherits from BaseEntity. This ensures that T has an Id property of type Guid.
+    // T can be any class
     public class GenericRepository<T> : IGenericRepository<T> where T : class
     {
         private readonly SchoolDbContext _context;
