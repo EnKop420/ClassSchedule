@@ -16,6 +16,7 @@ namespace SchoolScheduleLibrary.Utilities.Encryption
             _SALT = config["Salt"] ?? throw new Exception("Salt is not configured");
             _EncryptionKey = config["EncryptionKey"] ?? throw new Exception("EncryptionKey is not configured");
         }
+
         public async Task<string> DecryptString(string input)
         {
             // Convert the Base64 encrypted string back into raw bytes

@@ -9,12 +9,14 @@ namespace SchoolScheduleLibrary.Utilities.Response
         public ServiceReturnCode StatusCode { get; }
         public string ResponseMessage { get; }
 
+        // Polymorphed class that is used for the Try Catch to handle all the different errors.
         public HttpResponseException(ServiceReturnCode statusCode, string message) : base(message)
         {
             StatusCode = statusCode;
             ResponseMessage = message;
         }
-        // This is the same as making a constructor and a base()
+
+        // This is the same as making a constructor and a base() in one
         public class BadRequestException(string message) : HttpResponseException(ServiceReturnCode.BadRequest, message) { }
 
         public class NotFoundException(string message) : HttpResponseException(ServiceReturnCode.NotFound, message) { }
@@ -22,6 +24,8 @@ namespace SchoolScheduleLibrary.Utilities.Response
         public class InternalErrorException(string message) : HttpResponseException(ServiceReturnCode.InternalError, message) { }
 
         public class UnauthorizedException(string message) : HttpResponseException(ServiceReturnCode.Unauthorized, message) { }
+
+        public class Forbidden(string message) : HttpResponseException(ServiceReturnCode.Forbidden, message) { }
 
         public class NoContentException(string message) : HttpResponseException(ServiceReturnCode.NoContent, message) { }
 

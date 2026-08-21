@@ -7,7 +7,7 @@ using System.Text;
 
 namespace SchoolScheduleLibrary.Context
 {
-    // Add-Migration InitDb -Context SchoolDbContext -OutputDir "Migrations/ScheduleMigration"
+    // Add-Migration InitDb -Context SchoolDbContext -OutputDir "Migrations/ProdScheduleMigration"
     // update-database
     public class SchoolDbContext(DbContextOptions<SchoolDbContext> options) : DbContext(options)
     {

@@ -6,6 +6,9 @@ using System.Text;
 
 namespace SchoolScheduleLibrary.Repository.Interface
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public interface IScheduleRepository
     {
         public Task<List<Lesson>> GetStudentLessonsAsync(Guid institutionId, GetScheduleLessonDTO dto);

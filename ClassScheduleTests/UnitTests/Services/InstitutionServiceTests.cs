@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using SchoolScheduleLibrary.Context;
 using SchoolScheduleLibrary.DTO;
 using SchoolScheduleLibrary.Model;
-using SchoolScheduleLibrary.Repository.Generic;
+using SchoolScheduleLibrary.Repository;
 using SchoolScheduleLibrary.Service;
 using System;
 using System.Collections.Generic;

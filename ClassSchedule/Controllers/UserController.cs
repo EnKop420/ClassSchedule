@@ -142,13 +142,13 @@ namespace ClassSchedule.Controllers
             }
         }
 
-        [Authorize(UserRoles.Admin, UserRoles.Teacher, UserRoles.Student)]
+        [Authorize]
         [HttpGet("Get-User-Information")]
         public async Task<IActionResult> GetUserInformation([FromQuery] Guid id)
         {
             try
             {
-                return Ok(await _userService.GetUserInfo(id, CurrentUserId, CurrentUserRole));
+                return Ok(await _userService.GetUserInfo(id, CurrentUserId, CurrentInstitutionId, CurrentUserRole));
             }
             catch (HttpResponseException hre)
             {
@@ -178,7 +178,7 @@ namespace ClassSchedule.Controllers
             }
         }
 
-        [Authorize(UserRoles.Admin, UserRoles.Teacher, UserRoles.Student)]
+        [Authorize]
         [HttpPatch("Update-User-Information")]
         public async Task<IActionResult> UpdateUserInformation([FromBody] UpdateUserInformationDTO dto)
         {
@@ -196,7 +196,7 @@ namespace ClassSchedule.Controllers
             }
         }
 
-        [Authorize(UserRoles.Admin, UserRoles.Teacher, UserRoles.Student)]
+        [Authorize]
         [HttpPatch("Change-User-Credentials")]
         public async Task<IActionResult> ChangeUserCredentials([FromBody] ChangeUserCredentialsDTO dto)
         {

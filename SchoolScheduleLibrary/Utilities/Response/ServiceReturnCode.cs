@@ -4,7 +4,7 @@ using System.Text;
 
 namespace SchoolScheduleLibrary.Utilities.Response
 {
-    /// Represents categorized service-layer errors mapped to HTTP status codes.
+    /// Represents categorized errors mapped to HTTP status codes.
     public enum ServiceReturnCode
     {
         // Request was a success but no data was found.

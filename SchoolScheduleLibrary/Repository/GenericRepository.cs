@@ -3,6 +3,7 @@ using SchoolScheduleLibrary.Context;
 using SchoolScheduleLibrary.DTO;
 using SchoolScheduleLibrary.Enums;
 using SchoolScheduleLibrary.Model.Interface;
+using SchoolScheduleLibrary.Repository.Interface;
 using SchoolScheduleLibrary.Utilities.Encryption;
 using SchoolScheduleLibrary.Utilities.Encryption.Interface;
 using SchoolScheduleLibrary.Utilities.Response;
@@ -11,7 +12,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Text;
 
-namespace SchoolScheduleLibrary.Repository.Generic
+namespace SchoolScheduleLibrary.Repository
 {
     // T can be any type, as long as it inherits from BaseEntity. This ensures that T has an Id property of type Guid.
     public class GenericRepository<T> : IGenericRepository<T> where T : class
@@ -67,14 +68,11 @@ namespace SchoolScheduleLibrary.Repository.Generic
             return await query.ToListAsync();
         }
 
-        public async Task<bool> DoesValueExist(Expression<Func<T, bool>>? predicate = null)
+        public async Task<bool> DoesValueExist(Expression<Func<T, bool>> predicate)
         {
             IQueryable<T> query = _context.Set<T>();
 
-            if (predicate != null)
-            {
-                query = query.Where(predicate);
-            }
+            query = query.Where(predicate);
 
             return await query.AnyAsync();
         }

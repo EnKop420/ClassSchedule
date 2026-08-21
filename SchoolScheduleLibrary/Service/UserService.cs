@@ -3,7 +3,6 @@ using SchoolScheduleLibrary.DTO;
 using SchoolScheduleLibrary.Enums;
 using SchoolScheduleLibrary.Model;
 using SchoolScheduleLibrary.Model.Interface;
-using SchoolScheduleLibrary.Repository.Generic;
 using SchoolScheduleLibrary.Repository.Interface;
 using SchoolScheduleLibrary.Service.Interface;
 using SchoolScheduleLibrary.Utilities.Auth;
@@ -212,11 +211,11 @@ namespace SchoolScheduleLibrary.Service
             else throw new InternalErrorException("Something went wrong trying to create the session!");
         }
 
-        public async Task<UserDTO> GetUserInfo(Guid targetId, Guid callerId, UserRoles role)
+        public async Task<UserDTO> GetUserInfo(Guid targetId, Guid callerId, Guid institutionId, UserRoles role)
         {
             if (targetId != callerId && role == UserRoles.Student) throw new UnauthorizedException("Students can only get their own user information!");
 
-            User user = await _userGenericRepository.Get(u => u.Id == targetId, u => u.Institution)
+            User user = await _userGenericRepository.Get(u => u.Id == targetId && u.InstitutionId == institutionId, u => u.Institution)
                 ?? throw new NotFoundException($"No User with ID {targetId} exists");
 
             string decryptedEmail = await _encryptionHandler.DecryptString(user.Email);
