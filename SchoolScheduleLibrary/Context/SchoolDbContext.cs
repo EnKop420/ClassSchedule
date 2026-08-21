@@ -28,6 +28,8 @@ namespace SchoolScheduleLibrary.Context
         public DbSet<TeacherUnavailability> TeacherUnavailabilities => Set<TeacherUnavailability>();
         public DbSet<LessonNote> LessonNotes => Set<LessonNote>();
         public DbSet<Absence> Absences => Set<Absence>();
+        public DbSet<StudentGroup> StudentGroups => Set<StudentGroup>();
+        public DbSet<StudentGroupMember> StudentGroupMembers => Set<StudentGroupMember>();
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
