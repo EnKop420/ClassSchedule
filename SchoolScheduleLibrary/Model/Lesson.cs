@@ -16,7 +16,6 @@ namespace SchoolScheduleLibrary.Model
         public TimeOnly EndTime { get; set; }
         public LessonStatus Status { get; set; } = LessonStatus.Scheduled;
         public bool IsModified { get; set; }
-        public string? Note { get; set; }
 
         public Guid InstitutionId { get; set; }
         public Institution Institution { get; set; } = null!;

@@ -48,5 +48,6 @@ namespace SchoolScheduleLibrary.DTO
     public record ChangeUserCredentialsDTO(
         string Username,
         string OldPassword,
-        string NewPassword);
+        string NewPassword
+    );
 }
