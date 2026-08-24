@@ -9,7 +9,7 @@ using SchoolScheduleLibrary.Utilities.Response;
 
 namespace ClassSchedule.Controllers
 {
-    [Route("api/holds/{holdId}")]
+    [Route("api/Hold/{holdId}")]
     [ApiController]
     [Authorize(UserRoles.Admin)]
     public class HoldMemberController : BaseController
@@ -20,7 +20,7 @@ namespace ClassSchedule.Controllers
             _holdMemberService = holdMemberService;
         }
 
-        [HttpGet("student")]
+        [HttpGet("Students")]
         public async Task<IActionResult> GetEnrolledStudents(Guid holdId)
         {
             try
@@ -37,7 +37,7 @@ namespace ClassSchedule.Controllers
             }
         }
 
-        [HttpGet("teacher")]
+        [HttpGet("Teachers")]
         public async Task<IActionResult> GetGroupedTeachers(Guid holdId)
         {
             try

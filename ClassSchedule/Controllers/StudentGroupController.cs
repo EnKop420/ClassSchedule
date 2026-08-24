@@ -39,7 +39,7 @@ namespace ClassSchedule.Controllers
 
         [Authorize(UserRoles.Admin)]
         [HttpDelete("Delete")]
-        public async Task<IActionResult> Delete([FromBody] Guid id)
+        public async Task<IActionResult> Delete([FromQuery] Guid id)
         {
             try
             {
@@ -56,8 +56,8 @@ namespace ClassSchedule.Controllers
             }
         }
 
-        [Authorize(UserRoles.Admin, UserRoles.Teacher, UserRoles.Student)]
-        [HttpGet("Get-Student-Group-Information")]
+        [Authorize]
+        [HttpGet("Get")]
         public async Task<IActionResult> Get([FromQuery] Guid id)
         {
             try
@@ -74,13 +74,13 @@ namespace ClassSchedule.Controllers
             }
         }
 
-        [Authorize(UserRoles.Admin, UserRoles.Teacher, UserRoles.Student)]
-        [HttpGet("Get-All-Student-Groups")]
-        public async Task<IActionResult> GetAll([FromQuery] Guid institutionId)
+        [Authorize]
+        [HttpGet("Get-All")]
+        public async Task<IActionResult> GetAll()
         {
             try
             {
-                return Ok(await _studentGroupService.GetAllAsync(institutionId));
+                return Ok(await _studentGroupService.GetAllAsync(CurrentInstitutionId));
             }
             catch (HttpResponseException hre)
             {
@@ -93,7 +93,7 @@ namespace ClassSchedule.Controllers
         }
 
         [Authorize(UserRoles.Admin)]
-        [HttpPatch("Update-Student-Group-Information")]
+        [HttpPatch("Update")]
         public async Task<IActionResult> UpdateStudentGroupInformation(UpdateStudentGroupDTO dto)
         {
             try

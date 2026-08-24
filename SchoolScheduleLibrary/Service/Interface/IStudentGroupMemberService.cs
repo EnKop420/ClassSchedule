@@ -4,8 +4,8 @@ namespace SchoolScheduleLibrary.Service.Interface
 {
     public interface IStudentGroupMemberService
     {
-        public Task<List<StudentGroupMemberDTO>> AddStudentListAsync(Guid institutionId, Guid StudentGroupId, List<Guid> studentIds);
-        public Task<bool> RemoveStudentAsync(Guid institutionId, Guid StudentGroupId, Guid studentId);
-        public Task<List<StudentGroupMemberDTO>> GetStudentsAsync(Guid StudentGroupId);
+        public Task<bool> AddStudentListAsync(Guid institutionId, Guid StudentGroupId, List<Guid> studentIds);
+        public Task<bool> RemoveStudentListAsync(Guid institutionId, Guid studentGroupId, List<Guid> studentIds);
+        public Task<List<MinimalUserInformationDTO>> GetStudentsAsync(Guid StudentGroupId);
     }
 }

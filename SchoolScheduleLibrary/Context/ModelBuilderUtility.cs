@@ -72,6 +72,18 @@ namespace SchoolScheduleLibrary.Context
         // // Configures two different links (Student and RegisteredBy) that both point to the User table.
         private static void ForeignKeyLink(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<LessonTeacher>()
+                .HasOne(lt => lt.Teacher)
+                .WithMany()
+                .HasForeignKey(lt => lt.TeacherId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<LessonTeacher>()
+                .HasOne(lt => lt.Lesson)
+                .WithMany(t => t.Teachers)
+                .HasForeignKey(lt => lt.LessonId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             modelBuilder.Entity<Absence>()
                 .HasOne(a => a.Student)
                 .WithMany()
@@ -85,15 +97,39 @@ namespace SchoolScheduleLibrary.Context
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<StudentGroupMember>()
-                .HasOne(sgm => sgm.StudentGroup)
-                .WithMany()
-                .HasForeignKey(sgm => sgm.StudentGroupId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<StudentGroupMember>()
                 .HasOne(sgm => sgm.Student)
                 .WithMany()
                 .HasForeignKey(sgm => sgm.StudentId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<StudentGroupMember>()
+                .HasOne(sgm => sgm.StudentGroup)
+                .WithMany(sg => sg.Students)
+                .HasForeignKey(sgm => sgm.StudentGroupId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Enrollment>()
+                .HasOne(e => e.Student)
+                .WithMany()
+                .HasForeignKey(e => e.StudentId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Enrollment>()
+                .HasOne(e => e.Hold)
+                .WithMany(h => h.Enrollments)
+                .HasForeignKey(e => e.HoldId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<GroupTeacher>()
+                .HasOne(t => t.Teacher)
+                .WithMany()
+                .HasForeignKey(t => t.TeacherId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<GroupTeacher>()
+                .HasOne(t => t.Hold)
+                .WithMany(h => h.GroupTeachers)
+                .HasForeignKey(t => t.HoldId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
 

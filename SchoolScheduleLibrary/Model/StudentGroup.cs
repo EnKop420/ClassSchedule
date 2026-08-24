@@ -8,6 +8,7 @@ namespace SchoolScheduleLibrary.Model
         public string Name { get; set; } = null!;
         public Guid InstitutionId { get; set; }
         public Institution Institution { get; set; } = null!;
+        public List<StudentGroupMember> Students { get; set; } = new();
 
         public StudentGroup(string name, Guid institutionId)
         {

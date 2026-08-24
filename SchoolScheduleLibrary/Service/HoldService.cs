@@ -97,7 +97,7 @@ namespace SchoolScheduleLibrary.Service
         }
         public async Task<HoldDTO> UpdateAsync(Guid institutionId, HoldDTO dto)
         {
-            Hold hold = await _holdGenericRepository.Get(h => h.Id == dto.Id && h.InstitutionId == institutionId)
+            Hold hold = await _holdGenericRepository.Get(h => h.Id == dto.Id && h.InstitutionId == institutionId, h => h.Enrollments, h => h.GroupTeachers)
                 ?? throw new NotFoundException($"Could not get Hold with Id \"{dto.Id}\" in the Institution with Id \"{institutionId}\"");
 
             // Check subject and terms are valid.
@@ -113,11 +113,19 @@ namespace SchoolScheduleLibrary.Service
 
             await _holdGenericRepository.Update(hold);
 
-            List<Guid> students = dto.Students.Distinct().ToList();
-            List<Guid> teachers = dto.Teachers.Distinct().ToList();
+            // Delete the old students and teachers.
+            List<Guid> currentStudents = hold.Enrollments.Select(e => e.StudentId).ToList();
+            List<Guid> currentTeachers = hold.GroupTeachers.Select(t => t.TeacherId).ToList();
 
-            await _holdMemberService.EnrollStudentAsync(institutionId, dto.Id, students);
-            await _holdMemberService.GroupTeacherAsync(institutionId, dto.Id, teachers);
+            await _holdMemberService.UnenrollStudentAsync(institutionId, dto.Id, currentStudents);
+            await _holdMemberService.UngroupTeacherAsync(institutionId, dto.Id, currentTeachers);
+
+            // Apply the new list instead.
+            List<Guid> dtoStudents = dto.Students.Distinct().ToList();
+            List<Guid> dtoTeachers = dto.Teachers.Distinct().ToList();
+
+            await _holdMemberService.EnrollStudentAsync(institutionId, dto.Id, dtoStudents);
+            await _holdMemberService.GroupTeacherAsync(institutionId, dto.Id, dtoTeachers);
 
             Hold updatedHold = await _holdGenericRepository.Get(
                 h => h.Id == dto.Id && h.InstitutionId == institutionId, // Predicate
@@ -125,7 +133,7 @@ namespace SchoolScheduleLibrary.Service
                 h => h.Term // Include
             ) ?? throw new InternalErrorException("Something went wrong after updating and could not retrieve it!");
 
-            return new HoldDTO(updatedHold.Id, updatedHold.Name, updatedHold.SubjectId, updatedHold.TermId, updatedHold.Subject.Name, updatedHold.Term.Name, teachers, students);
+            return new HoldDTO(updatedHold.Id, updatedHold.Name, updatedHold.SubjectId, updatedHold.TermId, updatedHold.Subject.Name, updatedHold.Term.Name, dtoTeachers, dtoStudents);
         }
 
         public async Task<bool> DeleteAsync(Guid institutionId, Guid id)

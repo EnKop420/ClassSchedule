@@ -21,7 +21,7 @@ namespace ClassSchedule.Controllers
             _holdService = holdService;
         }
 
-        [HttpGet("get-all-holds")]
+        [HttpGet("Get-All")]
         public async Task<IActionResult> GetAll()
         {
             try
@@ -38,7 +38,7 @@ namespace ClassSchedule.Controllers
             }
         }
 
-        [HttpGet("get-hold")]
+        [HttpGet("Get")]
         public async Task<IActionResult> GetById([FromQuery] Guid id)
         {
             try
@@ -55,7 +55,7 @@ namespace ClassSchedule.Controllers
             }
         }
 
-        [HttpPost("create-hold")]
+        [HttpPost("Create")]
         public async Task<IActionResult> Create([FromBody] CreateHoldDTO dto)
         {
             try
@@ -72,7 +72,7 @@ namespace ClassSchedule.Controllers
             }
         }
 
-        [HttpPatch("update-hold")]
+        [HttpPatch("Update")]
         public async Task<IActionResult> Update([FromBody] HoldDTO dto)
         {
             try
@@ -89,7 +89,7 @@ namespace ClassSchedule.Controllers
             }
         }
 
-        [HttpDelete("delete-hold")]
+        [HttpDelete("Delete")]
         public async Task<IActionResult> Delete([FromQuery] Guid id)
         {
             try

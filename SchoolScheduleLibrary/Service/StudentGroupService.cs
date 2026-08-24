@@ -30,8 +30,9 @@ namespace SchoolScheduleLibrary.Service
                 throw new InternalErrorException("Could not create student group");
             }
 
-            List<StudentGroupMemberDTO> students = await _studentGroupMemberService.AddStudentListAsync(institutionId, studentGroup.Id, dto.StudentIds);
-            return new StudentGroupDTO(studentGroup.Id, studentGroup.Name, students);
+            await _studentGroupMemberService.AddStudentListAsync(institutionId, studentGroup.Id, dto.StudentIds);
+
+            return new StudentGroupDTO(studentGroup.Id, studentGroup.Name);
         }
 
         public async Task<bool> DeleteAsync(Guid institutionId, Guid id)
@@ -46,19 +47,8 @@ namespace SchoolScheduleLibrary.Service
 
         public async Task<List<StudentGroupDTO>> GetAllAsync(Guid institutionId)
         {
-            List<StudentGroup> studentGroups = (await _StudentGroupGenericRepository.GetAll())
-                .Where(sg => sg.InstitutionId == institutionId).ToList();
-
-            List<StudentGroupDTO> result = [];
-
-            foreach (StudentGroup studentGroup in studentGroups)
-            {
-                List<StudentGroupMemberDTO> students = await _studentGroupMemberService.GetStudentsAsync(studentGroup.Id);
-
-                result.Add(new StudentGroupDTO(studentGroup.Id, studentGroup.Name, students));
-            }
-
-            return result;
+            return (await _StudentGroupGenericRepository.GetAll(sg => sg.InstitutionId == institutionId))
+                .Select(sg => new StudentGroupDTO(sg.Id, sg.Name)).ToList();
         }
 
         public async Task<StudentGroupDTO> GetByIdAsync(Guid institutionId, Guid id)
@@ -66,23 +56,25 @@ namespace SchoolScheduleLibrary.Service
             StudentGroup studentGroup =await _StudentGroupGenericRepository.Get(sg => sg.Id == id && sg.InstitutionId == institutionId)
                 ?? throw new NotFoundException($"Could not get StudentGroup with Id \"{id}\" in the Institution with Id \"{institutionId}\"");
 
-            List<StudentGroupMemberDTO> students = await _studentGroupMemberService.GetStudentsAsync(studentGroup.Id);
-
-            return new StudentGroupDTO(studentGroup.Id, studentGroup.Name, students);
+            return new StudentGroupDTO(studentGroup.Id, studentGroup.Name);
         }
 
         public async Task<StudentGroupDTO> UpdateAsync(Guid institutionId, UpdateStudentGroupDTO dto)
         {
-            StudentGroup studentGroup = await _StudentGroupGenericRepository.Get(sg => sg.Id == dto.Id && sg.InstitutionId == institutionId)
+            StudentGroup studentGroup = await _StudentGroupGenericRepository.Get(sg => sg.Id == dto.Id && sg.InstitutionId == institutionId, sg => sg.Students)
                 ?? throw new NotFoundException($"Could not get StudentGroup with Id \"{dto.Id}\" in the Institution with Id \"{institutionId}\"");
 
             studentGroup.Name = dto.Name;
-
             StudentGroup updatedStudentGroup = await _StudentGroupGenericRepository.Update(studentGroup);
 
-            List<StudentGroupMemberDTO> students = await _studentGroupMemberService.GetStudentsAsync(studentGroup.Id);
+            List<Guid> currentStudents = studentGroup.Students.Select(sgm => sgm.StudentId).ToList();
 
-            return new StudentGroupDTO(updatedStudentGroup.Id, updatedStudentGroup.Name, students);
+            await _studentGroupMemberService.RemoveStudentListAsync(institutionId, studentGroup.Id, currentStudents);
+
+            List<Guid> students = dto.StudentIds.Distinct().ToList();
+            await _studentGroupMemberService.AddStudentListAsync(institutionId, studentGroup.Id, students);
+
+            return new StudentGroupDTO(updatedStudentGroup.Id, updatedStudentGroup.Name);
         }
     }
 }

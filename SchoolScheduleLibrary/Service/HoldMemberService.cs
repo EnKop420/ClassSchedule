@@ -31,6 +31,8 @@ namespace SchoolScheduleLibrary.Service
 
         public async Task<bool> GroupTeacherAsync(Guid institutionId, Guid holdId, List<Guid> teacherIds)
         {
+            if (teacherIds == null || teacherIds.Count == 0) return false;
+
             bool doesHoldExist = await _holdGenericRepository.DoesValueExist(h => h.Id == holdId && h.InstitutionId == institutionId);
             if (doesHoldExist == false) throw new NotFoundException($"Could not get Hold with Id \"{holdId}\" in the Institution with Id \"{institutionId}\"");
 
@@ -60,6 +62,8 @@ namespace SchoolScheduleLibrary.Service
 
         public async Task<bool> UngroupTeacherAsync(Guid institutionId, Guid holdId, List<Guid> teacherIds)
         {
+            if (teacherIds == null || teacherIds.Count == 0) return false;
+
             int groupedTeachers = await _groupTeacherGenericRepository.Count(tg =>
                 tg.HoldId == holdId && teacherIds.Contains(tg.TeacherId));
 
@@ -111,20 +115,16 @@ namespace SchoolScheduleLibrary.Service
             return await _enrollmentGenericRepository.Delete(e => e.HoldId == holdId && studentIds.Contains(e.StudentId));
         }
 
-        public async Task<List<HoldMemberDTO>> GetTeachersAsync(Guid holdId)
+        public async Task<List<MinimalUserInformationDTO>> GetTeachersAsync(Guid holdId)
         {
-            List<HoldMemberDTO> teachers = (await _groupTeacherGenericRepository.GetAll(gt => gt.HoldId == holdId, gt => gt.Teacher))
-                .Select(t => new HoldMemberDTO($"{t.Teacher.FirstName} {t.Teacher.LastName}", t.TeacherId, holdId)).ToList();
-
-            return teachers;
+            return (await _groupTeacherGenericRepository.GetAll(gt => gt.HoldId == holdId, gt => gt.Teacher))
+                .Select(t => new MinimalUserInformationDTO($"{t.Teacher.FirstName} {t.Teacher.LastName}", t.TeacherId)).ToList();
         }
 
-        public async Task<List<HoldMemberDTO>> GetStudentsAsync(Guid holdId)
+        public async Task<List<MinimalUserInformationDTO>> GetStudentsAsync(Guid holdId)
         {
-            List<HoldMemberDTO> students = (await _enrollmentGenericRepository.GetAll(es => es.HoldId == holdId, es => es.Student))
-                .Select(t => new HoldMemberDTO($"{t.Student.FirstName} {t.Student.LastName}", t.StudentId, holdId)).ToList();
-
-            return students;
+            return (await _enrollmentGenericRepository.GetAll(es => es.HoldId == holdId, es => es.Student))
+                .Select(t => new MinimalUserInformationDTO($"{t.Student.FirstName} {t.Student.LastName}", t.StudentId)).ToList();
         }
     }
 }

@@ -23,13 +23,12 @@ namespace SchoolScheduleLibrary.Service
             _studentGroupMemberGenericRepository = studentGroupMemberGenericRepository;
         }
 
-        public async Task<List<StudentGroupMemberDTO>> AddStudentListAsync(Guid institutionId, Guid studentGroupId, List<Guid> studentIds)
+        public async Task<bool> AddStudentListAsync(Guid institutionId, Guid studentGroupId, List<Guid> studentIds)
         {
             bool doesStudentGroupExist = await _studentGroupGenericRepository.DoesValueExist(sg => sg.Id == studentGroupId && sg.InstitutionId == institutionId);
             if (doesStudentGroupExist == false) throw new NotFoundException($"Could not get Student Group with Id \"{studentGroupId}\" in the Institution with Id \"{institutionId}\"");
 
             List<StudentGroupMember> studentGroupMembers = [];
-            List<StudentGroupMemberDTO> studentGroupMemberDTOs = [];
 
             foreach (Guid student in studentIds.Distinct())
             {
@@ -41,30 +40,16 @@ namespace SchoolScheduleLibrary.Service
 
                 if (isStudentInStudentGroup)
                 {
-                    throw new ConflictException($"{user.FirstName} {user.LastName} {student} Student is already in this student group");
+                    throw new ConflictException($"Student with id {student} is already in this student group");
                 }
 
                 studentGroupMembers.Add(new(studentGroupId, student));
-                studentGroupMemberDTOs.Add(new($"{user.FirstName} {user.LastName}", user.Id));
             }
 
-            if (await _studentGroupMemberGenericRepository.AddRange(studentGroupMembers))
-            {
-                return studentGroupMemberDTOs;
-            }
-            else throw new InternalErrorException("Something went wrong trying to save to database.");
+            return await _studentGroupMemberGenericRepository.AddRange(studentGroupMembers);
         }
 
-        public async Task<List<StudentGroupMemberDTO>> GetStudentsAsync(Guid studentGroupId)
-        {
-            return (await _studentGroupMemberGenericRepository.GetAll(sgm => sgm.StudentGroupId == studentGroupId, sgm => sgm.Student))
-                .Select(sgm => new StudentGroupMemberDTO(
-                    $"{sgm.Student.FirstName} {sgm.Student.LastName}",
-                    sgm.StudentId
-                )).ToList();
-        }
-
-        public async Task<bool> RemoveStudentAsync(Guid institutionId, Guid studentGroupId, Guid studentId)
+        public async Task<bool> RemoveStudentListAsync(Guid institutionId, Guid studentGroupId, List<Guid> studentIds)
         {
             bool doesStudentGroupExist = await _studentGroupGenericRepository.DoesValueExist(sg => 
                 sg.Id == studentGroupId && sg.InstitutionId == institutionId);
@@ -72,12 +57,19 @@ namespace SchoolScheduleLibrary.Service
             if (!doesStudentGroupExist) throw new NotFoundException($"Could not get Student Group with Id \"{studentGroupId}\" " +
                     $"in the Institution with Id \"{institutionId}\"");
 
-            bool isStudentInStudentGroup = await _studentGroupMemberGenericRepository.DoesValueExist(sgm =>
-                sgm.StudentGroupId == studentGroupId && sgm.StudentId == studentId);
+            List<StudentGroupMember> studentGroupMembers = await _studentGroupMemberGenericRepository.GetAll(sgm => 
+                sgm.StudentGroupId == studentGroupId && studentIds.Contains(sgm.StudentId));
 
-            if (isStudentInStudentGroup == false) throw new BadRequestException("Student is not a member of this student group");
+            return await _studentGroupMemberGenericRepository.RemoveRange(studentGroupMembers);
+        }
 
-            return await _studentGroupMemberGenericRepository.Delete(sgm => sgm.StudentGroupId == studentGroupId && sgm.StudentId == studentId);
+        public async Task<List<MinimalUserInformationDTO>> GetStudentsAsync(Guid studentGroupId)
+        {
+            return (await _studentGroupMemberGenericRepository.GetAll(sgm => sgm.StudentGroupId == studentGroupId, sgm => sgm.Student))
+                .Select(sgm => new MinimalUserInformationDTO(
+                    $"{sgm.Student.FirstName} {sgm.Student.LastName}",
+                    sgm.StudentId
+                )).ToList();
         }
     }
 }

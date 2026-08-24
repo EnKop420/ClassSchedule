@@ -162,11 +162,11 @@ namespace ClassSchedule.Controllers
 
         [Authorize(UserRoles.Admin, UserRoles.Teacher)]
         [HttpGet("Get-All-Users")]
-        public async Task<IActionResult> GetAllUsers([FromQuery] Guid institutionId, [FromQuery] UserRoles? role = null)
+        public async Task<IActionResult> GetAllUsers([FromQuery] UserRoles? role = null)
         {
             try
             {
-                return Ok(await _userService.GetAllUsers(institutionId, CurrentUserRole, role));
+                return Ok(await _userService.GetAllUsers(CurrentInstitutionId, CurrentUserRole, role));
             }
             catch (HttpResponseException hre)
             {

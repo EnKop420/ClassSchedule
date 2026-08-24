@@ -50,4 +50,6 @@ namespace SchoolScheduleLibrary.DTO
         string OldPassword,
         string NewPassword
     );
+
+    public record MinimalUserInformationDTO(string Name, Guid UserId);
 }

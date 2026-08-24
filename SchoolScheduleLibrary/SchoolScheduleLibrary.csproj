@@ -19,4 +19,10 @@
     <PackageReference Include="StackExchange.Redis" Version="3.0.17" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Migrations\DevScheduleMigration\" />
+    <Folder Include="Migrations\ProdScheduleMigration\" />
+    <Folder Include="Migrations\TestScheduleMigration\" />
+  </ItemGroup>
+
 </Project>
