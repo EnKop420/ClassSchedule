@@ -24,7 +24,7 @@ namespace ClassSchedule.Controllers
         }
 
         [Authorize(UserRoles.Admin)]
-        [HttpPost("Add")]
+        [HttpPost("create")]
         public async Task<IActionResult> Add([FromBody] CreateUserDTO dto)
         {
             try
@@ -45,7 +45,7 @@ namespace ClassSchedule.Controllers
         }
 
         [LocalhostOnly]
-        [HttpPost("Add-Admin")]
+        [HttpPost("create-admin")]
         public async Task<IActionResult> AddAdmin([FromBody] CreateUserAdminDTO dto)
         {
             try
@@ -63,7 +63,7 @@ namespace ClassSchedule.Controllers
             }
         }
 
-        [HttpPost("Login")]
+        [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDTO dto)
         {
             try
@@ -81,7 +81,7 @@ namespace ClassSchedule.Controllers
             }
         }
 
-        [HttpPost("Logout")]
+        [HttpPost("logout")]
         public async Task<IActionResult> Logout()
         {
             try
@@ -105,7 +105,7 @@ namespace ClassSchedule.Controllers
         }
 
         [Authorize(UserRoles.Admin)]
-        [HttpDelete("Delete")]
+        [HttpDelete("delete")]
         public async Task<IActionResult> Delete([FromBody] Guid id)
         {
             try
@@ -124,7 +124,7 @@ namespace ClassSchedule.Controllers
         }
 
         [LocalhostOnly]
-        [HttpDelete("Delete-Admin")]
+        [HttpDelete("delete-admin")]
         public async Task<IActionResult> DeleteAdmin([FromBody] Guid id)
         {
             try
@@ -143,7 +143,7 @@ namespace ClassSchedule.Controllers
         }
 
         [Authorize]
-        [HttpGet("Get-User-Information")]
+        [HttpGet("get")]
         public async Task<IActionResult> GetUserInformation([FromQuery] Guid id)
         {
             try
@@ -161,7 +161,7 @@ namespace ClassSchedule.Controllers
         }
 
         [Authorize(UserRoles.Admin, UserRoles.Teacher)]
-        [HttpGet("Get-All-Users")]
+        [HttpGet("get-all")]
         public async Task<IActionResult> GetAllUsers([FromQuery] UserRoles? role = null)
         {
             try
@@ -179,7 +179,7 @@ namespace ClassSchedule.Controllers
         }
 
         [Authorize]
-        [HttpPatch("Update-User-Information")]
+        [HttpPatch("update")]
         public async Task<IActionResult> UpdateUserInformation([FromBody] UpdateUserInformationDTO dto)
         {
             try

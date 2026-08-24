@@ -21,7 +21,7 @@ namespace ClassSchedule.Controllers
             _periodService = periodService;
         }
 
-        [HttpGet("get-all-periods")]
+        [HttpGet("get-all")]
         public async Task<IActionResult> GetAll()
         {
             try
@@ -38,7 +38,7 @@ namespace ClassSchedule.Controllers
             }
         }
 
-        [HttpGet("get-period")]
+        [HttpGet("get")]
         public async Task<IActionResult> GetById([FromQuery] Guid id)
         {
             try
@@ -55,7 +55,7 @@ namespace ClassSchedule.Controllers
             }
         }
 
-        [HttpPost("create-period")]
+        [HttpPost("create")]
         public async Task<IActionResult> Create([FromBody] CreatePeriodDTO dto)
         {
             try
@@ -72,7 +72,7 @@ namespace ClassSchedule.Controllers
             }
         }
 
-        [HttpPatch("update-period")]
+        [HttpPatch("update")]
         public async Task<IActionResult> Update([FromBody] PeriodDTO dto)
         {
             try
@@ -89,7 +89,7 @@ namespace ClassSchedule.Controllers
             }
         }
 
-        [HttpDelete("delete-period")]
+        [HttpDelete("delete")]
         public async Task<IActionResult> Delete([FromQuery] Guid id)
         {
             try

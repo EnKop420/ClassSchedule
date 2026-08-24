@@ -21,7 +21,7 @@ namespace ClassSchedule.Controllers
             _nonTeachingDayService = nonTeachingDayService;
         }
 
-        [HttpGet("get-all-nonteachingday")]
+        [HttpGet("get-all")]
         public async Task<IActionResult> GetAll()
         {
             try
@@ -38,7 +38,7 @@ namespace ClassSchedule.Controllers
             }
         }
 
-        [HttpGet("get-nonteachingday")]
+        [HttpGet("get")]
         public async Task<IActionResult> GetById([FromQuery] Guid id)
         {
             try
@@ -55,7 +55,7 @@ namespace ClassSchedule.Controllers
             }
         }
 
-        [HttpPost("create-nonteachingday")]
+        [HttpPost("create")]
         public async Task<IActionResult> Create([FromBody] CreateNonTeachingDayDTO dto)
         {
             try
@@ -72,7 +72,7 @@ namespace ClassSchedule.Controllers
             }
         }
 
-        [HttpPatch("update-nonteachingday")]
+        [HttpPatch("update")]
         public async Task<IActionResult> Update([FromBody] NonTeachingDayDTO dto)
         {
             try
@@ -89,7 +89,7 @@ namespace ClassSchedule.Controllers
             }
         }
 
-        [HttpDelete("delete-nonteachingday")]
+        [HttpDelete("delete")]
         public async Task<IActionResult> Delete([FromQuery] Guid id)
         {
             try

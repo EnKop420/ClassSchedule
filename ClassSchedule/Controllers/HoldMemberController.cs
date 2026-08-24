@@ -20,7 +20,7 @@ namespace ClassSchedule.Controllers
             _holdMemberService = holdMemberService;
         }
 
-        [HttpGet("Students")]
+        [HttpGet("students")]
         public async Task<IActionResult> GetEnrolledStudents(Guid holdId)
         {
             try
@@ -37,7 +37,7 @@ namespace ClassSchedule.Controllers
             }
         }
 
-        [HttpGet("Teachers")]
+        [HttpGet("teachers")]
         public async Task<IActionResult> GetGroupedTeachers(Guid holdId)
         {
             try

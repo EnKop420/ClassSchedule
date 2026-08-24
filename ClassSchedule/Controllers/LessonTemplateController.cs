@@ -20,7 +20,7 @@ namespace ClassSchedule.Controllers
             _lessonTemplateService = lessonTemplateService;
         }
 
-        [HttpGet("get-all-lessontemplate")]
+        [HttpGet("get-all")]
         public async Task<IActionResult> GetAll()
         {
             try
@@ -37,7 +37,7 @@ namespace ClassSchedule.Controllers
             }
         }
 
-        [HttpGet("get-lessontemplate")]
+        [HttpGet("get")]
         public async Task<IActionResult> GetById([FromQuery] Guid id)
         {
             try
@@ -54,7 +54,7 @@ namespace ClassSchedule.Controllers
             }
         }
 
-        [HttpPost("create-lessontemplate")]
+        [HttpPost("create")]
         public async Task<IActionResult> Create([FromBody] CreateLessonTemplateDTO dto)
         {
             try
@@ -71,7 +71,7 @@ namespace ClassSchedule.Controllers
             }
         }
 
-        [HttpPatch("update-lessontemplate")]
+        [HttpPatch("update")]
         public async Task<IActionResult> Update([FromBody] UpdateLessonTemplateDTO dto)
         {
             try
@@ -88,7 +88,7 @@ namespace ClassSchedule.Controllers
             }
         }
 
-        [HttpDelete("delete-lessontemplate")]
+        [HttpDelete("delete")]
         public async Task<IActionResult> Delete([FromQuery] Guid id)
         {
             try

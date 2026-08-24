@@ -22,7 +22,7 @@ namespace ClassSchedule.Controllers
             _subjectService = subjectService;
         }
 
-        [HttpGet("get-all-subjects")]
+        [HttpGet("get-all")]
         public async Task<IActionResult> GetAll()
         {
             try
@@ -39,7 +39,7 @@ namespace ClassSchedule.Controllers
             }
         }
 
-        [HttpGet("get-subject")]
+        [HttpGet("get")]
         public async Task<IActionResult> GetById([FromQuery] Guid id)
         {
             try
@@ -56,7 +56,7 @@ namespace ClassSchedule.Controllers
             }
         }
 
-        [HttpPost("create-subject")]
+        [HttpPost("create")]
         public async Task<IActionResult> Create([FromBody] CreateSubjectDTO dto)
         {
             try
@@ -73,7 +73,7 @@ namespace ClassSchedule.Controllers
             }
         }
 
-        [HttpPatch("update-subject")]
+        [HttpPatch("update")]
         public async Task<IActionResult> Update([FromBody] SubjectDTO dto)
         {
             try
@@ -90,7 +90,7 @@ namespace ClassSchedule.Controllers
             }
         }
 
-        [HttpDelete("delete-subject")]
+        [HttpDelete("delete")]
         public async Task<IActionResult> Delete([FromQuery] Guid id)
         {
             try

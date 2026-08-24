@@ -21,7 +21,7 @@ namespace ClassSchedule.Controllers
             _roomService = roomService;
         }
 
-        [HttpGet("get-all-rooms")]
+        [HttpGet("get-all")]
         public async Task<IActionResult> GetAll()
         {
             try
@@ -38,7 +38,7 @@ namespace ClassSchedule.Controllers
             }
         }
 
-        [HttpGet("get-room")]
+        [HttpGet("get")]
         public async Task<IActionResult> GetById([FromQuery] Guid id)
         {
             try
@@ -55,7 +55,7 @@ namespace ClassSchedule.Controllers
             }
         }
 
-        [HttpPost("create-room")]
+        [HttpPost("create")]
         public async Task<IActionResult> Create([FromBody] CreateRoomDTO dto)
         {
             try
@@ -72,7 +72,7 @@ namespace ClassSchedule.Controllers
             }
         }
 
-        [HttpPatch("update-room")]
+        [HttpPatch("update")]
         public async Task<IActionResult> Update([FromBody] RoomDTO dto)
         {
             try
@@ -89,7 +89,7 @@ namespace ClassSchedule.Controllers
             }
         }
 
-        [HttpDelete("delete-room")]
+        [HttpDelete("delete")]
         public async Task<IActionResult> Delete([FromQuery] Guid id)
         {
             try

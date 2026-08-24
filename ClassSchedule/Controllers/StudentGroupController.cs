@@ -19,7 +19,7 @@ namespace ClassSchedule.Controllers
         }
 
         [Authorize(UserRoles.Admin)]
-        [HttpPost("Add")]
+        [HttpPost("create")]
         public async Task<IActionResult> Add([FromBody] CreateStudentGroupDTO dto)
         {
             try
@@ -38,7 +38,7 @@ namespace ClassSchedule.Controllers
         }
 
         [Authorize(UserRoles.Admin)]
-        [HttpDelete("Delete")]
+        [HttpDelete("delete")]
         public async Task<IActionResult> Delete([FromQuery] Guid id)
         {
             try
@@ -57,7 +57,7 @@ namespace ClassSchedule.Controllers
         }
 
         [Authorize]
-        [HttpGet("Get")]
+        [HttpGet("get")]
         public async Task<IActionResult> Get([FromQuery] Guid id)
         {
             try
@@ -75,7 +75,7 @@ namespace ClassSchedule.Controllers
         }
 
         [Authorize]
-        [HttpGet("Get-All")]
+        [HttpGet("get-all")]
         public async Task<IActionResult> GetAll()
         {
             try
@@ -93,7 +93,7 @@ namespace ClassSchedule.Controllers
         }
 
         [Authorize(UserRoles.Admin)]
-        [HttpPatch("Update")]
+        [HttpPatch("update")]
         public async Task<IActionResult> UpdateStudentGroupInformation(UpdateStudentGroupDTO dto)
         {
             try

@@ -27,7 +27,7 @@ namespace ClassSchedule.Controllers
             _institutionService = institutionService;
         }
 
-        [HttpPost("create-institution")]
+        [HttpPost("create")]
         [LocalhostOnly]
         public async Task<IActionResult> CreateInstitution([FromBody] CreateInstitutionDTO dto)
         {
@@ -46,7 +46,7 @@ namespace ClassSchedule.Controllers
             }
         }
 
-        [HttpPatch("update-institution")]
+        [HttpPatch("update")]
         [LocalhostOnly]
         public async Task<IActionResult> UpdateInstitution([FromBody] InstitutionDTO dto)
         {
@@ -64,7 +64,7 @@ namespace ClassSchedule.Controllers
             }
         }
 
-        [HttpGet("get-all-institution")]
+        [HttpGet("get-all")]
         public async Task<IActionResult> GetAllInstitutions()
         {
             try
@@ -81,7 +81,7 @@ namespace ClassSchedule.Controllers
             }
         }
 
-        [HttpGet("get-institution")]
+        [HttpGet("get")]
         [Authorize(UserRoles.Admin, UserRoles.Teacher, UserRoles.Student)]
         public async Task<IActionResult> GetInstitution([FromQuery] Guid id)
         {
@@ -99,7 +99,7 @@ namespace ClassSchedule.Controllers
             }
         }
 
-        [HttpDelete("delete-institution")]
+        [HttpDelete("delete")]
         [LocalhostOnly]
         public async Task<IActionResult> DeleteInstitution([FromBody] Guid Id)
         {
