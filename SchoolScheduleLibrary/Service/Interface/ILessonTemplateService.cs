@@ -5,6 +5,9 @@ using System.Text;
 
 namespace SchoolScheduleLibrary.Service.Interface
 {
+    /// <summary>
+    /// Handles the CRUD business logic for LessonTemplate
+    /// </summary>
     public interface ILessonTemplateService
     {
         public Task<LessonTemplateDTO> CreateAsync(Guid institutionId, CreateLessonTemplateDTO dto);

@@ -5,6 +5,9 @@ using System.Text;
 
 namespace SchoolScheduleLibrary.Service.Interface
 {
+    /// <summary>
+    /// Handles the CRUD business logic for NonTeachingDay
+    /// </summary>
     public interface INonTeachingDayService
     {
         public Task<List<NonTeachingDayDTO>> GetAllAsync(Guid institutionId);

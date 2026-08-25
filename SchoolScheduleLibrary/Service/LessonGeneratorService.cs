@@ -76,13 +76,6 @@ namespace SchoolScheduleLibrary.Service
                 .GroupBy(gt => gt.HoldId)
                 .ToDictionary(g => g.Key, g => g.ToList());
 
-            //// Lessons that already exist. Ensures no duplicates.
-            //HashSet<(Guid, DateOnly)> existing =
-            //    (await _lessonGenericRepository.GetAll(l => holdIds.Contains(l.HoldId)))
-            //    .Where(l => l.TemplateId != null)
-            //    .Select(l => (l.TemplateId!.Value, l.Date))
-            //    .ToHashSet();
-
             // All old auto generated lessons that hasnt been modified.
             List<Lesson> deletable =
                 (await _lessonGenericRepository.GetAll(l => 
@@ -126,7 +119,7 @@ namespace SchoolScheduleLibrary.Service
                         HoldId = lt.HoldId,
                         TemplateId = lt.Id,
                         Date = d,
-                        StartTime = period.StartTime,   // copied from the period
+                        StartTime = period.StartTime,
                         EndTime = period.EndTime,
                         RoomId = lt.RoomId,
                         Status = LessonStatus.Scheduled

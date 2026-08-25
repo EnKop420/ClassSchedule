@@ -42,7 +42,7 @@ namespace SchoolScheduleLibrary.Repository.Interface
         /// Used to just check if the Entity exists in the database based on some conditions(predicate)
         /// </summary>
         /// <param name="predicate">Used as a "Where" condition.</param>
-        /// <returns></returns>
+        /// <returns>True or False if the action was completed successfully</returns>
         public Task<bool> DoesValueExist(Expression<Func<T, bool>> predicate);
 
         /// <summary>

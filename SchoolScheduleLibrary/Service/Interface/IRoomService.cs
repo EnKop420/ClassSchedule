@@ -5,6 +5,9 @@ using System.Text;
 
 namespace SchoolScheduleLibrary.Service.Interface
 {
+    /// <summary>
+    /// Handles the CRUD business logic for Room
+    /// </summary>
     public interface IRoomService
     {
         public Task<List<RoomDTO>> GetAllAsync(Guid institutionId);

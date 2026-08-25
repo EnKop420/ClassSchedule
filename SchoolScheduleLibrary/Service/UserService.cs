@@ -194,7 +194,7 @@ namespace SchoolScheduleLibrary.Service
             return userDTO;
         }
 
-        public async Task<string> CreateSession(SessionData sessionData, TimeSpan ttl)
+        private async Task<string> CreateSession(SessionData sessionData, TimeSpan ttl)
         {
             bool duplicateKey = true;
             string sessionId = string.Empty;

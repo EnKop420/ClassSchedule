@@ -5,6 +5,9 @@ using System.Text;
 
 namespace SchoolScheduleLibrary.Service.Interface
 {
+    /// <summary>
+    /// Handles the CRUD business logic for Term
+    /// </summary>
     public interface ITermService
     {
         public Task<List<TermDTO>> GetAllAsync(Guid institutionId);

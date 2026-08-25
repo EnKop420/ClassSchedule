@@ -2,6 +2,9 @@
 
 namespace SchoolScheduleLibrary.Service.Interface
 {
+    /// <summary>
+    /// Handles the CRUD business logic for StudentGroupMember
+    /// </summary>
     public interface IStudentGroupMemberService
     {
         public Task<bool> AddStudentListAsync(Guid institutionId, Guid StudentGroupId, List<Guid> studentIds);

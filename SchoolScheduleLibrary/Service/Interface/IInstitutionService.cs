@@ -6,7 +6,7 @@ using System.Text;
 namespace SchoolScheduleLibrary.Service.Interface
 {
     /// <summary>
-    /// Used to perform the business logic for the Institution Model data.
+    /// Handles the CRUD business logic for Institution
     /// </summary>
     public interface IInstitutionService
     {
