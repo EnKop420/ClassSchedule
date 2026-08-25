@@ -85,7 +85,9 @@ namespace SchoolScheduleLibrary.Repository
 
         public async Task<bool> Delete(Expression<Func<T, bool>> predicate)
         {
-            return await _context.Set<T>().Where(predicate).ExecuteDeleteAsync() > 0;
+            bool success = await _context.Set<T>().Where(predicate).ExecuteDeleteAsync() > 0;
+            _context.ChangeTracker.Clear();
+            return success;
         }
 
         public async Task<T> Update(T entity)
