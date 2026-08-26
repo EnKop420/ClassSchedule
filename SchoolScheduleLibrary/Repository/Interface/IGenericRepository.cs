@@ -85,6 +85,6 @@ namespace SchoolScheduleLibrary.Repository.Interface
         /// </summary>
         /// <param name="predicate">Used as a "Where" condition.</param>
         /// <returns>The Count.</returns>
-        public Task<int> Count(Expression<Func<T, bool>> predicate);
+        public Task<int> Count(Expression<Func<T, bool>>? predicate = null);
     }
 }

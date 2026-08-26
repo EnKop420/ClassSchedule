@@ -112,9 +112,10 @@ namespace SchoolScheduleLibrary.Repository
             return await _context.SaveChangesAsync() > 0;
         }
 
-        public async Task<int> Count(Expression<Func<T, bool>> predicate)
+        public async Task<int> Count(Expression<Func<T, bool>>? predicate = null)
         {
-            return await _context.Set<T>().CountAsync(predicate);
+            if (predicate == null) return await _context.Set<T>().CountAsync();
+            else return await _context.Set<T>().CountAsync(predicate);
         }
     }
 }
