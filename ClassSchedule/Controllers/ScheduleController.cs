@@ -22,11 +22,11 @@ namespace ClassSchedule.Controllers
         }
 
         [HttpGet("get")]
-        public async Task<IActionResult> GetSchedule([FromQuery] Guid target, [FromQuery] DateOnly from, [FromQuery] DateOnly to)
+        public async Task<IActionResult> GetSchedule([FromQuery] Guid targetUserId, [FromQuery] DateOnly from, [FromQuery] DateOnly to)
         {
             try
             {
-                GetScheduleLessonDTO dto = new(target, from, to);
+                GetScheduleLessonDTO dto = new(targetUserId, from, to);
                 return Ok(await _scheduleService.GetScheduleAsync(CurrentInstitutionId, CurrentUserId, CurrentUserRole, dto));
             }
             catch (HttpResponseException hre)
