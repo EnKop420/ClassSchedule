@@ -238,7 +238,7 @@ namespace ClassScheduleTests.UnitTests.Repository
         {
             User user = new("Anders", "And", DateOnly.FromDateTime(DateTime.Now), "anders123", "password123", "anders@mail.dk", UserRoles.Admin, Guid.NewGuid());
 
-            await Assert.ThrowsAsync<SqliteException>(async () =>
+            await Assert.ThrowsAsync<DbUpdateException>(async () =>
             {
                 await _userRepository.Add(user);
             });

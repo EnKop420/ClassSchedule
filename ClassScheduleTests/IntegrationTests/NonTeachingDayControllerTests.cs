@@ -10,16 +10,17 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text;
+using static SchoolScheduleLibrary.Utilities.Response.HttpResponseException;
 
 namespace ClassScheduleTests.IntegrationTests
 {
-    public class SubjectControllerTests : IClassFixture<CustomWebApplicationFactory<Program>>
+    public class NonTeachingDayControllerTests : IClassFixture<CustomWebApplicationFactory<Program>>
     {
         private readonly HttpClient _client;
         private readonly CustomWebApplicationFactory<Program> _factory;
-        private readonly string _ApiBaseUrl = "/api/Subject/";
+        private readonly string _ApiBaseUrl = "/api/NonTeachingDay/";
 
-        public SubjectControllerTests(CustomWebApplicationFactory<Program> factory)
+        public NonTeachingDayControllerTests(CustomWebApplicationFactory<Program> factory)
         {
             _factory = factory;
             _client = factory.CreateClient();
@@ -40,35 +41,52 @@ namespace ClassScheduleTests.IntegrationTests
         }
 
         [Fact]
-        public async Task Add_Subject_Succeeds()
+        public async Task Add_NonTeachingDay_Succeeds()
         {
             await InitializeAsync();
-            CreateSubjectDTO dto = new("Test Fag");
+            CreateNonTeachingDayDTO dto = new(new DateOnly(1111, 01, 01), new DateOnly(1111, 02, 01), "Test NonTeachingDay");
 
             var result = await _client.PostAsJsonAsync(_ApiBaseUrl + "create", dto);
 
-            var json = await result.Content.ReadAsStringAsync();
-            SubjectDTO? subject = JsonConvert.DeserializeObject<SubjectDTO>(json);
-
             Assert.True(result.IsSuccessStatusCode);
-            Assert.NotNull(subject);
-            Assert.Equal("Test Fag", subject.Name);
+
+            var json = await result.Content.ReadAsStringAsync();
+            NonTeachingDayDTO? resultDTO = JsonConvert.DeserializeObject<NonTeachingDayDTO>(json);
+
+            Assert.NotNull(resultDTO);
+            Assert.Equal(dto.Reason, resultDTO.Reason);
+            Assert.Equal(dto.StartDate, resultDTO.StartDate);
+            Assert.Equal(dto.EndDate, resultDTO.EndDate);
 
             // Cleanup
             await WithContext(async db =>
             {
-                await db.Subjects.Where(s => s.Id == subject.Id).ExecuteDeleteAsync();
+                await db.NonTeachingDays.Where(x => x.Id == resultDTO.Id).ExecuteDeleteAsync();
             });
         }
 
         [Fact]
-        public async Task Delete_Subject_Succeeds()
+        public async Task Add_NonTeachingDay_BadRequest()
         {
             await InitializeAsync();
-            Subject toDeleteValue = new("Biologi", Guid.Parse("02268c71-1e0d-4a3c-8732-15f30d84a6c6"));
+
+            // Start time is after End Time.
+            CreateNonTeachingDayDTO dto = new(new DateOnly(1111, 02, 01), new DateOnly(1111, 01, 01), "Fail NonTeachingDay");
+
+            var result = await _client.PostAsJsonAsync(_ApiBaseUrl + "create", dto);
+
+            Assert.False(result.IsSuccessStatusCode);
+            Assert.Equal(HttpStatusCode.BadRequest, result.StatusCode);
+        }
+
+        [Fact]
+        public async Task Delete_NonTeachingDay_Succeeds()
+        {
+            await InitializeAsync();
+            NonTeachingDay toDeleteValue = new(new DateOnly(1111, 01, 01), new DateOnly(1111, 02, 01), "Test NonTeachingDay TO DELETE", Guid.Parse("02268c71-1e0d-4a3c-8732-15f30d84a6c6"));
             await WithContext(async db =>
             {
-                await db.Subjects.AddAsync(toDeleteValue);
+                await db.NonTeachingDays.AddAsync(toDeleteValue);
                 await db.SaveChangesAsync();
             });
 
@@ -82,15 +100,15 @@ namespace ClassScheduleTests.IntegrationTests
         }
 
         [Fact]
-        public async Task GetAll_Subjects_Succeeds()
+        public async Task GetAll_NonTeachingDays_Succeeds()
         {
             await InitializeAsync();
 
-            List<SubjectDTO>? subjects = await _client.GetFromJsonAsync<List<SubjectDTO>>(_ApiBaseUrl + "get-all");
+            List<NonTeachingDayDTO>? nonTeachingDays = await _client.GetFromJsonAsync<List<NonTeachingDayDTO>>(_ApiBaseUrl + "get-all");
 
-            Assert.NotNull(subjects);
-            Assert.NotEmpty(subjects);
-            Assert.Equal(4, subjects.Count);
+            Assert.NotNull(nonTeachingDays);
+            Assert.NotEmpty(nonTeachingDays);
+            Assert.Equal(4, nonTeachingDays.Count);
         }
     }
 }

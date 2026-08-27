@@ -14,7 +14,7 @@ namespace SchoolScheduleLibrary.DTO
         string HoldName,
         string? RoomName,
         string Status,
-        List<string> Teachers);
+        List<MinimalUserInformationDTO> Teachers);
 
     public record GetScheduleLessonDTO(Guid TargetId, DateOnly From, DateOnly To);
 }

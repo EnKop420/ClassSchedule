@@ -62,7 +62,10 @@ namespace SchoolScheduleLibrary.Service
                 l.Hold.Name,
                 l.Room?.Name,
                 l.Status.ToString(),
-                l.Teachers.Select(t => $"{t.Teacher.FirstName} {t.Teacher.LastName}").ToList()
+                l.Teachers.Select(t => new MinimalUserInformationDTO(
+                    $"{t.Teacher.FirstName} {t.Teacher.LastName}",
+                    t.TeacherId)
+                ).ToList()
             )).ToList();
         }
     }

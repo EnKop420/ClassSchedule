@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using SchoolScheduleLibrary.Context;
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Text;
 
 namespace ClassScheduleTests
@@ -21,30 +22,28 @@ namespace ClassScheduleTests
         {
             builder.ConfigureServices(services =>
             {
-                // 1. Find and remove the existing DbContext registration from Program.cs
-                var descriptor = services.SingleOrDefault(
-                    d => d.ServiceType == typeof(DbContextOptions<SchoolDbContext>));
+                var toRemove = services.Where(d =>
+                    d.ServiceType == typeof(DbContextOptions<SchoolDbContext>) ||
+                    d.ServiceType == typeof(SchoolDbContext) ||
+                    d.ServiceType == typeof(DbConnection)).ToList();
 
-                if (descriptor != null)
-                {
-                    services.Remove(descriptor);
-                }
+                foreach (var d in toRemove)
+                    services.Remove(d);
 
-                // 2. Add DbContext using your Test Database Connection String
                 services.AddDbContext<SchoolDbContext>(options =>
                 {
                     options.UseNpgsql(TestConnectionString);
                 });
-
-                // 3. (Optional) Ensure the database is created and migrated
-                var sp = services.BuildServiceProvider();
-                using var scope = sp.CreateScope();
-                var db = scope.ServiceProvider.GetRequiredService<SchoolDbContext>();
-
-                // Ensures clean state / applies migrations
-                db.Database.EnsureDeleted();
-                db.Database.EnsureCreated(); // Or db.Database.Migrate();
             });
         }
+
+        public async Task InitializeAsync()
+        {
+            using var scope = Services.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<SchoolDbContext>();
+            await db.Database.EnsureCreatedAsync(); // or MigrateAsync()
+        }
+
+        public new Task DisposeAsync() => Task.CompletedTask;
     }
 }

@@ -24,8 +24,7 @@ namespace ClassSchedule.Controllers
         {
             try
             {
-                await _studentGroupService.CreateAsync(CurrentInstitutionId, dto);
-                return Ok();
+                return Ok(await _studentGroupService.CreateAsync(CurrentInstitutionId, dto));
             }
             catch (HttpResponseException hre)
             {
@@ -43,8 +42,7 @@ namespace ClassSchedule.Controllers
         {
             try
             {
-                await _studentGroupService.DeleteAsync(CurrentInstitutionId, id);
-                return Ok();
+                return Ok(await _studentGroupService.DeleteAsync(CurrentInstitutionId, id));
             }
             catch (HttpResponseException hre)
             {

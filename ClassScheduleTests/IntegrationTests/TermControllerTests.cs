@@ -13,13 +13,13 @@ using System.Text;
 
 namespace ClassScheduleTests.IntegrationTests
 {
-    public class SubjectControllerTests : IClassFixture<CustomWebApplicationFactory<Program>>
+    public class TermControllerTests : IClassFixture<CustomWebApplicationFactory<Program>>
     {
         private readonly HttpClient _client;
         private readonly CustomWebApplicationFactory<Program> _factory;
-        private readonly string _ApiBaseUrl = "/api/Subject/";
+        private readonly string _ApiBaseUrl = "/api/Term/";
 
-        public SubjectControllerTests(CustomWebApplicationFactory<Program> factory)
+        public TermControllerTests(CustomWebApplicationFactory<Program> factory)
         {
             _factory = factory;
             _client = factory.CreateClient();
@@ -40,35 +40,52 @@ namespace ClassScheduleTests.IntegrationTests
         }
 
         [Fact]
-        public async Task Add_Subject_Succeeds()
+        public async Task Add_Term_Succeeds()
         {
             await InitializeAsync();
-            CreateSubjectDTO dto = new("Test Fag");
+            CreateTermDTO dto = new("Test Term", new DateOnly(1111, 01, 01), new DateOnly(1111, 02, 01));
 
             var result = await _client.PostAsJsonAsync(_ApiBaseUrl + "create", dto);
 
-            var json = await result.Content.ReadAsStringAsync();
-            SubjectDTO? subject = JsonConvert.DeserializeObject<SubjectDTO>(json);
-
             Assert.True(result.IsSuccessStatusCode);
-            Assert.NotNull(subject);
-            Assert.Equal("Test Fag", subject.Name);
+
+            var json = await result.Content.ReadAsStringAsync();
+            TermDTO? resultDTO = JsonConvert.DeserializeObject<TermDTO>(json);
+
+            Assert.NotNull(resultDTO);
+            Assert.Equal(dto.Name, resultDTO.Name);
+            Assert.Equal(dto.StartDate, resultDTO.StartDate);
+            Assert.Equal(dto.EndDate, resultDTO.EndDate);
 
             // Cleanup
             await WithContext(async db =>
             {
-                await db.Subjects.Where(s => s.Id == subject.Id).ExecuteDeleteAsync();
+                await db.Terms.Where(x => x.Id == resultDTO.Id).ExecuteDeleteAsync();
             });
         }
 
         [Fact]
-        public async Task Delete_Subject_Succeeds()
+        public async Task Add_Term_BadRequest()
         {
             await InitializeAsync();
-            Subject toDeleteValue = new("Biologi", Guid.Parse("02268c71-1e0d-4a3c-8732-15f30d84a6c6"));
+
+            // Start time is after End Time.
+            CreateTermDTO dto = new("Fail Term", new DateOnly(1111, 10, 01), new DateOnly(1111, 01, 01));
+
+            var result = await _client.PostAsJsonAsync(_ApiBaseUrl + "create", dto);
+
+            Assert.False(result.IsSuccessStatusCode);
+            Assert.Equal(HttpStatusCode.BadRequest, result.StatusCode);
+        }
+
+        [Fact]
+        public async Task Delete_Term_Succeeds()
+        {
+            await InitializeAsync();
+            Term toDeleteValue = new("Test Term TO DELETE", new DateOnly(1111, 01, 01), new DateOnly(1111, 02, 01), Guid.Parse("02268c71-1e0d-4a3c-8732-15f30d84a6c6"));
             await WithContext(async db =>
             {
-                await db.Subjects.AddAsync(toDeleteValue);
+                await db.Terms.AddAsync(toDeleteValue);
                 await db.SaveChangesAsync();
             });
 
@@ -82,15 +99,15 @@ namespace ClassScheduleTests.IntegrationTests
         }
 
         [Fact]
-        public async Task GetAll_Subjects_Succeeds()
+        public async Task GetAll_Terms_Succeeds()
         {
             await InitializeAsync();
 
-            List<SubjectDTO>? subjects = await _client.GetFromJsonAsync<List<SubjectDTO>>(_ApiBaseUrl + "get-all");
+            List<TermDTO>? terms = await _client.GetFromJsonAsync<List<TermDTO>>(_ApiBaseUrl + "get-all");
 
-            Assert.NotNull(subjects);
-            Assert.NotEmpty(subjects);
-            Assert.Equal(4, subjects.Count);
+            Assert.NotNull(terms);
+            Assert.NotEmpty(terms);
+            Assert.Equal(4, terms.Count);
         }
     }
 }

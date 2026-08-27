@@ -1,4 +1,5 @@
 ﻿using ClassSchedule;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
@@ -13,13 +14,13 @@ using System.Text;
 
 namespace ClassScheduleTests.IntegrationTests
 {
-    public class SubjectControllerTests : IClassFixture<CustomWebApplicationFactory<Program>>
+    public class PeriodControllerTests : IClassFixture<CustomWebApplicationFactory<Program>>
     {
         private readonly HttpClient _client;
         private readonly CustomWebApplicationFactory<Program> _factory;
-        private readonly string _ApiBaseUrl = "/api/Subject/";
+        private readonly string _ApiBaseUrl = "/api/Period/";
 
-        public SubjectControllerTests(CustomWebApplicationFactory<Program> factory)
+        public PeriodControllerTests(CustomWebApplicationFactory<Program> factory)
         {
             _factory = factory;
             _client = factory.CreateClient();
@@ -40,35 +41,50 @@ namespace ClassScheduleTests.IntegrationTests
         }
 
         [Fact]
-        public async Task Add_Subject_Succeeds()
+        public async Task Add_Period_Succeeds()
         {
             await InitializeAsync();
-            CreateSubjectDTO dto = new("Test Fag");
+            CreatePeriodDTO dto = new("Test Modul", TimeOnly.Parse("08:00:00"), TimeOnly.Parse("09:00:00"));
 
             var result = await _client.PostAsJsonAsync(_ApiBaseUrl + "create", dto);
 
             var json = await result.Content.ReadAsStringAsync();
-            SubjectDTO? subject = JsonConvert.DeserializeObject<SubjectDTO>(json);
+            PeriodDTO? resultDTO = JsonConvert.DeserializeObject<PeriodDTO>(json);
 
             Assert.True(result.IsSuccessStatusCode);
-            Assert.NotNull(subject);
-            Assert.Equal("Test Fag", subject.Name);
-
+            Assert.NotNull(resultDTO);
+            Assert.Equal(dto.Name, resultDTO.Name);
+            Assert.Equal(dto.StartTime, resultDTO.StartTime);
+            Assert.Equal(dto.EndTime, resultDTO.EndTime);
             // Cleanup
             await WithContext(async db =>
             {
-                await db.Subjects.Where(s => s.Id == subject.Id).ExecuteDeleteAsync();
+                await db.Periods.Where(x => x.Id == resultDTO.Id).ExecuteDeleteAsync();
             });
         }
 
         [Fact]
-        public async Task Delete_Subject_Succeeds()
+        public async Task Add_Period_BadRequest()
         {
             await InitializeAsync();
-            Subject toDeleteValue = new("Biologi", Guid.Parse("02268c71-1e0d-4a3c-8732-15f30d84a6c6"));
+
+            // Start time is after End Time.
+            CreatePeriodDTO dto = new("Fail Modul", TimeOnly.Parse("09:00:00"), TimeOnly.Parse("08:00:00"));
+
+            var result = await _client.PostAsJsonAsync(_ApiBaseUrl + "create", dto);
+
+            Assert.False(result.IsSuccessStatusCode);
+            Assert.Equal(HttpStatusCode.BadRequest, result.StatusCode);
+        }
+
+        [Fact]
+        public async Task Delete_Period_Succeeds()
+        {
+            await InitializeAsync();
+            Period toDeleteValue = new("Test Modul TO DELETE", TimeOnly.Parse("12:00:00"), TimeOnly.Parse("13:00:00"), Guid.Parse("02268c71-1e0d-4a3c-8732-15f30d84a6c6"));
             await WithContext(async db =>
             {
-                await db.Subjects.AddAsync(toDeleteValue);
+                await db.Periods.AddAsync(toDeleteValue);
                 await db.SaveChangesAsync();
             });
 
@@ -82,15 +98,15 @@ namespace ClassScheduleTests.IntegrationTests
         }
 
         [Fact]
-        public async Task GetAll_Subjects_Succeeds()
+        public async Task GetAll_Periods_Succeeds()
         {
             await InitializeAsync();
 
-            List<SubjectDTO>? subjects = await _client.GetFromJsonAsync<List<SubjectDTO>>(_ApiBaseUrl + "get-all");
+            List<PeriodDTO>? periods = await _client.GetFromJsonAsync<List<PeriodDTO>>(_ApiBaseUrl + "get-all");
 
-            Assert.NotNull(subjects);
-            Assert.NotEmpty(subjects);
-            Assert.Equal(4, subjects.Count);
+            Assert.NotNull(periods);
+            Assert.NotEmpty(periods);
+            Assert.Equal(4, periods.Count);
         }
     }
 }
