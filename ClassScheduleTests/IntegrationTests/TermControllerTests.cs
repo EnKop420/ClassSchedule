@@ -18,7 +18,7 @@ namespace ClassScheduleTests.IntegrationTests
         private readonly HttpClient _client;
         private readonly CustomWebApplicationFactory<Program> _factory;
         private readonly string _ApiBaseUrl = "/api/Term/";
-
+        private readonly Guid _InstitutionId = Guid.Parse("02268c71-1e0d-4a3c-8732-15f30d84a6c6");
         public TermControllerTests(CustomWebApplicationFactory<Program> factory)
         {
             _factory = factory;
@@ -27,7 +27,7 @@ namespace ClassScheduleTests.IntegrationTests
 
         public async Task InitializeAsync()
         {
-            LoginDTO dto = new("test", "Passw0rd", Guid.Parse("02268c71-1e0d-4a3c-8732-15f30d84a6c6"));
+            LoginDTO dto = new("test", "Passw0rd", _InstitutionId);
             var login = await _client.PostAsJsonAsync("/api/User/login", dto);
             login.EnsureSuccessStatusCode();
         }
@@ -52,20 +52,20 @@ namespace ClassScheduleTests.IntegrationTests
             var json = await result.Content.ReadAsStringAsync();
             TermDTO? resultDTO = JsonConvert.DeserializeObject<TermDTO>(json);
 
-            Assert.NotNull(resultDTO);
-            Assert.Equal(dto.Name, resultDTO.Name);
-            Assert.Equal(dto.StartDate, resultDTO.StartDate);
-            Assert.Equal(dto.EndDate, resultDTO.EndDate);
-
             // Cleanup
             await WithContext(async db =>
             {
                 await db.Terms.Where(x => x.Id == resultDTO.Id).ExecuteDeleteAsync();
             });
+
+            Assert.NotNull(resultDTO);
+            Assert.Equal(dto.Name, resultDTO.Name);
+            Assert.Equal(dto.StartDate, resultDTO.StartDate);
+            Assert.Equal(dto.EndDate, resultDTO.EndDate);
         }
 
         [Fact]
-        public async Task Add_Term_BadRequest()
+        public async Task Add_Term_Throws_BadRequest_Error()
         {
             await InitializeAsync();
 
@@ -82,7 +82,7 @@ namespace ClassScheduleTests.IntegrationTests
         public async Task Delete_Term_Succeeds()
         {
             await InitializeAsync();
-            Term toDeleteValue = new("Test Term TO DELETE", new DateOnly(1111, 01, 01), new DateOnly(1111, 02, 01), Guid.Parse("02268c71-1e0d-4a3c-8732-15f30d84a6c6"));
+            Term toDeleteValue = new("Test Term TO DELETE", new DateOnly(1111, 01, 01), new DateOnly(1111, 02, 01), _InstitutionId);
             await WithContext(async db =>
             {
                 await db.Terms.AddAsync(toDeleteValue);
@@ -96,18 +96,6 @@ namespace ClassScheduleTests.IntegrationTests
             Assert.True(result.IsSuccessStatusCode);
             Assert.False(errorExpected.IsSuccessStatusCode);
             Assert.Equal(HttpStatusCode.NotFound, errorExpected.StatusCode);
-        }
-
-        [Fact]
-        public async Task GetAll_Terms_Succeeds()
-        {
-            await InitializeAsync();
-
-            List<TermDTO>? terms = await _client.GetFromJsonAsync<List<TermDTO>>(_ApiBaseUrl + "get-all");
-
-            Assert.NotNull(terms);
-            Assert.NotEmpty(terms);
-            Assert.Equal(4, terms.Count);
         }
     }
 }

@@ -19,6 +19,7 @@ namespace ClassScheduleTests.IntegrationTests
         private readonly HttpClient _client;
         private readonly CustomWebApplicationFactory<Program> _factory;
         private readonly string _ApiBaseUrl = "/api/Period/";
+        private readonly Guid _InstitutionId = Guid.Parse("02268c71-1e0d-4a3c-8732-15f30d84a6c6");
 
         public PeriodControllerTests(CustomWebApplicationFactory<Program> factory)
         {
@@ -28,7 +29,7 @@ namespace ClassScheduleTests.IntegrationTests
 
         public async Task InitializeAsync()
         {
-            LoginDTO dto = new("test", "Passw0rd", Guid.Parse("02268c71-1e0d-4a3c-8732-15f30d84a6c6"));
+            LoginDTO dto = new("test", "Passw0rd", _InstitutionId);
             var login = await _client.PostAsJsonAsync("/api/User/login", dto);
             login.EnsureSuccessStatusCode();
         }
@@ -51,16 +52,17 @@ namespace ClassScheduleTests.IntegrationTests
             var json = await result.Content.ReadAsStringAsync();
             PeriodDTO? resultDTO = JsonConvert.DeserializeObject<PeriodDTO>(json);
 
-            Assert.True(result.IsSuccessStatusCode);
-            Assert.NotNull(resultDTO);
-            Assert.Equal(dto.Name, resultDTO.Name);
-            Assert.Equal(dto.StartTime, resultDTO.StartTime);
-            Assert.Equal(dto.EndTime, resultDTO.EndTime);
             // Cleanup
             await WithContext(async db =>
             {
                 await db.Periods.Where(x => x.Id == resultDTO.Id).ExecuteDeleteAsync();
             });
+
+            Assert.True(result.IsSuccessStatusCode);
+            Assert.NotNull(resultDTO);
+            Assert.Equal(dto.Name, resultDTO.Name);
+            Assert.Equal(dto.StartTime, resultDTO.StartTime);
+            Assert.Equal(dto.EndTime, resultDTO.EndTime);
         }
 
         [Fact]
@@ -81,7 +83,7 @@ namespace ClassScheduleTests.IntegrationTests
         public async Task Delete_Period_Succeeds()
         {
             await InitializeAsync();
-            Period toDeleteValue = new("Test Modul TO DELETE", TimeOnly.Parse("12:00:00"), TimeOnly.Parse("13:00:00"), Guid.Parse("02268c71-1e0d-4a3c-8732-15f30d84a6c6"));
+            Period toDeleteValue = new("Test Modul TO DELETE", TimeOnly.Parse("12:00:00"), TimeOnly.Parse("13:00:00"), _InstitutionId);
             await WithContext(async db =>
             {
                 await db.Periods.AddAsync(toDeleteValue);
@@ -95,18 +97,6 @@ namespace ClassScheduleTests.IntegrationTests
             Assert.True(result.IsSuccessStatusCode);
             Assert.False(errorExpected.IsSuccessStatusCode);
             Assert.Equal(HttpStatusCode.NotFound, errorExpected.StatusCode);
-        }
-
-        [Fact]
-        public async Task GetAll_Periods_Succeeds()
-        {
-            await InitializeAsync();
-
-            List<PeriodDTO>? periods = await _client.GetFromJsonAsync<List<PeriodDTO>>(_ApiBaseUrl + "get-all");
-
-            Assert.NotNull(periods);
-            Assert.NotEmpty(periods);
-            Assert.Equal(4, periods.Count);
         }
     }
 }

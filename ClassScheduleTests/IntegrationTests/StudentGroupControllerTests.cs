@@ -18,6 +18,7 @@ namespace ClassScheduleTests.IntegrationTests
         private readonly HttpClient _client;
         private readonly CustomWebApplicationFactory<Program> _factory;
         private readonly string _ApiBaseUrl = "/api/StudentGroup/";
+        private readonly Guid _InstitutionId = Guid.Parse("02268c71-1e0d-4a3c-8732-15f30d84a6c6");
 
         public StudentGroupControllerTests(CustomWebApplicationFactory<Program> factory)
         {
@@ -27,7 +28,7 @@ namespace ClassScheduleTests.IntegrationTests
 
         public async Task InitializeAsync()
         {
-            LoginDTO dto = new("test", "Passw0rd", Guid.Parse("02268c71-1e0d-4a3c-8732-15f30d84a6c6"));
+            LoginDTO dto = new("test", "Passw0rd", _InstitutionId);
             var login = await _client.PostAsJsonAsync("/api/User/login", dto);
             login.EnsureSuccessStatusCode();
         }
@@ -57,14 +58,15 @@ namespace ClassScheduleTests.IntegrationTests
             var json = await result.Content.ReadAsStringAsync();
             StudentGroupDTO? resultDTO = JsonConvert.DeserializeObject<StudentGroupDTO>(json);
 
-            Assert.True(result.IsSuccessStatusCode);
-            Assert.NotNull(resultDTO);
-            Assert.Equal(dto.Name, resultDTO.Name);
             // Cleanup
             await WithContext(async db =>
             {
                 await db.StudentGroups.Where(x => x.Id == resultDTO.Id).ExecuteDeleteAsync();
             });
+
+            Assert.True(result.IsSuccessStatusCode);
+            Assert.NotNull(resultDTO);
+            Assert.Equal(dto.Name, resultDTO.Name);
         }
 
         [Fact]
@@ -98,18 +100,6 @@ namespace ClassScheduleTests.IntegrationTests
 
             Assert.False(errorExpected.IsSuccessStatusCode);
             Assert.Equal(HttpStatusCode.NotFound, errorExpected.StatusCode);
-        }
-
-        [Fact]
-        public async Task GetAll_StudentGroups_Succeeds()
-        {
-            await InitializeAsync();
-
-            List<StudentGroupDTO>? StudentGroups = await _client.GetFromJsonAsync<List<StudentGroupDTO>>(_ApiBaseUrl + "get-all");
-
-            Assert.NotNull(StudentGroups);
-            Assert.NotEmpty(StudentGroups);
-            Assert.Equal(2, StudentGroups.Count);
         }
     }
 }

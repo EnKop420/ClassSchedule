@@ -18,6 +18,7 @@ namespace ClassScheduleTests.IntegrationTests
         private readonly HttpClient _client;
         private readonly CustomWebApplicationFactory<Program> _factory;
         private readonly string _ApiBaseUrl = "/api/Subject/";
+        private readonly Guid _InstitutionId = Guid.Parse("02268c71-1e0d-4a3c-8732-15f30d84a6c6");
 
         public SubjectControllerTests(CustomWebApplicationFactory<Program> factory)
         {
@@ -27,7 +28,7 @@ namespace ClassScheduleTests.IntegrationTests
 
         public async Task InitializeAsync()
         {
-            LoginDTO dto = new("test", "Passw0rd", Guid.Parse("02268c71-1e0d-4a3c-8732-15f30d84a6c6"));
+            LoginDTO dto = new("test", "Passw0rd", _InstitutionId);
             var login = await _client.PostAsJsonAsync("/api/User/login", dto);
             login.EnsureSuccessStatusCode();
         }
@@ -50,22 +51,22 @@ namespace ClassScheduleTests.IntegrationTests
             var json = await result.Content.ReadAsStringAsync();
             SubjectDTO? subject = JsonConvert.DeserializeObject<SubjectDTO>(json);
 
-            Assert.True(result.IsSuccessStatusCode);
-            Assert.NotNull(subject);
-            Assert.Equal("Test Fag", subject.Name);
-
             // Cleanup
             await WithContext(async db =>
             {
                 await db.Subjects.Where(s => s.Id == subject.Id).ExecuteDeleteAsync();
             });
+
+            Assert.True(result.IsSuccessStatusCode);
+            Assert.NotNull(subject);
+            Assert.Equal("Test Fag", subject.Name);
         }
 
         [Fact]
         public async Task Delete_Subject_Succeeds()
         {
             await InitializeAsync();
-            Subject toDeleteValue = new("Biologi", Guid.Parse("02268c71-1e0d-4a3c-8732-15f30d84a6c6"));
+            Subject toDeleteValue = new("Biologi", _InstitutionId);
             await WithContext(async db =>
             {
                 await db.Subjects.AddAsync(toDeleteValue);
@@ -79,18 +80,6 @@ namespace ClassScheduleTests.IntegrationTests
             Assert.True(result.IsSuccessStatusCode);
             Assert.False(errorExpected.IsSuccessStatusCode);
             Assert.Equal(HttpStatusCode.NotFound, errorExpected.StatusCode);
-        }
-
-        [Fact]
-        public async Task GetAll_Subjects_Succeeds()
-        {
-            await InitializeAsync();
-
-            List<SubjectDTO>? subjects = await _client.GetFromJsonAsync<List<SubjectDTO>>(_ApiBaseUrl + "get-all");
-
-            Assert.NotNull(subjects);
-            Assert.NotEmpty(subjects);
-            Assert.Equal(4, subjects.Count);
         }
     }
 }

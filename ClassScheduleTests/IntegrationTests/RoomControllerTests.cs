@@ -52,15 +52,15 @@ namespace ClassScheduleTests.IntegrationTests
             var json = await result.Content.ReadAsStringAsync();
             RoomDTO? resultDTO = JsonConvert.DeserializeObject<RoomDTO>(json);
 
-            Assert.NotNull(resultDTO);
-            Assert.Equal(dto.Name, resultDTO.Name);
-            Assert.Equal(dto.Capacity, resultDTO.Capacity);
-
             // Cleanup
             await WithContext(async db =>
             {
-                await db.Rooms.Where(x => x.Id == resultDTO.Id).ExecuteDeleteAsync();
+                await db.Rooms.Where(x => x.Id == resultDTO!.Id).ExecuteDeleteAsync();
             });
+
+            Assert.NotNull(resultDTO);
+            Assert.Equal(dto.Name, resultDTO.Name);
+            Assert.Equal(dto.Capacity, resultDTO.Capacity);
         }
 
         [Fact]
@@ -81,17 +81,6 @@ namespace ClassScheduleTests.IntegrationTests
             Assert.True(result.IsSuccessStatusCode);
             Assert.False(errorExpected.IsSuccessStatusCode);
             Assert.Equal(HttpStatusCode.NotFound, errorExpected.StatusCode);
-        }
-
-        public async Task GetAll_Rooms_Succeeds()
-        {
-            await InitializeAsync();
-
-            List<RoomDTO>? rooms = await _client.GetFromJsonAsync<List<RoomDTO>>(_ApiBaseUrl + "get-all");
-
-            Assert.NotNull(rooms);
-            Assert.NotEmpty(rooms);
-            Assert.Equal(4, rooms.Count);
         }
     }
 }

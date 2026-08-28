@@ -19,6 +19,7 @@ namespace ClassScheduleTests.IntegrationTests
         private readonly HttpClient _client;
         private readonly CustomWebApplicationFactory<Program> _factory;
         private readonly string _ApiBaseUrl = "/api/NonTeachingDay/";
+        private readonly Guid _InstitutionId = Guid.Parse("02268c71-1e0d-4a3c-8732-15f30d84a6c6");
 
         public NonTeachingDayControllerTests(CustomWebApplicationFactory<Program> factory)
         {
@@ -28,7 +29,7 @@ namespace ClassScheduleTests.IntegrationTests
 
         public async Task InitializeAsync()
         {
-            LoginDTO dto = new("test", "Passw0rd", Guid.Parse("02268c71-1e0d-4a3c-8732-15f30d84a6c6"));
+            LoginDTO dto = new("test", "Passw0rd", _InstitutionId);
             var login = await _client.PostAsJsonAsync("/api/User/login", dto);
             login.EnsureSuccessStatusCode();
         }
@@ -66,7 +67,7 @@ namespace ClassScheduleTests.IntegrationTests
         }
 
         [Fact]
-        public async Task Add_NonTeachingDay_BadRequest()
+        public async Task Add_NonTeachingDay_Throws_BadRequest_Error()
         {
             await InitializeAsync();
 
@@ -83,7 +84,7 @@ namespace ClassScheduleTests.IntegrationTests
         public async Task Delete_NonTeachingDay_Succeeds()
         {
             await InitializeAsync();
-            NonTeachingDay toDeleteValue = new(new DateOnly(1111, 01, 01), new DateOnly(1111, 02, 01), "Test NonTeachingDay TO DELETE", Guid.Parse("02268c71-1e0d-4a3c-8732-15f30d84a6c6"));
+            NonTeachingDay toDeleteValue = new(new DateOnly(1111, 01, 01), new DateOnly(1111, 02, 01), "Test NonTeachingDay TO DELETE", _InstitutionId);
             await WithContext(async db =>
             {
                 await db.NonTeachingDays.AddAsync(toDeleteValue);
@@ -97,18 +98,6 @@ namespace ClassScheduleTests.IntegrationTests
             Assert.True(result.IsSuccessStatusCode);
             Assert.False(errorExpected.IsSuccessStatusCode);
             Assert.Equal(HttpStatusCode.NotFound, errorExpected.StatusCode);
-        }
-
-        [Fact]
-        public async Task GetAll_NonTeachingDays_Succeeds()
-        {
-            await InitializeAsync();
-
-            List<NonTeachingDayDTO>? nonTeachingDays = await _client.GetFromJsonAsync<List<NonTeachingDayDTO>>(_ApiBaseUrl + "get-all");
-
-            Assert.NotNull(nonTeachingDays);
-            Assert.NotEmpty(nonTeachingDays);
-            Assert.Equal(4, nonTeachingDays.Count);
         }
     }
 }

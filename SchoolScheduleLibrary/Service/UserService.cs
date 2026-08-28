@@ -46,10 +46,10 @@ namespace SchoolScheduleLibrary.Service
             string lowerUsername = input.Username.ToLower();
             bool doesUsernameExist = await _userGenericRepository.DoesValueExist(u => u.Username == lowerUsername);
 
+            if (doesUsernameExist) throw new ConflictException("Username already exists!");
+
             string hashedPassword = await _encryptionHandler.HashString(input.Password);
             string encryptedEmail = await _encryptionHandler.EncryptString(input.Email);
-
-            if (doesUsernameExist) throw new ConflictException("Username already exists!");
 
             User user = new(
                 input.FirstName,
@@ -107,6 +107,11 @@ namespace SchoolScheduleLibrary.Service
 
         public async Task<string> ChangeUserCredentials(Guid userId, Guid institutionId, ChangeUserCredentialsDTO dto)
         {
+            if (await _userGenericRepository.DoesValueExist(u => u.Username == dto.Username.ToLower()))
+            {
+                throw new ConflictException("Username already exists!");
+            }
+
             string hashedOldPassword = await _encryptionHandler.HashString(dto.OldPassword);
             string hashedNewPassword = await _encryptionHandler.HashString(dto.NewPassword);
 
