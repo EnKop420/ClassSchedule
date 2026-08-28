@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Http.Internal;
 using SchoolScheduleLibrary.DTO;
 using SchoolScheduleLibrary.Enums;
 using SchoolScheduleLibrary.Model;
-using SchoolScheduleLibrary.Model.Interface;
 using SchoolScheduleLibrary.Repository.Interface;
 using SchoolScheduleLibrary.Utilities.Auth;
 using System;

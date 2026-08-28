@@ -1,13 +1,8 @@
 ﻿using SchoolScheduleLibrary.Enums;
-using SchoolScheduleLibrary.Model.Interface;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Text;
 
 namespace SchoolScheduleLibrary.Model
 {
-    public class User : IBaseEntity, IInstitutionEntity
+    public class User
     {
         public Guid Id { get; set; } = Guid.NewGuid();
         public string FirstName { get; set; }

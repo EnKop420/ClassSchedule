@@ -1,11 +1,6 @@
-﻿using SchoolScheduleLibrary.Model.Interface;
-using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace SchoolScheduleLibrary.Model
+﻿namespace SchoolScheduleLibrary.Model
 {
-    public class LessonNote : IBaseEntity
+    public class LessonNote
     {
         public Guid Id { get; set; } = Guid.NewGuid();
         public Guid LessonId { get; set; }

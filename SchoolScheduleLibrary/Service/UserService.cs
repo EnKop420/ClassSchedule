@@ -2,16 +2,11 @@
 using SchoolScheduleLibrary.DTO;
 using SchoolScheduleLibrary.Enums;
 using SchoolScheduleLibrary.Model;
-using SchoolScheduleLibrary.Model.Interface;
 using SchoolScheduleLibrary.Repository.Interface;
 using SchoolScheduleLibrary.Service.Interface;
 using SchoolScheduleLibrary.Utilities.Auth;
 using SchoolScheduleLibrary.Utilities.Encryption.Interface;
-using SchoolScheduleLibrary.Utilities.Response;
-using System;
-using System.Collections.Generic;
 using System.Security.Cryptography;
-using System.Text;
 using System.Text.Json;
 using static SchoolScheduleLibrary.Utilities.Response.HttpResponseException;
 

@@ -27,14 +27,14 @@ namespace ClassScheduleTests.IntegrationTests
             _client = factory.CreateClient();
         }
 
-        public async Task InitializeAsync()
+        private async Task InitializeAsync()
         {
             LoginDTO dto = new("test", "Passw0rd", _InstitutionId);
             var login = await _client.PostAsJsonAsync("/api/User/login", dto);
             login.EnsureSuccessStatusCode();
         }
 
-        public async Task WithContext(Func<SchoolDbContext, Task> action)
+        private async Task WithContext(Func<SchoolDbContext, Task> action)
         {
             using var scope = _factory.Services.CreateScope();
             SchoolDbContext context = scope.ServiceProvider.GetRequiredService<SchoolDbContext>();
@@ -55,7 +55,7 @@ namespace ClassScheduleTests.IntegrationTests
             // Cleanup
             await WithContext(async db =>
             {
-                await db.Periods.Where(x => x.Id == resultDTO.Id).ExecuteDeleteAsync();
+                await db.Periods.Where(x => x.Id == resultDTO!.Id).ExecuteDeleteAsync();
             });
 
             Assert.True(result.IsSuccessStatusCode);

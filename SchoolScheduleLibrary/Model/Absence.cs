@@ -1,12 +1,8 @@
 ﻿using SchoolScheduleLibrary.Enums;
-using SchoolScheduleLibrary.Model.Interface;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace SchoolScheduleLibrary.Model
 {
-    public class Absence : IBaseEntity
+    public class Absence
     {
         public Guid Id { get; set; } = Guid.NewGuid();
         public Guid LessonId { get; set; }
