@@ -21,7 +21,7 @@ namespace SchoolScheduleLibrary.Service
             _scheduleRepository = scheduleRepository;
         }
 
-        public async Task<List<ScheduleLessonDTO>> GetScheduleAsync(Guid institutionId, Guid callerId, UserRoles callerRole, GetScheduleLessonDTO dto)
+        public async Task<List<LessonDTO>> GetScheduleAsync(Guid institutionId, Guid callerId, UserRoles callerRole, GetLessonDTO dto)
         {
             if (dto.From > dto.To) throw new BadRequestException("'From' needs to be on or before 'To'");
             if (dto.To.DayNumber - dto.From.DayNumber > 62) throw new BadRequestException("Range too large.");
@@ -49,24 +49,12 @@ namespace SchoolScheduleLibrary.Service
             User target = await _userGenericRepository.Get(u => u.Id == dto.TargetId && u.InstitutionId == institutionId)
                 ?? throw new NotFoundException("Target user could not be found in this Institution!");
 
-            List<Lesson> lessons = target.Role switch
+            return target.Role switch
             {
                 UserRoles.Student => await _scheduleRepository.GetStudentLessonsAsync(institutionId, dto),
                 UserRoles.Teacher => await _scheduleRepository.GetTeacherLessonsAsync(institutionId, dto),
                 _ => throw new NotFoundException("That user has no schedule!")
             };
-
-            return lessons.Select(l => new ScheduleLessonDTO(
-                l.Id, l.Date, l.StartTime, l.EndTime,
-                l.Hold.Subject.Name,
-                l.Hold.Name,
-                l.Room?.Name,
-                l.Status.ToString(),
-                l.Teachers.Select(t => new MinimalUserInformationDTO(
-                    $"{t.Teacher.FirstName} {t.Teacher.LastName}",
-                    t.TeacherId)
-                ).ToList()
-            )).ToList();
         }
     }
 }

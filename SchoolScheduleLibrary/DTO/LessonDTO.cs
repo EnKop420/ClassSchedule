@@ -5,7 +5,7 @@ using System.Text;
 
 namespace SchoolScheduleLibrary.DTO
 {
-    public record ScheduleLessonDTO(
+    public record LessonDTO(
         Guid Id,
         DateOnly Date,
         TimeOnly StartTime,
@@ -14,7 +14,9 @@ namespace SchoolScheduleLibrary.DTO
         string HoldName,
         string? RoomName,
         string Status,
-        List<MinimalUserInformationDTO> Teachers);
+        LessonNoteDTO? Note,
+        List<MinimalUserInformationDTO> Teachers,
+        List<MinimalUserInformationDTO> AbsentStudents);
 
-    public record GetScheduleLessonDTO(Guid TargetId, DateOnly From, DateOnly To);
+    public record GetLessonDTO(Guid TargetId, DateOnly From, DateOnly To);
 }

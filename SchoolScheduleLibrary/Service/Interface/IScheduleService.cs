@@ -19,6 +19,6 @@ namespace SchoolScheduleLibrary.Service.Interface
         /// <param name="callerRole">The Caller's role used to authorize the user</param>
         /// <param name="dto">Contains the target id and from and to dates</param>
         /// <returns>A List of all the Lessons formatted to be shown as a schedule</returns>
-        public Task<List<ScheduleLessonDTO>> GetScheduleAsync(Guid institutionId, Guid callerId, UserRoles callerRole, GetScheduleLessonDTO dto);
+        public Task<List<LessonDTO>> GetScheduleAsync(Guid institutionId, Guid callerId, UserRoles callerRole, GetLessonDTO dto);
     }
 }

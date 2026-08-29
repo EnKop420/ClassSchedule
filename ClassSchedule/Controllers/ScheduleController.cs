@@ -26,7 +26,7 @@ namespace ClassSchedule.Controllers
         {
             try
             {
-                GetScheduleLessonDTO dto = new(targetUserId, from, to);
+                GetLessonDTO dto = new(targetUserId, from, to);
                 return Ok(await _scheduleService.GetScheduleAsync(CurrentInstitutionId, CurrentUserId, CurrentUserRole, dto));
             }
             catch (HttpResponseException hre)
