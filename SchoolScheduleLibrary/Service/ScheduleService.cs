@@ -14,8 +14,8 @@ namespace SchoolScheduleLibrary.Service
     public class ScheduleService : IScheduleService
     {
         private readonly IGenericRepository<User> _userGenericRepository;
-        private readonly IScheduleRepository _scheduleRepository;
-        public ScheduleService(IGenericRepository<User> userGenericRepository, IScheduleRepository scheduleRepository)
+        private readonly ILessonRepository _scheduleRepository;
+        public ScheduleService(IGenericRepository<User> userGenericRepository, ILessonRepository scheduleRepository)
         {
             _userGenericRepository = userGenericRepository;
             _scheduleRepository = scheduleRepository;

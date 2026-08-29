@@ -1,16 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SchoolScheduleLibrary.Context;
-using SchoolScheduleLibrary.DTO;
-using SchoolScheduleLibrary.Enums;
-using SchoolScheduleLibrary.Model.Interface;
 using SchoolScheduleLibrary.Repository.Interface;
-using SchoolScheduleLibrary.Utilities.Encryption;
-using SchoolScheduleLibrary.Utilities.Encryption.Interface;
-using SchoolScheduleLibrary.Utilities.Response;
-using System;
-using System.Collections.Generic;
 using System.Linq.Expressions;
-using System.Text;
 
 namespace SchoolScheduleLibrary.Repository
 {

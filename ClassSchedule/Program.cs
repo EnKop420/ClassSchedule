@@ -65,10 +65,11 @@ namespace ClassSchedule
             builder.Services.AddScoped<IScheduleService, ScheduleService>();
             builder.Services.AddScoped<IStudentGroupService, StudentGroupService>();
             builder.Services.AddScoped<IStudentGroupMemberService, StudentGroupMemberService>();
+            builder.Services.AddScoped<ILessonService, LessonService>();
 
             // Database Repositories Scoped
             builder.Services.AddScoped<IRedisRepository, RedisRepository>();
-            builder.Services.AddScoped<IScheduleRepository, ScheduleRepository>();
+            builder.Services.AddScoped<ILessonRepository, LessonRepository>();
 
             // Generic Scoped
             builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));

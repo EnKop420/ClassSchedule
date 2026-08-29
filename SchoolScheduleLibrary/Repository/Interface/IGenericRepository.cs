@@ -1,12 +1,4 @@
-﻿using SchoolScheduleLibrary.DTO;
-using SchoolScheduleLibrary.Model;
-using SchoolScheduleLibrary.Model.Interface;
-using System;
-using System.Collections.Generic;
-using System.Linq.Expressions;
-using System.Numerics;
-using System.Text;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+﻿using System.Linq.Expressions;
 
 namespace SchoolScheduleLibrary.Repository.Interface
 {

@@ -7,7 +7,7 @@ using System.Text;
 namespace SchoolScheduleLibrary.Service.Interface
 {
     /// <summary>
-    /// Handles the GET business logic for Lesson
+    /// Handles the GET business logic for the entire Schedule
     /// </summary>
     public interface IScheduleService
     {
