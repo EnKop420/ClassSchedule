@@ -23,36 +23,28 @@ namespace SchoolScheduleLibrary.Service
                 .Select(p => new PeriodDTO(p.Id, p.Name, p.StartTime, p.EndTime)).ToList();
         }
 
-        public async Task<PeriodDTO> GetByIdAsync(Guid institutionId, Guid id)
+        public async Task<PeriodDTO> GetByIdAsync(Guid id)
         {
-            Period period = await _periodGenericRepository.Get(p => p.Id == id && p.InstitutionId == institutionId)
-                ?? throw new NotFoundException($"Could not get Period with Id \"{id}\" in the Institution with Id \"{institutionId}\"");
+            Period period = await _periodGenericRepository.Get(p => p.Id == id)
+                ?? throw new NotFoundException($"Could not get Period with Id \"{id}\"");
 
             return new PeriodDTO(period.Id, period.Name, period.StartTime, period.EndTime);
         }
 
-        // TODO Add some function to handler "Order" and some filtering for overlapping time
-        public async Task<PeriodDTO> CreateAsync(Guid institutionId, CreatePeriodDTO dto)
+        public async Task<bool> CreateAsync(Guid institutionId, CreatePeriodDTO dto)
         {
             Period period = new(dto.Name, dto.StartTime, dto.EndTime, institutionId);
 
             // Check dates are valid.
             if (dto.StartTime > dto.EndTime) throw new BadRequestException("Start time has to be before End time!");
 
-            //bool doesTimeOverlap = await _periodGenericRepository.DoesValueExist(t =>
-            //    t.InstitutionId == institutionId
-            //    && t.StartTime <= dto.EndTime
-            //    && t.EndTime >= dto.StartTime);
-
-            //if (doesTimeOverlap) throw new BadRequestException("Time overlap with an existing Period");
-
-            await _periodGenericRepository.Add(period);
-            return new PeriodDTO(period.Id, period.Name, period.StartTime, period.EndTime);
+            return await _periodGenericRepository.Add(period);
         }
-        public async Task<PeriodDTO> UpdateAsync(Guid institutionId, PeriodDTO dto)
+
+        public async Task<bool> UpdateAsync(PeriodDTO dto)
         {
-            Period period = await _periodGenericRepository.Get(p => p.Id == dto.Id && p.InstitutionId == institutionId)
-                ?? throw new NotFoundException($"Could not get Period with Id \"{dto.Id}\" in the Institution with Id \"{institutionId}\"");
+            Period period = await _periodGenericRepository.Get(p => p.Id == dto.Id)
+                ?? throw new NotFoundException($"Could not get Period with Id \"{dto.Id}\"");
 
             // Check dates are valid.
             if (dto.StartTime > dto.EndTime) throw new BadRequestException("Start time has to be before End time!");
@@ -61,16 +53,14 @@ namespace SchoolScheduleLibrary.Service
             period.StartTime = dto.StartTime;
             period.EndTime = dto.EndTime;
 
-            Period updatedPeriod = await _periodGenericRepository.Update(period);
-
-            return new PeriodDTO(updatedPeriod.Id, updatedPeriod.Name, updatedPeriod.StartTime, updatedPeriod.EndTime);
+            return await _periodGenericRepository.Update(period);
         }
 
-        public async Task<bool> DeleteAsync(Guid institutionId, Guid id)
+        public async Task<bool> DeleteAsync(Guid id)
         {
-            if (!await _periodGenericRepository.DoesValueExist(t => t.Id == id && t.InstitutionId == institutionId))
+            if (!await _periodGenericRepository.DoesValueExist(t => t.Id == id))
             {
-                throw new NotFoundException($"Could not find Period with Id \"{id}\" in the Institution with Id \"{institutionId}\"");
+                throw new NotFoundException($"Could not find Period with Id \"{id}\"");
             }
 
             return await _periodGenericRepository.Delete(p => p.Id == id);

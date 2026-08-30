@@ -110,7 +110,7 @@ namespace ClassSchedule.Controllers
         {
             try
             {
-                await _userService.Delete(id, CurrentInstitutionId);
+                await _userService.Delete(id);
                 return Ok();
             }
             catch (HttpResponseException hre)
@@ -148,7 +148,7 @@ namespace ClassSchedule.Controllers
         {
             try
             {
-                return Ok(await _userService.GetUserInfo(id, CurrentUserId, CurrentInstitutionId, CurrentUserRole));
+                return Ok(await _userService.GetUserInfo(id, CurrentUserId, CurrentUserRole));
             }
             catch (HttpResponseException hre)
             {
@@ -184,7 +184,7 @@ namespace ClassSchedule.Controllers
         {
             try
             {
-                return Ok(await _userService.UpdateUserInformation(CurrentUserId, CurrentInstitutionId, dto));
+                return Ok(await _userService.UpdateUserInformation(CurrentUserId, dto));
             }
             catch (HttpResponseException hre)
             {

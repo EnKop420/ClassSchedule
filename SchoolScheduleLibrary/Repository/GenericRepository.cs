@@ -81,11 +81,17 @@ namespace SchoolScheduleLibrary.Repository
             return success;
         }
 
-        public async Task<T> Update(T entity)
+        public async Task<bool> Update(T entity)
         {
             _context.Set<T>().Update(entity);
-            await _context.SaveChangesAsync();
-            return entity;
+
+            // If nothing actually changed in the tracker, treat it as a success!
+            if (!_context.ChangeTracker.HasChanges())
+            {
+                return true;
+            }
+
+            return await _context.SaveChangesAsync() > 0;
         }
 
         public async Task<bool> AddRange(List<T> entities)

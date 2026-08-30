@@ -12,32 +12,29 @@ namespace SchoolScheduleLibrary.Service.Interface
         /// </summary>
         /// <param name="institutionId">The Institution to look in</param>
         /// <param name="dto">Contains the Name and list of students</param>
-        /// <returns>Returns the student group.</returns>
-        public Task<StudentGroupDTO> CreateAsync(Guid institutionId, CreateStudentGroupDTO dto);
+        /// <returns>True or False if the action was completed successfully</returns>
+        public Task<bool> CreateAsync(Guid institutionId, CreateStudentGroupDTO dto);
 
         /// <summary>
         /// Updates the StudentGroup while also updating the students
         /// </summary>
-        /// <param name="institutionId">The Institution to look in</param>
         /// <param name="dto">Contains the Id, Name and list of students</param>
-        /// <returns>Returns the updated StudentGroup</returns>
-        public Task<StudentGroupDTO> UpdateAsync(Guid institutionId, UpdateStudentGroupDTO dto);
+        /// <returns>True or False if the action was completed successfully</returns>
+        public Task<bool> UpdateAsync(UpdateStudentGroupDTO dto);
 
         /// <summary>
         /// Deletes the StudentGroup
         /// </summary>
-        /// <param name="institutionId">The Institution to look in</param>
         /// <param name="id">The StudentGroup to delete's Id</param>
         /// <returns>True or False if the action was completed successfully</returns>
-        public Task<bool> DeleteAsync(Guid institutionId, Guid id);
+        public Task<bool> DeleteAsync(Guid id);
 
         /// <summary>
         /// Get's the specific StudentGroup from the Id
         /// </summary>
-        /// <param name="institutionId">The Institution to look in</param>
         /// <param name="id">The specific Id of the StudentGroup</param>
         /// <returns>Returns the StudentGroup</returns>
-        public Task<StudentGroupDTO> GetByIdAsync(Guid institutionId, Guid id);
+        public Task<StudentGroupDTO> GetByIdAsync(Guid id);
 
         /// <summary>
         /// Get's a list of all the StudentGroup's in the institution

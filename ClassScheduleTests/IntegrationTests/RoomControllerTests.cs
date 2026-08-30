@@ -43,24 +43,24 @@ namespace ClassScheduleTests.IntegrationTests
         public async Task Add_Room_Succeeds()
         {
             await InitializeAsync();
-            CreateRoomDTO dto = new("Test Room", 100);
+            CreateRoomDTO dto = new("Test Room123123", 100);
 
             var result = await _client.PostAsJsonAsync(_ApiBaseUrl + "create", dto);
 
-            Assert.True(result.IsSuccessStatusCode);
-
-            var json = await result.Content.ReadAsStringAsync();
-            RoomDTO? resultDTO = JsonConvert.DeserializeObject<RoomDTO>(json);
-
-            // Cleanup
             await WithContext(async db =>
             {
-                await db.Rooms.Where(x => x.Id == resultDTO!.Id).ExecuteDeleteAsync();
+                Room? room = await db.Rooms.FirstOrDefaultAsync(x => x.Name == dto.Name);
+
+                // Cleanup
+                await db.Rooms.Where(x => x.Id == room!.Id).ExecuteDeleteAsync();
+
+                Assert.True(result.IsSuccessStatusCode);
+                Assert.NotNull(room);
+                Assert.Equal(dto.Name, room.Name);
+                Assert.Equal(dto.Capacity, room.Capacity);
+
             });
 
-            Assert.NotNull(resultDTO);
-            Assert.Equal(dto.Name, resultDTO.Name);
-            Assert.Equal(dto.Capacity, resultDTO.Capacity);
         }
 
         [Fact]

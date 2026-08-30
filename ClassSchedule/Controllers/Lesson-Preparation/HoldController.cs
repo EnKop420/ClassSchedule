@@ -10,15 +10,15 @@ using SchoolScheduleLibrary.Utilities.Response;
 
 namespace ClassSchedule.Controllers
 {
-    [Route("api/Term")]
+    [Route("api/Hold")]
     [ApiController]
     [Authorize(UserRoles.Admin)]
-    public class TermController : BaseController
+    public class HoldController : BaseController
     {
-        private readonly ITermService _termService;
-        public TermController(ITermService termService)
+        private readonly IHoldService _holdService;
+        public HoldController(IHoldService holdService)
         {
-            _termService = termService;
+            _holdService = holdService;
         }
 
         [HttpGet("get-all")]
@@ -26,7 +26,7 @@ namespace ClassSchedule.Controllers
         {
             try
             {
-                return Ok(await _termService.GetAllAsync(CurrentInstitutionId));
+                return Ok(await _holdService.GetAllAsync(CurrentInstitutionId));
             }
             catch (HttpResponseException hre)
             {
@@ -43,7 +43,7 @@ namespace ClassSchedule.Controllers
         {
             try
             {
-                return Ok(await _termService.GetByIdAsync(CurrentInstitutionId, id));
+                return Ok(await _holdService.GetByIdAsync(id));
             }
             catch (HttpResponseException hre)
             {
@@ -56,11 +56,11 @@ namespace ClassSchedule.Controllers
         }
 
         [HttpPost("create")]
-        public async Task<IActionResult> Create([FromBody] CreateTermDTO dto)
+        public async Task<IActionResult> Create([FromBody] CreateHoldDTO dto)
         {
             try
             {
-                return Ok(await _termService.CreateAsync(CurrentInstitutionId, dto));
+                return Ok(await _holdService.CreateAsync(CurrentInstitutionId, dto));
             }
             catch (HttpResponseException hre)
             {
@@ -73,11 +73,11 @@ namespace ClassSchedule.Controllers
         }
 
         [HttpPatch("update")]
-        public async Task<IActionResult> Update([FromBody] TermDTO dto)
+        public async Task<IActionResult> Update([FromBody] HoldDTO dto)
         {
             try
             {
-                return Ok(await _termService.UpdateAsync(CurrentInstitutionId, dto));
+                return Ok(await _holdService.UpdateAsync(dto));
             }
             catch (HttpResponseException hre)
             {
@@ -94,7 +94,7 @@ namespace ClassSchedule.Controllers
         {
             try
             {
-                return Ok(await _termService.DeleteAsync(CurrentInstitutionId, id));
+                return Ok(await _holdService.DeleteAsync(id));
             }
             catch (HttpResponseException hre)
             {

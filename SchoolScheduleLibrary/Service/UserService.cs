@@ -39,7 +39,7 @@ namespace SchoolScheduleLibrary.Service
             if (!await _institutionGenericRepository.DoesValueExist(u => u.Id == institutionId)) throw new NotFoundException($"No institution exists with Id \"{institutionId}\".");
 
             string lowerUsername = input.Username.ToLower();
-            bool doesUsernameExist = await _userGenericRepository.DoesValueExist(u => u.Username == lowerUsername);
+            bool doesUsernameExist = await _userGenericRepository.DoesValueExist(u => u.Username == lowerUsername && u.InstitutionId == institutionId);
 
             if (doesUsernameExist) throw new ConflictException("Username already exists!");
 
@@ -74,35 +74,37 @@ namespace SchoolScheduleLibrary.Service
             await Add(dto.InstitutionId, userDTO);
         }
 
-        public async Task<UserDTO> UpdateUserInformation(Guid userId, Guid institutionId, UpdateUserInformationDTO dto)
+        public async Task<UserDTO> UpdateUserInformation(Guid userId, UpdateUserInformationDTO dto)
         {
-            User user = await _userGenericRepository.Get(u => u.Id == userId && u.InstitutionId == institutionId, u => u.Institution)
-                ?? throw new NotFoundException($"No User with this Id \"{userId}\" was found in Institution \"{institutionId}\"");
+            User user = await _userGenericRepository.Get(u => u.Id == userId, u => u.Institution)
+                ?? throw new NotFoundException($"No User with this Id \"{userId}\" was found!");
 
             user.FirstName = dto.FirstName;
             user.LastName = dto.LastName;
             user.DateOfBirth = dto.DateOfBirth;
             user.Email = await _encryptionHandler.EncryptString(dto.Email);
 
-            User updatedUser = await _userGenericRepository.Update(user);
-            UserDTO userDTO = new(
-                updatedUser.Id,
-                updatedUser.FirstName,
-                updatedUser.LastName,
-                updatedUser.DateOfBirth,
-                updatedUser.Username,
-                await _encryptionHandler.DecryptString(updatedUser.Email),
-                updatedUser.CreatedAt,
-                updatedUser.Role,
-                institutionId,
-                user.Institution.Name);
-
-            return userDTO;
+            if (await _userGenericRepository.Update(user))
+            {
+                UserDTO userDTO = new(
+                    user.Id,
+                    user.FirstName,
+                    user.LastName,
+                    user.DateOfBirth,
+                    user.Username,
+                    await _encryptionHandler.DecryptString(user.Email),
+                    user.CreatedAt,
+                    user.Role,
+                    user.InstitutionId,
+                    user.Institution.Name);
+                return userDTO;
+            }
+            else throw new InternalErrorException("Something went wrong with updating the user");
         }
 
         public async Task<string> ChangeUserCredentials(Guid userId, Guid institutionId, ChangeUserCredentialsDTO dto)
         {
-            if (await _userGenericRepository.DoesValueExist(u => u.Username == dto.Username.ToLower()))
+            if (await _userGenericRepository.DoesValueExist(u => u.Username == dto.Username.ToLower() && u.InstitutionId == institutionId))
             {
                 throw new ConflictException("Username already exists!");
             }
@@ -110,21 +112,25 @@ namespace SchoolScheduleLibrary.Service
             string hashedOldPassword = await _encryptionHandler.HashString(dto.OldPassword);
             string hashedNewPassword = await _encryptionHandler.HashString(dto.NewPassword);
 
-            User user = await _userGenericRepository.Get(u => u.Id == userId && u.InstitutionId == institutionId)
-                ?? throw new NotFoundException($"No User with this Id \"{userId}\" was found in Institution \"{institutionId}\"");
+            User user = await _userGenericRepository.Get(u => u.Id == userId)
+                ?? throw new NotFoundException($"No User with this Id \"{userId}\"");
 
             if (user.Password != hashedOldPassword) throw new UnauthorizedException("Password does not match with the current Password!");
 
             user.Username = dto.Username.ToLower();
             user.Password = hashedNewPassword;
 
-            return (await _userGenericRepository.Update(user)).Username;
+            if (await _userGenericRepository.Update(user))
+            {
+                return dto.Username;
+            }
+            else throw new InternalErrorException("Something went wrong with updating the user's credentials");
         }
 
-        public async Task Delete(Guid id, Guid institutionId)
+        public async Task Delete(Guid id)
         {
-            User user = await _userGenericRepository.Get(u => u.Id == id && u.InstitutionId == institutionId)
-                ?? throw new NotFoundException($"No User with this Id \"{id}\" was found in Institution \"{institutionId}\"");
+            User user = await _userGenericRepository.Get(u => u.Id == id)
+                ?? throw new NotFoundException($"No User with this Id \"{id}\"");
 
             if (user.Role == UserRoles.Admin) throw new UnauthorizedException("You are not authorized to delete an Admin account!");
 
@@ -211,11 +217,11 @@ namespace SchoolScheduleLibrary.Service
             else throw new InternalErrorException("Something went wrong trying to create the session!");
         }
 
-        public async Task<UserDTO> GetUserInfo(Guid targetId, Guid callerId, Guid institutionId, UserRoles role)
+        public async Task<UserDTO> GetUserInfo(Guid targetId, Guid callerId, UserRoles role)
         {
             if (targetId != callerId && role == UserRoles.Student) throw new UnauthorizedException("Students can only get their own user information!");
 
-            User user = await _userGenericRepository.Get(u => u.Id == targetId && u.InstitutionId == institutionId, u => u.Institution)
+            User user = await _userGenericRepository.Get(u => u.Id == targetId, u => u.Institution)
                 ?? throw new NotFoundException($"No User with ID {targetId} exists");
 
             string decryptedEmail = await _encryptionHandler.DecryptString(user.Email);

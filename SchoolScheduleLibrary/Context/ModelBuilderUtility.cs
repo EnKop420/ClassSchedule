@@ -53,6 +53,8 @@ namespace SchoolScheduleLibrary.Context
             modelBuilder.Entity<Absence>()
                 .HasIndex(a => new { a.LessonId, a.StudentId }).IsUnique();
 
+            modelBuilder.Entity<User>()
+                .HasIndex(u => new { u.InstitutionId, u.Username }).IsUnique();
         }
 
         // Simple indexing for quick lookup for values that will be searched / filtered on alot.

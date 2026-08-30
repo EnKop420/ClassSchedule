@@ -33,8 +33,8 @@ namespace SchoolScheduleLibrary.Service.Interface
         /// Updates an existing Institution with new data
         /// </summary>
         /// <param name="dto">The new values to update the institution with</param>
-        /// <returns>The updated institution</returns>
-        public Task<InstitutionDTO> UpdateInstitution(InstitutionDTO dto);
+        /// <returns>True or False if the action was completed successfully</returns>
+        public Task<bool> UpdateInstitution(InstitutionDTO dto);
 
         /// <summary>
         /// Deletes an institution

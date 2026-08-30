@@ -17,7 +17,7 @@ namespace SchoolScheduleLibrary.Repository
         {
             _context = context;
         }
-        public async Task<List<User>> GetStudentsFromLessonAsync(Guid institutionId, Guid lessonId)
+        public async Task<List<User>> GetStudentsFromLessonAsync(Guid lessonId)
         {
             // Get students with the following LINQ:
             // 1. Filter: Match the institution and lesson id
@@ -25,7 +25,7 @@ namespace SchoolScheduleLibrary.Repository
             // 3. Select: Selects the students.
             // 4. Order by the First name and then Last name
             return await _context.Lessons
-                .Where(l => l.Id == lessonId && l.InstitutionId == institutionId)
+                .Where(l => l.Id == lessonId)
                 .SelectMany(l => l.Hold.Enrollments)
                 .Select(e => e.Student)
                 .OrderBy(s => s.FirstName)

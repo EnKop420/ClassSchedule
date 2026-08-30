@@ -61,7 +61,9 @@ namespace ClassScheduleTests.UnitTests.Services
             if (_context.Institutions.Any(i => i.Id == institution.Id))
             {
                 InstitutionDTO dto = new(institution.Id, "Updated TEC");
-                InstitutionDTO updatedDTO = await _service.UpdateInstitution(dto);
+                bool result = await _service.UpdateInstitution(dto);
+                
+                Assert.True(result);
                 Assert.True(_context.Institutions.Any(i => i.Name == dto.Name && i.Id == institution.Id));
             }
 

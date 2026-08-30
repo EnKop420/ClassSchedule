@@ -4,20 +4,21 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SchoolScheduleLibrary.DTO;
 using SchoolScheduleLibrary.Enums;
+using SchoolScheduleLibrary.Service;
 using SchoolScheduleLibrary.Service.Interface;
 using SchoolScheduleLibrary.Utilities.Response;
 
 namespace ClassSchedule.Controllers
 {
-    [Route("api/LessonTemplate")]
+    [Route("api/Room")]
     [ApiController]
     [Authorize(UserRoles.Admin)]
-    public class LessonTemplateController : BaseController
+    public class RoomController : BaseController
     {
-        private readonly ILessonTemplateService _lessonTemplateService;
-        public LessonTemplateController(ILessonTemplateService lessonTemplateService)
+        private readonly IRoomService _roomService;
+        public RoomController(IRoomService roomService)
         {
-            _lessonTemplateService = lessonTemplateService;
+            _roomService = roomService;
         }
 
         [HttpGet("get-all")]
@@ -25,7 +26,7 @@ namespace ClassSchedule.Controllers
         {
             try
             {
-                return Ok(await _lessonTemplateService.GetAllAsync(CurrentInstitutionId));
+                return Ok(await _roomService.GetAllAsync(CurrentInstitutionId));
             }
             catch (HttpResponseException hre)
             {
@@ -42,7 +43,7 @@ namespace ClassSchedule.Controllers
         {
             try
             {
-                return Ok(await _lessonTemplateService.GetByIdAsync(CurrentInstitutionId, id));
+                return Ok(await _roomService.GetByIdAsync(id));
             }
             catch (HttpResponseException hre)
             {
@@ -55,11 +56,11 @@ namespace ClassSchedule.Controllers
         }
 
         [HttpPost("create")]
-        public async Task<IActionResult> Create([FromBody] CreateLessonTemplateDTO dto)
+        public async Task<IActionResult> Create([FromBody] CreateRoomDTO dto)
         {
             try
             {
-                return Ok(await _lessonTemplateService.CreateAsync(CurrentInstitutionId, dto));
+                return Ok(await _roomService.CreateAsync(CurrentInstitutionId, dto));
             }
             catch (HttpResponseException hre)
             {
@@ -72,11 +73,11 @@ namespace ClassSchedule.Controllers
         }
 
         [HttpPatch("update")]
-        public async Task<IActionResult> Update([FromBody] UpdateLessonTemplateDTO dto)
+        public async Task<IActionResult> Update([FromBody] RoomDTO dto)
         {
             try
             {
-                return Ok(await _lessonTemplateService.UpdateAsync(CurrentInstitutionId, dto));
+                return Ok(await _roomService.UpdateAsync(dto));
             }
             catch (HttpResponseException hre)
             {
@@ -93,7 +94,7 @@ namespace ClassSchedule.Controllers
         {
             try
             {
-                return Ok(await _lessonTemplateService.DeleteAsync(CurrentInstitutionId, id));
+                return Ok(await _roomService.DeleteAsync(id));
             }
             catch (HttpResponseException hre)
             {

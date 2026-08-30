@@ -47,21 +47,20 @@ namespace ClassScheduleTests.IntegrationTests
 
             var result = await _client.PostAsJsonAsync(_ApiBaseUrl + "create", dto);
 
-            Assert.True(result.IsSuccessStatusCode);
-
-            var json = await result.Content.ReadAsStringAsync();
-            TermDTO? resultDTO = JsonConvert.DeserializeObject<TermDTO>(json);
-
-            // Cleanup
             await WithContext(async db =>
             {
-                await db.Terms.Where(x => x.Id == resultDTO!.Id).ExecuteDeleteAsync();
+                Term? term = await db.Terms.FirstOrDefaultAsync(x => x.Name == dto.Name);
+
+                // Cleanup
+                await db.Terms.Where(x => x.Id == term!.Id).ExecuteDeleteAsync();
+
+                Assert.True(result.IsSuccessStatusCode);
+                Assert.NotNull(term);
+                Assert.Equal(dto.Name, term.Name);
+                Assert.Equal(dto.StartDate, term.StartDate);
+                Assert.Equal(dto.EndDate, term.EndDate);
             });
 
-            Assert.NotNull(resultDTO);
-            Assert.Equal(dto.Name, resultDTO.Name);
-            Assert.Equal(dto.StartDate, resultDTO.StartDate);
-            Assert.Equal(dto.EndDate, resultDTO.EndDate);
         }
 
         [Fact]

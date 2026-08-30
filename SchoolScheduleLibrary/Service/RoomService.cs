@@ -17,11 +17,10 @@ namespace SchoolScheduleLibrary.Service
         {
             _roomGenericRepository = genericRepository;
         }
-        public async Task<RoomDTO> CreateAsync(Guid institutionId, CreateRoomDTO dto)
+        public async Task<bool> CreateAsync(Guid institutionId, CreateRoomDTO dto)
         {
             Room room = new(dto.Name, dto.Capacity, institutionId);
-            await _roomGenericRepository.Add(room);
-            return new RoomDTO(room.Id, room.Name, room.Capacity);
+            return await _roomGenericRepository.Add(room);
         }
         
         public async Task<List<RoomDTO>> GetAllAsync(Guid institutionId)
@@ -31,31 +30,29 @@ namespace SchoolScheduleLibrary.Service
                 .Select(r => new RoomDTO(r.Id, r.Name, r.Capacity)).ToList();
         }
 
-        public async Task<RoomDTO> GetByIdAsync(Guid institutionId, Guid id)
+        public async Task<RoomDTO> GetByIdAsync(Guid id)
         {
-            Room room = await _roomGenericRepository.Get(r => r.Id == id && r.InstitutionId == institutionId)
-                ?? throw new NotFoundException($"Could not get Room with Id \"{id}\" in the Institution with Id \"{institutionId}\"");
+            Room room = await _roomGenericRepository.Get(r => r.Id == id)
+                ?? throw new NotFoundException($"Could not get Room with Id \"{id}\"");
 
             return new RoomDTO(room.Id, room.Name, room.Capacity);
         }
-        public async Task<RoomDTO> UpdateAsync(Guid institutionId, RoomDTO dto)
+        public async Task<bool> UpdateAsync(RoomDTO dto)
         {
-            Room room = await _roomGenericRepository.Get(r => r.Id == dto.Id && r.InstitutionId == institutionId)
-                ?? throw new NotFoundException($"Could not get Room with Id \"{dto.Id}\" in the Institution with Id \"{institutionId}\"");
+            Room room = await _roomGenericRepository.Get(r => r.Id == dto.Id)
+                ?? throw new NotFoundException($"Could not get Room with Id \"{dto.Id}\"");
 
             room.Name = dto.Name;
             room.Capacity = dto.Capacity;
 
-            Room updatedRoom = await _roomGenericRepository.Update(room);
-
-            return new RoomDTO(updatedRoom.Id, updatedRoom.Name, updatedRoom.Capacity);
+            return await _roomGenericRepository.Update(room);
         }
 
-        public async Task<bool> DeleteAsync(Guid institutionId, Guid id)
+        public async Task<bool> DeleteAsync(Guid id)
         {
-            if (!await _roomGenericRepository.DoesValueExist(t => t.Id == id && t.InstitutionId == institutionId))
+            if (!await _roomGenericRepository.DoesValueExist(t => t.Id == id))
             {
-                throw new NotFoundException($"Could not find Room with Id \"{id}\" in the Institution with Id \"{institutionId}\"");
+                throw new NotFoundException($"Could not find Room with Id \"{id}\"");
             }
 
             return await _roomGenericRepository.Delete(r => r.Id == id);

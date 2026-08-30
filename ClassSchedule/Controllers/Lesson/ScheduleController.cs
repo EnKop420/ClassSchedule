@@ -7,7 +7,7 @@ using SchoolScheduleLibrary.Enums;
 using SchoolScheduleLibrary.Service.Interface;
 using SchoolScheduleLibrary.Utilities.Response;
 
-namespace ClassSchedule.Controllers
+namespace ClassSchedule.Controllers.Lesson
 {
     [Route("api/Schedule")]
     [ApiController]

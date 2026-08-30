@@ -9,7 +9,7 @@ using SchoolScheduleLibrary.Service.Interface;
 using SchoolScheduleLibrary.Utilities.Response;
 using System.Xml.Linq;
 
-namespace ClassSchedule.Controllers
+namespace ClassSchedule.Controllers.Lesson
 {
     [Route("api/terms/{termId}/lessons")]
     [ApiController]

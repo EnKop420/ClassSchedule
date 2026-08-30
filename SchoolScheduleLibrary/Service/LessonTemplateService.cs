@@ -49,14 +49,14 @@ namespace SchoolScheduleLibrary.Service
             )).ToList();
         }
 
-        public async Task<LessonTemplateDTO> GetByIdAsync(Guid institutionId, Guid id)
+        public async Task<LessonTemplateDTO> GetByIdAsync(Guid id)
         {
             LessonTemplate lessonTemplate = await _lessonTemplateGenericRepository.Get(
-                lt => lt.Id == id && lt.InstitutionId == institutionId,
+                lt => lt.Id == id,
                 lt => lt.Period,
                 lt => lt.Room!,
                 lt => lt.Hold)
-                ?? throw new NotFoundException($"LessonTemplate with ID {id} does not exist in the Institution with the Id {institutionId}");
+                ?? throw new NotFoundException($"LessonTemplate with Id \"{id}\" could not be found!");
 
             return new LessonTemplateDTO(
                 lessonTemplate.Id,
@@ -78,18 +78,18 @@ namespace SchoolScheduleLibrary.Service
             // Check dates are valid.
             if (dto.ValidFrom > dto.ValidTo) throw new BadRequestException("Valid From has to be before Valid To!");
 
-            Period period = await _periodGenericRepository.Get(p => p.Id == dto.PeriodId && p.InstitutionId == institutionId)
-                ?? throw new NotFoundException($"Could not get Period with Id \"{dto.PeriodId}\" in the Institution with Id \"{institutionId}\"");
+            Period period = await _periodGenericRepository.Get(p => p.Id == dto.PeriodId)
+                ?? throw new NotFoundException($"Could not get Period with Id \"{dto.PeriodId}\"");
 
-            Hold hold = await _holdGenericRepository.Get(h => h.Id == dto.HoldId && h.InstitutionId == institutionId)
-                ?? throw new NotFoundException($"Could not get Hold with Id \"{dto.HoldId}\" in the Institution with Id \"{institutionId}\"");
+            Hold hold = await _holdGenericRepository.Get(h => h.Id == dto.HoldId)
+                ?? throw new NotFoundException($"Could not get Hold with Id \"{dto.HoldId}\"");
 
             Room? room = null;
 
             if (dto.RoomId != null)
             {
-                room = await _roomGenericRepository.Get(r => r.Id == dto.RoomId && r.InstitutionId == institutionId)
-                    ?? throw new NotFoundException($"Could not get Room with Id \"{dto.RoomId}\" in the Institution with Id \"{institutionId}\"");
+                room = await _roomGenericRepository.Get(r => r.Id == dto.RoomId)
+                    ?? throw new NotFoundException($"Could not get Room with Id \"{dto.RoomId}\"");
             }
 
             if (await _lessonTemplateGenericRepository.DoesValueExist(
@@ -97,8 +97,7 @@ namespace SchoolScheduleLibrary.Service
                 && lt.PeriodId == dto.PeriodId
                 && lt.WeekDay == dto.WeekDay
                 && lt.ValidFrom == dto.ValidFrom 
-                && lt.ValidTo == dto.ValidTo
-                && lt.InstitutionId == institutionId)
+                && lt.ValidTo == dto.ValidTo)
             ) throw new BadRequestException("This exact template with the same data!");
 
             LessonTemplate lessonTemplate = new(dto.WeekDay, dto.ValidFrom, dto.ValidTo, dto.PeriodId, dto.RoomId, dto.HoldId, institutionId);
@@ -115,7 +114,7 @@ namespace SchoolScheduleLibrary.Service
                 room?.Name
             );
         }
-        public async Task<LessonTemplateDTO> UpdateAsync(Guid institutionId, UpdateLessonTemplateDTO dto)
+        public async Task<LessonTemplateDTO> UpdateAsync(UpdateLessonTemplateDTO dto)
         {
             // Check if weekday is a valid number.
             if (dto.WeekDay < 1 || dto.WeekDay > 7)
@@ -124,20 +123,20 @@ namespace SchoolScheduleLibrary.Service
             // Check dates are valid.
             if (dto.ValidFrom > dto.ValidTo) throw new BadRequestException("Valid From has to be before Valid To!");
 
-            LessonTemplate lessonTemplate = await _lessonTemplateGenericRepository.Get(h => h.Id == dto.Id && h.InstitutionId == institutionId)
-                ?? throw new NotFoundException($"Could not get LessonTemplate with Id \"{dto.Id}\" in the Institution with Id \"{institutionId}\"");
+            LessonTemplate lessonTemplate = await _lessonTemplateGenericRepository.Get(h => h.Id == dto.Id)
+                ?? throw new NotFoundException($"Could not get LessonTemplate with Id \"{dto.Id}\"");
 
             // Check period, room and hold are valid.
-            if(!await _periodGenericRepository.DoesValueExist(p => p.InstitutionId == institutionId && p.Id == dto.PeriodId))
-                throw new NotFoundException($"Could not find Period with Id \"{dto.PeriodId}\" in the Institution with Id \"{institutionId}\"");
+            if(!await _periodGenericRepository.DoesValueExist(p => p.Id == dto.PeriodId))
+                throw new NotFoundException($"Could not find Period with Id \"{dto.PeriodId}\"");
 
-            if(!await _holdGenericRepository.DoesValueExist(h => h.InstitutionId == institutionId && h.Id == dto.HoldId))
-                throw new NotFoundException($"Could not find Hold with Id \"{dto.HoldId}\" in the Institution with Id \"{institutionId}\"");
+            if(!await _holdGenericRepository.DoesValueExist(h => h.Id == dto.HoldId))
+                throw new NotFoundException($"Could not find Hold with Id \"{dto.HoldId}\"");
 
             if (dto.RoomId != null)
             {
-                if(!await _roomGenericRepository.DoesValueExist(r => r.InstitutionId == institutionId && r.Id == dto.RoomId))
-                    throw new NotFoundException($"Could not find Room with Id \"{dto.RoomId}\" in the Institution with Id \"{institutionId}\"");
+                if(!await _roomGenericRepository.DoesValueExist(r => r.Id == dto.RoomId))
+                    throw new NotFoundException($"Could not find Room with Id \"{dto.RoomId}\"");
             }
 
             if (await _lessonTemplateGenericRepository.DoesValueExist(
@@ -147,8 +146,7 @@ namespace SchoolScheduleLibrary.Service
                 && lt.WeekDay == dto.WeekDay
                 && lt.ValidFrom == dto.ValidFrom
                 && lt.ValidTo == dto.ValidTo
-                && lt.RoomId == dto.RoomId
-                && lt.InstitutionId == institutionId)
+                && lt.RoomId == dto.RoomId)
             ) throw new BadRequestException("This exact template with the same data!");
 
             lessonTemplate.WeekDay = dto.WeekDay;
@@ -161,7 +159,7 @@ namespace SchoolScheduleLibrary.Service
             await _lessonTemplateGenericRepository.Update(lessonTemplate);
 
             LessonTemplate updatedLessonTemplate = await _lessonTemplateGenericRepository.Get(
-                lt => lt.Id == dto.Id && lt.InstitutionId == institutionId, // Predicate
+                lt => lt.Id == dto.Id, // Predicate
                 lt => lt.Period, // Include
                 lt => lt.Room!, // Include
                 lt => lt.Hold // Include
@@ -178,12 +176,12 @@ namespace SchoolScheduleLibrary.Service
             );
         }
 
-        public async Task<bool> DeleteAsync(Guid institutionId, Guid id)
+        public async Task<bool> DeleteAsync(Guid id)
         {
 
-            if (!await _lessonTemplateGenericRepository.DoesValueExist(t => t.Id == id && t.InstitutionId == institutionId))
+            if (!await _lessonTemplateGenericRepository.DoesValueExist(t => t.Id == id))
             {
-                throw new NotFoundException($"Could not find LessonTemplate with Id \"{id}\" in the Institution with Id \"{institutionId}\"");
+                throw new NotFoundException($"Could not find LessonTemplate with Id \"{id}\"");
             }
 
             return await _lessonTemplateGenericRepository.Delete(lt => lt.Id == id);

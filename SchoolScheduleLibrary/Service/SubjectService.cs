@@ -24,38 +24,35 @@ namespace SchoolScheduleLibrary.Service
                 .Select(s => new SubjectDTO(s.Id, s.Name)).ToList();
         }
 
-        public async Task<SubjectDTO> GetByIdAsync(Guid institutionId, Guid id)
+        public async Task<SubjectDTO> GetByIdAsync(Guid id)
         {
-            Subject subject = await _subjectGenericRepository.Get(s => s.Id == id && s.InstitutionId == institutionId)
-                ?? throw new NotFoundException($"Could not get Subject with Id \"{id}\" in the Institution with Id \"{institutionId}\"");
+            Subject subject = await _subjectGenericRepository.Get(s => s.Id == id)
+                ?? throw new NotFoundException($"Could not get Subject with Id \"{id}\"");
 
             return new SubjectDTO(subject.Id, subject.Name);
         }
 
-        public async Task<SubjectDTO> CreateAsync(Guid institutionId, CreateSubjectDTO dto)
+        public async Task<bool> CreateAsync(Guid institutionId, CreateSubjectDTO dto)
         {
             Subject subject = new(dto.Name, institutionId);
 
-            await _subjectGenericRepository.Add(subject);
-            return new SubjectDTO(subject.Id, subject.Name);
+            return await _subjectGenericRepository.Add(subject);
         }
-        public async Task<SubjectDTO> UpdateAsync(Guid institutionId, SubjectDTO dto)
+        public async Task<bool> UpdateAsync(SubjectDTO dto)
         {
-            Subject subject = await _subjectGenericRepository.Get(s => s.Id == dto.Id && s.InstitutionId == institutionId)
-                ?? throw new NotFoundException($"Could not get Subject with Id \"{dto.Id}\" in the Institution with Id \"{institutionId}\"");
+            Subject subject = await _subjectGenericRepository.Get(s => s.Id == dto.Id)
+                ?? throw new NotFoundException($"Could not get Subject with Id \"{dto.Id}\"");
 
             subject.Name = dto.Name;
 
-            Subject updatedSubject = await _subjectGenericRepository.Update(subject);
-
-            return new SubjectDTO(updatedSubject.Id, updatedSubject.Name);
+            return await _subjectGenericRepository.Update(subject);
         }
 
-        public async Task<bool> DeleteAsync(Guid institutionId, Guid id)
+        public async Task<bool> DeleteAsync(Guid id)
         {
-            if (!await _subjectGenericRepository.DoesValueExist(t => t.Id == id && t.InstitutionId == institutionId))
+            if (!await _subjectGenericRepository.DoesValueExist(t => t.Id == id))
             {
-                throw new NotFoundException($"Could not find Subject with Id \"{id}\" in the Institution with Id \"{institutionId}\"");
+                throw new NotFoundException($"Could not find Subject with Id \"{id}\"");
             }
 
             return await _subjectGenericRepository.Delete(s => s.Id == id);

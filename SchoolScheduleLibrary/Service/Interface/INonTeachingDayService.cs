@@ -20,10 +20,9 @@ namespace SchoolScheduleLibrary.Service.Interface
         /// <summary>
         /// Gets a specific non teaching day from an Id
         /// </summary>
-        /// <param name="institutionId">The Institution to look in</param>
         /// <param name="id">The non teaching day's Id</param>
         /// <returns>The specific non teaching day</returns>
-        public Task<NonTeachingDayDTO> GetByIdAsync(Guid institutionId, Guid id);
+        public Task<NonTeachingDayDTO> GetByIdAsync(Guid id);
 
         /// <summary>
         /// Creates a Non teaching day
@@ -38,15 +37,14 @@ namespace SchoolScheduleLibrary.Service.Interface
         /// </summary>
         /// <param name="institutionId">The Institution to look in</param>
         /// <param name="dto">The new values to update the non teaching day with</param>
-        /// <returns>The updated non-teaching day</returns>
-        public Task<NonTeachingDayDTO> UpdateAsync(Guid institutionId, NonTeachingDayDTO dto);
+        /// <returns>True or False if the action was completed successfully</returns>
+        public Task<bool> UpdateAsync(Guid institutionId, NonTeachingDayDTO dto);
 
         /// <summary>
         /// Deletes a non teaching day
         /// </summary>
-        /// <param name="institutionId">The Institution to look in</param>
         /// <param name="id">The specific non teaching day's Id</param>
         /// <returns>True or False if the action was completed successfully</returns>
-        public Task<bool> DeleteAsync(Guid institutionId, Guid id);
+        public Task<bool> DeleteAsync(Guid id);
     }
 }

@@ -18,9 +18,9 @@ namespace SchoolScheduleLibrary.Service
             _lessonRepository = lessonRepository;
         }
 
-        public async Task<List<MinimalUserInformationDTO>> GetStudentsFromSchedule(Guid institutionId, Guid id)
+        public async Task<List<MinimalUserInformationDTO>> GetStudentsFromSchedule(Guid id)
         {
-            return (await _lessonRepository.GetStudentsFromLessonAsync(institutionId, id))
+            return (await _lessonRepository.GetStudentsFromLessonAsync(id))
                 .Select(u => new MinimalUserInformationDTO($"{u.FirstName} {u.LastName}", u.Id)).ToList();
         }
     }

@@ -24,10 +24,10 @@ namespace SchoolScheduleLibrary.Service
                 .Select(ntd => new NonTeachingDayDTO(ntd.Id, ntd.StartDate, ntd.EndDate, ntd.Reason)).ToList();
         }
 
-        public async Task<NonTeachingDayDTO> GetByIdAsync(Guid institutionId, Guid id)
+        public async Task<NonTeachingDayDTO> GetByIdAsync(Guid id)
         {
-            NonTeachingDay nonTeachingDay = await _nonTeachingDayGenericRepository.Get(ntd => ntd.Id == id && ntd.InstitutionId == institutionId)
-                ?? throw new NotFoundException($"Could not get NonTeachingDay with Id \"{id}\" in the Institution with Id \"{institutionId}\"");
+            NonTeachingDay nonTeachingDay = await _nonTeachingDayGenericRepository.Get(ntd => ntd.Id == id)
+                ?? throw new NotFoundException($"Could not get NonTeachingDay with Id \"{id}\"");
 
             return new NonTeachingDayDTO(nonTeachingDay.Id, nonTeachingDay.StartDate, nonTeachingDay.EndDate, nonTeachingDay.Reason);
         }
@@ -49,7 +49,7 @@ namespace SchoolScheduleLibrary.Service
             return new NonTeachingDayDTO(nonTeachingDay.Id, nonTeachingDay.StartDate, nonTeachingDay.EndDate, nonTeachingDay.Reason);
         }
 
-        public async Task<NonTeachingDayDTO> UpdateAsync(Guid institutionId, NonTeachingDayDTO dto)
+        public async Task<bool> UpdateAsync(Guid institutionId, NonTeachingDayDTO dto)
         {
             NonTeachingDay nonTeachingDay = await _nonTeachingDayGenericRepository.Get(ntd => ntd.Id == dto.Id && ntd.InstitutionId == institutionId)
                 ?? throw new NotFoundException($"Could not get NonTeachingDay with Id \"{dto.Id}\" in the Institution with Id \"{institutionId}\"");
@@ -59,7 +59,8 @@ namespace SchoolScheduleLibrary.Service
             bool doesDatesOverlap = await _nonTeachingDayGenericRepository.DoesValueExist(ntd =>
                 ntd.InstitutionId == institutionId
                 && ntd.StartDate <= dto.EndDate
-                && ntd.EndDate >= dto.StartDate);
+                && ntd.EndDate >= dto.StartDate
+                && ntd.Id != dto.Id);
 
             if (doesDatesOverlap) throw new BadRequestException("Dates overlap with existing Non Teaching Day(s)");
 
@@ -67,16 +68,14 @@ namespace SchoolScheduleLibrary.Service
             nonTeachingDay.EndDate = dto.EndDate;
             nonTeachingDay.Reason = dto.Reason;
 
-            NonTeachingDay updatedNonTeachingDay = await _nonTeachingDayGenericRepository.Update(nonTeachingDay);
-
-            return new NonTeachingDayDTO(updatedNonTeachingDay.Id, updatedNonTeachingDay.StartDate, updatedNonTeachingDay.EndDate, updatedNonTeachingDay.Reason);
+            return await _nonTeachingDayGenericRepository.Update(nonTeachingDay);
         }
 
-        public async Task<bool> DeleteAsync(Guid institutionId, Guid id)
+        public async Task<bool> DeleteAsync(Guid id)
         {
-            if (!await _nonTeachingDayGenericRepository.DoesValueExist(ntd => ntd.Id == id && ntd.InstitutionId == institutionId))
+            if (!await _nonTeachingDayGenericRepository.DoesValueExist(ntd => ntd.Id == id))
             {
-                throw new NotFoundException($"Could not find NonTeachingDay with Id \"{id}\" in the Institution with Id \"{institutionId}\"");
+                throw new NotFoundException($"Could not find NonTeachingDay with Id \"{id}\"");
             }
 
             return await _nonTeachingDayGenericRepository.Delete(p => p.Id == id);

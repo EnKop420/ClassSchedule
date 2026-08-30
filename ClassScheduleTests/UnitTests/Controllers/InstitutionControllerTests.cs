@@ -107,7 +107,8 @@ namespace ClassScheduleTests.UnitTests.Controllers
             Assert.Equal(200, okResult.StatusCode);
             Assert.NotNull(okResult.Value);
 
-            InstitutionDTO updatedDTO = Assert.IsType<InstitutionDTO>(okResult.Value);
+            Institution? updatedDTO = await _context.Institutions.FirstOrDefaultAsync(x => x.Id == id);
+
             Assert.NotNull(updatedDTO);
             Assert.Equal(id, updatedDTO.Id);
             Assert.NotEqual(oldName, updatedDTO.Name);

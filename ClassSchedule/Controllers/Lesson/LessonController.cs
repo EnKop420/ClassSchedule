@@ -6,7 +6,7 @@ using SchoolScheduleLibrary.DTO;
 using SchoolScheduleLibrary.Service.Interface;
 using SchoolScheduleLibrary.Utilities.Response;
 
-namespace ClassSchedule.Controllers
+namespace ClassSchedule.Controllers.Lesson
 {
     [Route("api/Lesson")]
     [Authorize]
@@ -25,7 +25,7 @@ namespace ClassSchedule.Controllers
         {
             try
             {
-                return Ok(await _lessonService.GetStudentsFromSchedule(CurrentInstitutionId, id));
+                return Ok(await _lessonService.GetStudentsFromSchedule(id));
             }
             catch (HttpResponseException hre)
             {

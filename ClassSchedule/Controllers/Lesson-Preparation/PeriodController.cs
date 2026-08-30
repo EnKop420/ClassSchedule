@@ -43,7 +43,7 @@ namespace ClassSchedule.Controllers
         {
             try
             {
-                return Ok(await _periodService.GetByIdAsync(CurrentInstitutionId, id));
+                return Ok(await _periodService.GetByIdAsync(id));
             }
             catch (HttpResponseException hre)
             {
@@ -77,7 +77,7 @@ namespace ClassSchedule.Controllers
         {
             try
             {
-                return Ok(await _periodService.UpdateAsync(CurrentInstitutionId, dto));
+                return Ok(await _periodService.UpdateAsync(dto));
             }
             catch (HttpResponseException hre)
             {
@@ -94,7 +94,7 @@ namespace ClassSchedule.Controllers
         {
             try
             {
-                return Ok(await _periodService.DeleteAsync(CurrentInstitutionId, id));
+                return Ok(await _periodService.DeleteAsync(id));
             }
             catch (HttpResponseException hre)
             {

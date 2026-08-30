@@ -45,24 +45,24 @@ namespace ClassScheduleTests.IntegrationTests
         public async Task Add_Period_Succeeds()
         {
             await InitializeAsync();
-            CreatePeriodDTO dto = new("Test Modul", TimeOnly.Parse("08:00:00"), TimeOnly.Parse("09:00:00"));
+            CreatePeriodDTO dto = new("Test Modul123123", TimeOnly.Parse("08:00:00"), TimeOnly.Parse("09:00:00"));
 
             var result = await _client.PostAsJsonAsync(_ApiBaseUrl + "create", dto);
 
-            var json = await result.Content.ReadAsStringAsync();
-            PeriodDTO? resultDTO = JsonConvert.DeserializeObject<PeriodDTO>(json);
-
-            // Cleanup
             await WithContext(async db =>
             {
-                await db.Periods.Where(x => x.Id == resultDTO!.Id).ExecuteDeleteAsync();
+                Period? period = await db.Periods.FirstOrDefaultAsync(x => x.Name == dto.Name);
+
+                // Cleanup
+                await db.Periods.Where(x => x.Id == period!.Id).ExecuteDeleteAsync();
+
+                Assert.True(result.IsSuccessStatusCode);
+                Assert.NotNull(period);
+                Assert.Equal(dto.Name, period.Name);
+                Assert.Equal(dto.StartTime, period.StartTime);
+                Assert.Equal(dto.EndTime, period.EndTime);
             });
 
-            Assert.True(result.IsSuccessStatusCode);
-            Assert.NotNull(resultDTO);
-            Assert.Equal(dto.Name, resultDTO.Name);
-            Assert.Equal(dto.StartTime, resultDTO.StartTime);
-            Assert.Equal(dto.EndTime, resultDTO.EndTime);
         }
 
         [Fact]

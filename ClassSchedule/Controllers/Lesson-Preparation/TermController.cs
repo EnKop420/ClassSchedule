@@ -4,22 +4,21 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SchoolScheduleLibrary.DTO;
 using SchoolScheduleLibrary.Enums;
-using SchoolScheduleLibrary.Model;
 using SchoolScheduleLibrary.Service;
 using SchoolScheduleLibrary.Service.Interface;
 using SchoolScheduleLibrary.Utilities.Response;
 
 namespace ClassSchedule.Controllers
 {
-    [Route("api/Subject")]
+    [Route("api/Term")]
     [ApiController]
     [Authorize(UserRoles.Admin)]
-    public class SubjectsController : BaseController
+    public class TermController : BaseController
     {
-        private readonly ISubjectService _subjectService;
-        public SubjectsController(ISubjectService subjectService)
+        private readonly ITermService _termService;
+        public TermController(ITermService termService)
         {
-            _subjectService = subjectService;
+            _termService = termService;
         }
 
         [HttpGet("get-all")]
@@ -27,7 +26,7 @@ namespace ClassSchedule.Controllers
         {
             try
             {
-                return Ok(await _subjectService.GetAllAsync(CurrentInstitutionId));
+                return Ok(await _termService.GetAllAsync(CurrentInstitutionId));
             }
             catch (HttpResponseException hre)
             {
@@ -44,7 +43,7 @@ namespace ClassSchedule.Controllers
         {
             try
             {
-                return Ok(await _subjectService.GetByIdAsync(CurrentInstitutionId, id));
+                return Ok(await _termService.GetByIdAsync(id));
             }
             catch (HttpResponseException hre)
             {
@@ -57,11 +56,11 @@ namespace ClassSchedule.Controllers
         }
 
         [HttpPost("create")]
-        public async Task<IActionResult> Create([FromBody] CreateSubjectDTO dto)
+        public async Task<IActionResult> Create([FromBody] CreateTermDTO dto)
         {
             try
             {
-                return Ok(await _subjectService.CreateAsync(CurrentInstitutionId, dto));
+                return Ok(await _termService.CreateAsync(CurrentInstitutionId, dto));
             }
             catch (HttpResponseException hre)
             {
@@ -74,11 +73,11 @@ namespace ClassSchedule.Controllers
         }
 
         [HttpPatch("update")]
-        public async Task<IActionResult> Update([FromBody] SubjectDTO dto)
+        public async Task<IActionResult> Update([FromBody] TermDTO dto)
         {
             try
             {
-                return Ok(await _subjectService.UpdateAsync(CurrentInstitutionId, dto));
+                return Ok(await _termService.UpdateAsync(CurrentInstitutionId, dto));
             }
             catch (HttpResponseException hre)
             {
@@ -95,7 +94,7 @@ namespace ClassSchedule.Controllers
         {
             try
             {
-                return Ok(await _subjectService.DeleteAsync(CurrentInstitutionId, id));
+                return Ok(await _termService.DeleteAsync(id));
             }
             catch (HttpResponseException hre)
             {

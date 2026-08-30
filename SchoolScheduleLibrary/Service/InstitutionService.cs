@@ -47,15 +47,13 @@ namespace SchoolScheduleLibrary.Service
             return new InstitutionDTO(institution.Id, institution.Name);
         }
 
-        public async Task<InstitutionDTO> UpdateInstitution(InstitutionDTO dto)
+        public async Task<bool> UpdateInstitution(InstitutionDTO dto)
         {
             Institution institution = await _genericRepository.Get(i => i.Id == dto.Id) ?? throw new NotFoundException($"Institution with Id \"{dto.Id}\" was not found!");
 
             institution.Name = dto.Name;
 
-            Institution updatedInstitution = await _genericRepository.Update(institution);
-
-            return new InstitutionDTO(updatedInstitution.Id, updatedInstitution.Name);
+            return await _genericRepository.Update(institution);
         }
     }
 }

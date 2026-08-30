@@ -126,11 +126,10 @@ namespace ClassScheduleTests.UnitTests.Repository
 
             institution.Name = "Harvard";
             // Act
-            Institution updatedInstitution = await _institutionRepository.Update(institution);
+            bool result = await _institutionRepository.Update(institution);
 
             // Assert
-            Assert.Equal(institution.Id, updatedInstitution.Id);
-            Assert.Equal("Harvard", updatedInstitution.Name);
+            Assert.True(result);
             Assert.True(_context.Institutions.Any(i => i.Name == "Harvard" && i.Id == institution.Id));
         }
 

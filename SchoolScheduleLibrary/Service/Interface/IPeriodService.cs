@@ -20,33 +20,30 @@ namespace SchoolScheduleLibrary.Service.Interface
         /// <summary>
         /// Gets a specific period from an Id
         /// </summary>
-        /// <param name="institutionId">The Institution to look in</param>
         /// <param name="id">The period's Id</param>
         /// <returns>The specific Period</returns>
-        public Task<PeriodDTO> GetByIdAsync(Guid institutionId, Guid id);
+        public Task<PeriodDTO> GetByIdAsync(Guid id);
 
         /// <summary>
         /// Creates a Period
         /// </summary>
         /// <param name="institutionId">The Institution to look in</param>
         /// <param name="dto">The data used to create a period</param>
-        /// <returns>The created period</returns>
-        public Task<PeriodDTO> CreateAsync(Guid institutionId, CreatePeriodDTO dto);
+        /// <returns>True or False if the action was completed successfully</returns>
+        public Task<bool> CreateAsync(Guid institutionId, CreatePeriodDTO dto);
 
         /// <summary>
         /// Updates an existing Period with new data
         /// </summary>
-        /// <param name="institutionId">The Institution to look in</param>
         /// <param name="dto">The new values to update the period with</param>
-        /// <returns>The updated period</returns>
-        public Task<PeriodDTO> UpdateAsync(Guid institutionId, PeriodDTO dto);
+        /// <returns>True or False if the action was completed successfully</returns>
+        public Task<bool> UpdateAsync(PeriodDTO dto);
 
         /// <summary>
         /// Deletes a period
         /// </summary>
-        /// <param name="institutionId">The Institution to look in</param>
         /// <param name="id">The specific period's Id</param>
         /// <returns>True or False if the action was completed successfully</returns>
-        public Task<bool> DeleteAsync(Guid institutionId, Guid id);
+        public Task<bool> DeleteAsync(Guid id);
     }
 }

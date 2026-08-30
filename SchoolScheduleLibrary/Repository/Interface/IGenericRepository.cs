@@ -56,7 +56,7 @@ namespace SchoolScheduleLibrary.Repository.Interface
         /// </summary>
         /// <param name="entity">The updated Entity version with the new values</param>
         /// <returns>The updated Entity with the new values.</returns>
-        public Task<T> Update(T entity);
+        public Task<bool> Update(T entity);
 
         /// <summary>
         /// Deletes a Entity based of a condition(predicate) from the database and saves the changes.

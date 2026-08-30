@@ -44,22 +44,24 @@ namespace ClassScheduleTests.IntegrationTests
         public async Task Add_Subject_Succeeds()
         {
             await InitializeAsync();
-            CreateSubjectDTO dto = new("Test Fag");
+            CreateSubjectDTO dto = new("Test Fag123123");
 
             var result = await _client.PostAsJsonAsync(_ApiBaseUrl + "create", dto);
 
             var json = await result.Content.ReadAsStringAsync();
-            SubjectDTO? subject = JsonConvert.DeserializeObject<SubjectDTO>(json);
 
-            // Cleanup
             await WithContext(async db =>
             {
+                Subject? subject = await db.Subjects.FirstOrDefaultAsync(x => x.Name == dto.Name);
+
+                // Cleanup
                 await db.Subjects.Where(s => s.Id == subject!.Id).ExecuteDeleteAsync();
+
+                Assert.True(result.IsSuccessStatusCode);
+                Assert.NotNull(subject);
+                Assert.Equal("Test Fag123123", subject.Name);
             });
 
-            Assert.True(result.IsSuccessStatusCode);
-            Assert.NotNull(subject);
-            Assert.Equal("Test Fag", subject.Name);
         }
 
         [Fact]

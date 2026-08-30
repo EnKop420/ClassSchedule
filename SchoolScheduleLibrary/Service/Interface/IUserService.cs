@@ -33,10 +33,9 @@ namespace SchoolScheduleLibrary.Service.Interface
         /// Updates all the user information except the Username and Password
         /// </summary>
         /// <param name="userId">The specific user</param>
-        /// <param name="institutionId">The specific Institution</param>
         /// <param name="dto">Contains all the UserInformation except Username and Password</param>
         /// <returns>The updated User</returns>
-        public Task<UserDTO> UpdateUserInformation(Guid userId, Guid institutionId, UpdateUserInformationDTO dto);
+        public Task<UserDTO> UpdateUserInformation(Guid userId, UpdateUserInformationDTO dto);
 
         /// <summary>
         /// Changes the User's Username and Password
@@ -51,14 +50,12 @@ namespace SchoolScheduleLibrary.Service.Interface
         /// Deletes a User
         /// </summary>
         /// <param name="id">The specific User</param>
-        /// <param name="institutionId">The specific Institution</param>
-        public Task Delete(Guid id, Guid institutionId);
+        public Task Delete(Guid id);
 
         /// <summary>
         /// Deletes an Admin User
         /// </summary>
         /// <param name="id">The specific User</param>
-        /// <param name="institutionId">The specific Institution</param>
         public Task DeleteAdmin(Guid id);
 
         /// <summary>
@@ -81,10 +78,9 @@ namespace SchoolScheduleLibrary.Service.Interface
         /// </summary>
         /// <param name="targetId">The User to get the information from</param>
         /// <param name="callerId">The User who made the request</param>
-        /// <param name="institutionId">The specific Institution</param>
         /// <param name="role">The role of caller to check if they are authorized</param>
         /// <returns>The User information</returns>
-        public Task<UserDTO> GetUserInfo(Guid targetId, Guid callerId, Guid institutionId, UserRoles role);
+        public Task<UserDTO> GetUserInfo(Guid targetId, Guid callerId, UserRoles role);
 
         /// <summary>
         /// Gets all Users. Optionally can filter by role

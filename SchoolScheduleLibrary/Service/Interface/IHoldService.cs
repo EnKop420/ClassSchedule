@@ -15,16 +15,15 @@ namespace SchoolScheduleLibrary.Service.Interface
         /// </summary>
         /// <param name="institutionId">The Institution to look in</param>
         /// <param name="dto">Contains the Name and list of students and teachers</param>
-        /// <returns>Returns a HoldDTO.</returns>
-        public Task<HoldDTO> CreateAsync(Guid institutionId, CreateHoldDTO dto);
+        /// <returns>True or False if the action was completed successfully</returns>
+        public Task<bool> CreateAsync(Guid institutionId, CreateHoldDTO dto);
 
         /// <summary>
         /// Updates the Hold while also updating the students and teachers
         /// </summary>
-        /// <param name="institutionId">The Institution to look in</param>
         /// <param name="dto">Contains the Id, Name and list of students and teachers</param>
-        /// <returns>Returns a HoldDTO</returns>
-        public Task<HoldDTO> UpdateAsync(Guid institutionId, HoldDTO dto);
+        /// <returns>True or False if the action was completed successfully</returns>
+        public Task<bool> UpdateAsync(HoldDTO dto);
 
         /// <summary>
         /// Deletes the Hold
@@ -32,15 +31,14 @@ namespace SchoolScheduleLibrary.Service.Interface
         /// <param name="institutionId">The Institution to look in</param>
         /// <param name="id">The Hold to delete's Id</param>
         /// <returns>True or False if the action was completed successfully</returns>
-        public Task<bool> DeleteAsync(Guid institutionId, Guid id);
+        public Task<bool> DeleteAsync(Guid id);
 
         /// <summary>
         /// Get's the specific Hold from the Id
         /// </summary>
-        /// <param name="institutionId">The Institution to look in</param>
         /// <param name="id">The specific Id of the hold</param>
         /// <returns>Return a HoldDTO</returns>
-        public Task<HoldDTO> GetByIdAsync(Guid institutionId, Guid id);
+        public Task<HoldDTO> GetByIdAsync(Guid id);
 
         /// <summary>
         /// Get's a list of all the Hold's in the institution

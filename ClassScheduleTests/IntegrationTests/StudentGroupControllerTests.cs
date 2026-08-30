@@ -51,22 +51,22 @@ namespace ClassScheduleTests.IntegrationTests
                 Guid.Parse("6e915cef-75be-4d72-8056-fceafd340ff4"),
                 Guid.Parse("b43f205e-d3b8-41d2-bfd8-793e72cbf61e")
             };
-            CreateStudentGroupDTO dto = new("Klasse TEST", studentIds);
+            CreateStudentGroupDTO dto = new("Klasse TEST123123", studentIds);
 
             var result = await _client.PostAsJsonAsync(_ApiBaseUrl + "create", dto);
 
-            var json = await result.Content.ReadAsStringAsync();
-            StudentGroupDTO? resultDTO = JsonConvert.DeserializeObject<StudentGroupDTO>(json);
-
-            // Cleanup
             await WithContext(async db =>
             {
-                await db.StudentGroups.Where(x => x.Id == resultDTO!.Id).ExecuteDeleteAsync();
+                StudentGroup? studentGroup = await db.StudentGroups.FirstOrDefaultAsync(x => x.Name == dto.Name);
+
+                // Cleanup
+                await db.StudentGroups.Where(x => x.Id == studentGroup!.Id).ExecuteDeleteAsync();
+
+                Assert.True(result.IsSuccessStatusCode);
+                Assert.NotNull(studentGroup);
+                Assert.Equal(dto.Name, studentGroup.Name);
             });
 
-            Assert.True(result.IsSuccessStatusCode);
-            Assert.NotNull(resultDTO);
-            Assert.Equal(dto.Name, resultDTO.Name);
         }
 
         [Fact]
