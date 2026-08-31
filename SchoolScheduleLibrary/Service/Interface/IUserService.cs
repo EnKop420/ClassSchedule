@@ -90,5 +90,13 @@ namespace SchoolScheduleLibrary.Service.Interface
         /// <param name="role">Optional if only a specific role is wanted</param>
         /// <returns>A list of all the Users</returns>
         public Task<List<UserDTO>> GetAllUsers(Guid institutionId, UserRoles currentUserRole, UserRoles? role = null);
+
+        /// <summary>
+        /// Checks if the username is available.
+        /// </summary>
+        /// <param name="institutionId">The institution to look in</param>
+        /// <param name="username">the username to check</param>
+        /// <returns>A True or False statement about it being available</returns>
+        public Task<bool> CheckUsernameIsAvailable(Guid institutionId, string username);
     }
 }

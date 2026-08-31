@@ -213,5 +213,23 @@ namespace ClassSchedule.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
+
+        [Authorize]
+        [HttpGet("Check-Username-Is-Available")]
+        public async Task<IActionResult> CheckUsernameIsAvailable([FromQuery] string username)
+        {
+            try
+            {
+                return Ok(await _userService.CheckUsernameIsAvailable(CurrentInstitutionId, username));
+            }
+            catch (HttpResponseException hre)
+            {
+                return StatusCode((int)hre.StatusCode, hre.ResponseMessage);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
     }
 }
