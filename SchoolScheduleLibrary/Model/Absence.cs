@@ -11,11 +11,18 @@ namespace SchoolScheduleLibrary.Model
         public Guid StudentId { get; set; }
         public User Student { get; set; } = null!;
 
-        public AttendanceStatus Status { get; set; }
+        public AbsenceStatus Status { get; set; }
 
-        public Guid? RegisteredById { get; set; } // second FK to User
+        public Guid RegisteredById { get; set; } // second FK to User
         public User? RegisteredBy { get; set; }
         public DateTime RegisteredAt { get; set; } = DateTime.UtcNow;
 
+        public Absence(Guid lessonId, Guid studentId, AbsenceStatus status, Guid registeredById)
+        {
+            LessonId = lessonId;
+            StudentId = studentId;
+            Status = status;
+            RegisteredById = registeredById;
+        }
     }
 }

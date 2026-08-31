@@ -13,32 +13,53 @@ namespace SchoolScheduleLibrary.Service
     {
         private readonly IGenericRepository<LessonNote> _lessonNoteGenericRepository;
         private readonly IGenericRepository<Lesson> _lessonGenericRepository;
-        public LessonNoteService(IGenericRepository<LessonNote> lessonNoteGenericRepository, IGenericRepository<Lesson> lessonGenerciRepository)
+        private readonly IGenericRepository<User> _userGenericRepository;
+        public LessonNoteService(
+            IGenericRepository<LessonNote> lessonNoteGenericRepository,
+            IGenericRepository<Lesson> lessonGenerciRepository,
+            IGenericRepository<User> userGenericRepository
+        )
         {
             _lessonNoteGenericRepository = lessonNoteGenericRepository;
             _lessonGenericRepository = lessonGenerciRepository;
+            _userGenericRepository = userGenericRepository;
         }
 
-        public async Task<bool> AddNoteToLesson(CreateLessonNoteDTO dto)
+        public async Task<bool> AddNoteToLesson(Guid authorId, CreateLessonNoteDTO dto)
         {
+            if (!await _userGenericRepository.DoesValueExist(u => u.Id == authorId))
+            {
+                throw new NotFoundException($"User could not be found with Author Id \"{authorId}\"");
+            }
+
             Lesson lesson = await _lessonGenericRepository.Get(l => l.Id == dto.LessonId, l => l.Note!)
                 ?? throw new NotFoundException($"Could not get Lesson with Id \"{dto.LessonId}\"");
 
             if (lesson.Note != null) throw new ConflictException("There is already a note attached to this Lesson!");
 
-            lesson.Note = new(dto.LessonId, dto.AuthorId, dto.Content);
+            LessonNote note = new(dto.LessonId, authorId, dto.Content);
+
             if (lesson.IsModified == false) lesson.IsModified = true;
 
-            return await _lessonGenericRepository.Update(lesson);
+            if (await _lessonNoteGenericRepository.Add(note))
+            {
+                return await _lessonGenericRepository.Update(lesson);
+            }
+            else throw new InternalErrorException("Something went wrong when adding the note!");
         }
 
-        public async Task<bool> UpdateNoteFromLesson(UpdateLessonNoteDTO dto)
+        public async Task<bool> UpdateNoteFromLesson(Guid editorId, UpdateLessonNoteDTO dto)
         {
+            if (!await _userGenericRepository.DoesValueExist(u => u.Id == editorId))
+            {
+                throw new NotFoundException($"User could not be found with Editor Id \"{editorId}\"");
+            }
+
             LessonNote note = await _lessonNoteGenericRepository.Get(n => n.Id == dto.Id)
                 ?? throw new NotFoundException($"Could not get Lesson with Id \"{dto.Id}\"");
 
             note.Content = dto.Content;
-            note.EditorId = dto.EditorId;
+            note.EditorId = editorId;
             note.LastEditedAt = DateTime.UtcNow;
 
             return await _lessonNoteGenericRepository.Update(note);

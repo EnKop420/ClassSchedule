@@ -87,6 +87,10 @@ namespace SchoolScheduleLibrary.Service
                 ?? throw new NotFoundException($"Could not get Term with Id \"{dto.TermId}\"");
 
             Hold hold = new(dto.Name, institutionId, dto.SubjectId, dto.TermId);
+
+            hold.Enrollments.Clear();
+            hold.GroupTeachers.Clear();
+
             hold.Enrollments = dto.Students.Distinct()
                 .Select(s => new Enrollment(hold.Id, s))
                 .ToList();
@@ -116,6 +120,10 @@ namespace SchoolScheduleLibrary.Service
             hold.Name = dto.Name;
             hold.SubjectId = dto.SubjectId;
             hold.TermId = dto.TermId;
+
+            hold.Enrollments.Clear();
+            hold.GroupTeachers.Clear();
+
             hold.Enrollments = dto.Students.Distinct()
                 .Select(s => new Enrollment(hold.Id, s))
                 .ToList();

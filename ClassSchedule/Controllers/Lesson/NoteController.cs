@@ -27,7 +27,7 @@ namespace ClassSchedule.Controllers.Lesson
         {
             try
             {
-                return Ok(await _lessonNoteService.AddNoteToLesson(dto));
+                return Ok(await _lessonNoteService.AddNoteToLesson(CurrentUserId, dto));
             }
             catch (HttpResponseException hre)
             {
@@ -44,7 +44,7 @@ namespace ClassSchedule.Controllers.Lesson
         {
             try
             {
-                return Ok(await _lessonNoteService.UpdateNoteFromLesson(dto));
+                return Ok(await _lessonNoteService.UpdateNoteFromLesson(CurrentUserId, dto));
             }
             catch (HttpResponseException hre)
             {

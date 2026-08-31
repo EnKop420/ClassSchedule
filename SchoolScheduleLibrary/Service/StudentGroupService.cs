@@ -18,6 +18,7 @@ namespace SchoolScheduleLibrary.Service
         public async Task<bool> CreateAsync(Guid institutionId, CreateStudentGroupDTO dto)
         {
             StudentGroup studentGroup = new(dto.Name, institutionId);
+            studentGroup.Students.Clear();
             studentGroup.Students = dto.StudentIds.Distinct()
                 .Select(s => new StudentGroupMember(studentGroup.Id, s))
                 .ToList();
@@ -55,6 +56,7 @@ namespace SchoolScheduleLibrary.Service
                 ?? throw new NotFoundException($"Could not get StudentGroup with Id \"{dto.Id}\"");
 
             studentGroup.Name = dto.Name;
+            studentGroup.Students.Clear();
             studentGroup.Students = dto.StudentIds.Distinct()
                 .Select(s => new StudentGroupMember(studentGroup.Id, s))
                 .ToList();

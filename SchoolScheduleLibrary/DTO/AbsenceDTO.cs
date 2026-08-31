@@ -1,8 +1,10 @@
-﻿using System;
+﻿using SchoolScheduleLibrary.Enums;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace SchoolScheduleLibrary.DTO
 {
-    public record AbsenceDTO(Guid LessonIds, List<Guid> StudentIds);
+    public record AbsenceDTO(Guid Id, Guid LessonId, Guid StudentIds, AbsenceStatus Status, Guid RegisteredById);
+    public record SetAbsenceDTO(Guid StudentId, AbsenceStatus Status);
 }

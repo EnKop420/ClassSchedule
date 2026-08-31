@@ -67,6 +67,7 @@ namespace ClassSchedule
             builder.Services.AddScoped<IStudentGroupMemberService, StudentGroupMemberService>();
             builder.Services.AddScoped<ILessonService, LessonService>();
             builder.Services.AddScoped<ILessonNoteService, LessonNoteService>();
+            builder.Services.AddScoped<IAbsenceService, AbsenceService>();
 
             // Database Repositories Scoped
             builder.Services.AddScoped<IRedisRepository, RedisRepository>();
