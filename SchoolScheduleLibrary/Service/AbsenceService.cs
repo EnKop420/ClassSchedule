@@ -34,7 +34,12 @@ namespace SchoolScheduleLibrary.Service
 
             lesson.Absences.Clear();
 
-            var studentIds = dtos.Select(a => a.StudentId).ToList();
+            if (dtos.Count == 0) return await _lessonGenericRepository.Update(lesson);
+
+            var studentIds = dtos.Select(a => a.StudentId).Distinct().ToList();
+
+            bool hasDuplicateStudents = dtos.Count != studentIds.Count;
+            if (hasDuplicateStudents) throw new BadRequestException("There is one or more duplicate student ids!");
 
             int enrolledStudentCount = await _enrollmentGenericRepository.Count(e =>
                 e.HoldId == lesson.HoldId && studentIds.Contains(e.StudentId));
@@ -44,14 +49,19 @@ namespace SchoolScheduleLibrary.Service
                 throw new BadRequestException("One or more students are not enrolled in this lesson!");
             }
 
+            List<Absence> absences = new();
             foreach (var dto in dtos)
             {
-                lesson.Absences.Add(new Absence(lessonId, dto.StudentId, dto.Status, teacherId));
+                absences.Add(new Absence(lessonId, dto.StudentId, dto.Status, teacherId));
             }
 
-            if (lesson.IsModified == false && lesson.Absences.Count > 0) lesson.IsModified = true;
+            if (lesson.IsModified == false && absences.Count > 0) lesson.IsModified = true;
 
-            return await _lessonGenericRepository.Update(lesson);
+            if (await _absenceGenericRepository.AddRange(absences))
+            {
+                return await _lessonGenericRepository.Update(lesson);
+            }
+            else throw new InternalErrorException("Something went wrong when setting the absences on the students!");
         }
 
         public async Task<List<AbsenceDTO>> GetAllAbsences(Guid lessonId)
