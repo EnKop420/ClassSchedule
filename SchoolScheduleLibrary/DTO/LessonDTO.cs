@@ -17,6 +17,5 @@ namespace SchoolScheduleLibrary.DTO
         LessonNoteDTO? Note,
         List<MinimalUserInformationDTO> Teachers,
         List<MinimalUserInformationDTO> AbsentStudents);
-
     public record GetLessonDTO(Guid TargetId, DateOnly From, DateOnly To);
 }

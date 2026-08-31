@@ -3,6 +3,7 @@ using ClassSchedule.Inheritance;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SchoolScheduleLibrary.DTO;
+using SchoolScheduleLibrary.Enums;
 using SchoolScheduleLibrary.Service.Interface;
 using SchoolScheduleLibrary.Utilities.Response;
 
@@ -26,6 +27,23 @@ namespace ClassSchedule.Controllers.Lesson
             try
             {
                 return Ok(await _lessonService.GetStudentsFromSchedule(id));
+            }
+            catch (HttpResponseException hre)
+            {
+                return StatusCode((int)hre.StatusCode, hre.ResponseMessage);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpPatch("change-status")]
+        public async Task<IActionResult> ChangeLessonStatus([FromQuery] Guid lessonId, [FromBody] LessonStatus status)
+        {
+            try
+            {
+                return Ok(await _lessonService.ChangeLessonStatus(lessonId, status));
             }
             catch (HttpResponseException hre)
             {
