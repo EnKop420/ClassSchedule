@@ -10,7 +10,6 @@ using SchoolScheduleLibrary.Utilities.Response;
 namespace ClassSchedule.Controllers.Lesson
 {
     [Route("api/Lesson")]
-    [Authorize]
     [ApiController]
     public class LessonController : BaseController
     {
@@ -21,6 +20,7 @@ namespace ClassSchedule.Controllers.Lesson
             _lessonService = lessonService;
         }
 
+        [Authorize]
         [HttpGet("get-students")]
         public async Task<IActionResult> GetStudentsFromSchedule([FromQuery] Guid id)
         {
@@ -38,6 +38,7 @@ namespace ClassSchedule.Controllers.Lesson
             }
         }
 
+        [Authorize(UserRoles.Teacher)]
         [HttpPatch("change-status")]
         public async Task<IActionResult> ChangeLessonStatus([FromQuery] Guid lessonId, [FromBody] LessonStatus status)
         {
