@@ -4,30 +4,29 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SchoolScheduleLibrary.DTO;
 using SchoolScheduleLibrary.Enums;
-using SchoolScheduleLibrary.Service;
 using SchoolScheduleLibrary.Service.Interface;
 using SchoolScheduleLibrary.Utilities.Response;
 
 namespace ClassSchedule.Controllers.Lesson
 {
-    [Route("api/[controller]")]
+    [Route("api/Lesson")]
     [ApiController]
-    [Authorize(UserRoles.Teacher)]
-    public class NoteController : BaseController
+    public class LessonController : BaseController
     {
-        private readonly ILessonNoteService _lessonNoteService;
+        private readonly ILessonService _lessonService;
 
-        public NoteController(ILessonNoteService lessonService)
+        public LessonController(ILessonService lessonService)
         {
-            _lessonNoteService = lessonService;
+            _lessonService = lessonService;
         }
 
-        [HttpPost("create")]
-        public async Task<IActionResult> AddNoteToLesson([FromBody] CreateLessonNoteDTO dto)
+        [Authorize]
+        [HttpGet("get")]
+        public async Task<IActionResult> GetLesson([FromQuery] Guid lessonId)
         {
             try
             {
-                return Ok(await _lessonNoteService.AddNoteToLesson(CurrentUserId, dto));
+                return Ok(await _lessonService.GetLesson(lessonId));
             }
             catch (HttpResponseException hre)
             {
@@ -39,12 +38,13 @@ namespace ClassSchedule.Controllers.Lesson
             }
         }
 
-        [HttpPatch("update")]
-        public async Task<IActionResult> UpdateNoteFromLesson([FromBody] UpdateLessonNoteDTO dto)
+        [Authorize]
+        [HttpGet("get-students")]
+        public async Task<IActionResult> GetStudentsFromSchedule([FromQuery] Guid id)
         {
             try
             {
-                return Ok(await _lessonNoteService.UpdateNoteFromLesson(CurrentUserId, dto));
+                return Ok(await _lessonService.GetStudentsFromSchedule(id));
             }
             catch (HttpResponseException hre)
             {
@@ -56,12 +56,13 @@ namespace ClassSchedule.Controllers.Lesson
             }
         }
 
-        [HttpDelete("delete")]
-        public async Task<IActionResult> DeleteNoteFromLesson([FromQuery] Guid id)
+        [Authorize(UserRoles.Teacher)]
+        [HttpPatch("change-status")]
+        public async Task<IActionResult> ChangeLessonStatus([FromQuery] Guid lessonId, [FromBody] LessonStatus status)
         {
             try
             {
-                return Ok(await _lessonNoteService.RemoveNoteFromLesson(id));
+                return Ok(await _lessonService.ChangeLessonStatus(lessonId, status));
             }
             catch (HttpResponseException hre)
             {

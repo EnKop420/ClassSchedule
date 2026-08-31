@@ -33,5 +33,12 @@ namespace SchoolScheduleLibrary.Repository.Interface
         /// <param name="dto">The DTO containing all the values needed to get the data.</param>
         /// <returns>Returns a list of Lesson's</returns>
         public Task<List<LessonDTO>> GetTeacherLessonsAsync(Guid institutionId, GetLessonDTO dto);
+
+        /// <summary>
+        /// Gets a specific lesson using the Id
+        /// </summary>
+        /// <param name="lessonId">The lesson's Id</param>
+        /// <returns>A nullable LessonDTO.</returns>
+        public Task<LessonDTO?> GetLesson(Guid lessonId);
     }
 }

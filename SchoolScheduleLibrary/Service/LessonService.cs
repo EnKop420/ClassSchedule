@@ -39,5 +39,11 @@ namespace SchoolScheduleLibrary.Service
 
             return await _lessonGenericRepository.Update(lesson);
         }
+
+        public async Task<LessonDTO> GetLesson(Guid lessonId)
+        {
+            return await _lessonRepository.GetLesson(lessonId)
+                ?? throw new NotFoundException($"Could not get Lesson with Id \"{lessonId}\"");
+        }
     }
 }

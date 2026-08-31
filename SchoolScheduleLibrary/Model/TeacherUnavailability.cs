@@ -9,7 +9,8 @@ namespace SchoolScheduleLibrary.Model
         public Guid Id { get; set; } = Guid.NewGuid();
         public Guid TeacherId { get; set; }
         public User Teacher { get; set; } = null!;
-        public DateOnly Date { get; set; }
+        public DateOnly StartDate { get; set; }
+        public DateOnly EndDate { get; set; }
         public TimeOnly? StartTime { get; set; } // null = whole day
         public TimeOnly? EndTime { get; set; }
         public string? Reason { get; set; }

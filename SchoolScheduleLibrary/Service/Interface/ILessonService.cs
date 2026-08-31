@@ -25,5 +25,12 @@ namespace SchoolScheduleLibrary.Service.Interface
         /// <param name="status">The status</param>
         /// <returns>A True or False statement if the statement </returns>
         public Task<bool> ChangeLessonStatus(Guid lessonId, LessonStatus status);
+
+        /// <summary>
+        /// Gets a specific lesson
+        /// </summary>
+        /// <param name="lessonId">The specific lesson Id</param>
+        /// <returns>A LessonDTO</returns>
+        public Task<LessonDTO> GetLesson(Guid lessonId);
     }
 }

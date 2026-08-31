@@ -3,9 +3,11 @@ using SchoolScheduleLibrary.Context;
 using SchoolScheduleLibrary.DTO;
 using SchoolScheduleLibrary.Model;
 using SchoolScheduleLibrary.Repository.Interface;
+using SchoolScheduleLibrary.Utilities.Auth;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using static SchoolScheduleLibrary.Utilities.Response.HttpResponseException;
 
 namespace SchoolScheduleLibrary.Repository
 {
@@ -39,7 +41,7 @@ namespace SchoolScheduleLibrary.Repository
             // 1. Filter: Match institution, fall within date range, and ensure target student is assigned to the lesson.
             // 2. Order: Sort chronologically by date, then start time.
             // 3. Project: Select database fields into an anonymous object.
-            // 4. Transform: Map anonymous objects in memory to ScheduleLessonDTOs, safely formatting enums and strings.
+            // 4. Transform: Map anonymous objects in memory to LessonDTO, safely formatting enums and strings.
             return await _context.Lessons
                 .Where(l =>
                     l.InstitutionId == institutionId
@@ -61,8 +63,10 @@ namespace SchoolScheduleLibrary.Repository
                         l.Note.Id,
                         l.Note.LessonId,
                         l.Note.AuthorId,
+                        l.Note.EditorId,
                         l.Note.Content,
-                        l.Note.CreatedAt
+                        l.Note.CreatedAt,
+                        l.Note.LastEditedAt
                     ) : null,
                     Teachers = l.Teachers.Select(t => new MinimalUserInformationDTO( // Map to the MinimalUserInformationDTO
                         $"{t.Teacher.FirstName} {t.Teacher.LastName}",
@@ -95,7 +99,7 @@ namespace SchoolScheduleLibrary.Repository
             // 1. Filter: Match institution, fall within date range, and ensure target teacher is assigned to the lesson.
             // 2. Order: Sort chronologically by date, then start time.
             // 3. Project: Select database fields into an anonymous object.
-            // 4. Transform: Map anonymous objects in memory to ScheduleLessonDTOs, safely formatting enums and strings.
+            // 4. Transform: Map anonymous objects in memory to LessonDTO, safely formatting enums and strings.
             return await _context.Lessons
                 .Where(l =>
                     l.InstitutionId == institutionId
@@ -117,8 +121,10 @@ namespace SchoolScheduleLibrary.Repository
                         l.Note.Id,
                         l.Note.LessonId,
                         l.Note.AuthorId,
+                        l.Note.EditorId,
                         l.Note.Content,
-                        l.Note.CreatedAt
+                        l.Note.CreatedAt,
+                        l.Note.LastEditedAt
                     ) : null,
                     Teachers = l.Teachers.Select(t => new MinimalUserInformationDTO( // Map to the MinimalUserInformationDTO
                         $"{t.Teacher.FirstName} {t.Teacher.LastName}",
@@ -143,6 +149,63 @@ namespace SchoolScheduleLibrary.Repository
                     l.Teachers,
                     l.Absences
                 )).ToList());
+        }
+
+        public async Task<LessonDTO?> GetLesson(Guid lessonId)
+        {
+            // Get lessons with the following LINQ pipeline:
+            // 1. Filter: Match institution, fall within date range, and ensure target teacher is assigned to the lesson.
+            // 2. Order: Sort chronologically by date, then start time.
+            // 3. Project: Select database fields into an anonymous object.
+            // 4. Transform: Map anonymous objects in memory to LessonDTO, safely formatting enums and strings.
+            // Execute the EF query to fetch the single anonymous object
+            var lesson = await _context.Lessons
+                .Where(l => l.Id == lessonId)
+                .Select(l => new
+                {
+                    l.Id,
+                    l.Date,
+                    l.StartTime,
+                    l.EndTime,
+                    SubjectName = l.Hold.Subject.Name,
+                    HoldName = l.Hold.Name,
+                    RoomName = l.Room != null ? l.Room.Name : string.Empty,
+                    l.Status,
+                    Note = l.Note != null ? new LessonNoteDTO(
+                        l.Note.Id,
+                        l.Note.LessonId,
+                        l.Note.AuthorId,
+                        l.Note.EditorId,
+                        l.Note.Content,
+                        l.Note.CreatedAt,
+                        l.Note.LastEditedAt
+                    ) : null,
+                    Teachers = l.Teachers.Select(t => new MinimalUserInformationDTO(
+                        $"{t.Teacher.FirstName} {t.Teacher.LastName}",
+                        t.TeacherId
+                    )).ToList(),
+                    Absences = l.Absences.Select(a => new MinimalUserInformationDTO(
+                        $"{a.Student.FirstName} {a.Student.LastName}",
+                        a.StudentId
+                    )).ToList()
+                })
+                .FirstOrDefaultAsync();
+
+            if (lesson == null) return null;
+
+            return new LessonDTO(
+                lesson.Id,
+                lesson.Date,
+                lesson.StartTime,
+                lesson.EndTime,
+                lesson.SubjectName,
+                lesson.HoldName,
+                lesson.RoomName,
+                lesson.Status.ToString(),
+                lesson.Note,
+                lesson.Teachers,
+                lesson.Absences
+            );
         }
     }
 }
