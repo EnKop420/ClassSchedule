@@ -104,7 +104,10 @@ namespace SchoolScheduleLibrary.Service
 
         public async Task<string> ChangeUserCredentials(Guid userId, Guid institutionId, ChangeUserCredentialsDTO dto)
         {
-            if (await _userGenericRepository.DoesValueExist(u => u.Username == dto.Username.ToLower() && u.InstitutionId == institutionId))
+            if (await _userGenericRepository.DoesValueExist(u => 
+            u.Username == dto.Username.ToLower()
+            && u.InstitutionId == institutionId
+            && u.Id != userId))
             {
                 throw new ConflictException("Username already exists!");
             }
