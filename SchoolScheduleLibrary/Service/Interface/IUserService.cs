@@ -96,7 +96,8 @@ namespace SchoolScheduleLibrary.Service.Interface
         /// </summary>
         /// <param name="institutionId">The institution to look in</param>
         /// <param name="username">the username to check</param>
+        /// <param name="userId">The user id of the user checking</param>
         /// <returns>A True or False statement about it being available</returns>
-        public Task<bool> CheckUsernameIsAvailable(Guid institutionId, string username);
+        public Task<bool> CheckUsernameIsAvailable(Guid institutionId, string username, Guid userId);
     }
 }

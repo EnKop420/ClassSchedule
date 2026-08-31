@@ -295,9 +295,12 @@ namespace SchoolScheduleLibrary.Service
                     .TrimEnd('=');
         }
 
-        public async Task<bool> CheckUsernameIsAvailable(Guid institutionId, string username)
+        public async Task<bool> CheckUsernameIsAvailable(Guid institutionId, string username, Guid userId)
         {
-            return !await _userGenericRepository.DoesValueExist(u => u.InstitutionId ==  institutionId && u.Username.ToLower() == username.ToLower());
+            return !await _userGenericRepository.DoesValueExist(u => 
+            u.InstitutionId ==  institutionId
+            && u.Username.ToLower() == username.ToLower()
+            && u.Id != userId);
         }
     }
 }

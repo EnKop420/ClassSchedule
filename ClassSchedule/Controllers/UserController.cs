@@ -220,7 +220,7 @@ namespace ClassSchedule.Controllers
         {
             try
             {
-                return Ok(await _userService.CheckUsernameIsAvailable(CurrentInstitutionId, username));
+                return Ok(await _userService.CheckUsernameIsAvailable(CurrentInstitutionId, username, CurrentUserId));
             }
             catch (HttpResponseException hre)
             {
