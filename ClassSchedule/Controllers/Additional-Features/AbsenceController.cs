@@ -40,7 +40,7 @@ namespace ClassSchedule.Controllers.Lesson
         }
 
         [HttpPut("set-absence")]
-        public async Task<IActionResult> GetAllAbsencesFromLesson([FromQuery] Guid lessonId, [FromBody] List<SetAbsenceDTO> dtos)
+        public async Task<IActionResult> SetLessonAbsence([FromQuery] Guid lessonId, [FromBody] List<SetAbsenceDTO> dtos)
         {
             try
             {
