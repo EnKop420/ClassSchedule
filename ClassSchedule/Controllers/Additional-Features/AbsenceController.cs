@@ -27,7 +27,7 @@ namespace ClassSchedule.Controllers.Lesson
         {
             try
             {
-                return Ok(await _absenceService.GetAllAbsences(lessonId));
+                return Ok(await _absenceService.GetAllAbsencesFromLesson(lessonId));
             }
             catch (HttpResponseException hre)
             {

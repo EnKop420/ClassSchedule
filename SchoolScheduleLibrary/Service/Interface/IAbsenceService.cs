@@ -8,6 +8,7 @@ namespace SchoolScheduleLibrary.Service.Interface
     public interface IAbsenceService
     {
         public Task<bool> SetAbsence(Guid lessonId, List<SetAbsenceDTO> dtos, Guid teacherId);
-        public Task<List<AbsenceDTO>> GetAllAbsences(Guid lessonId);
+        public Task<List<AbsenceDTO>> GetAllAbsencesFromLesson(Guid lessonId);
+        //public Task<List<AbsenceDTO>> GetAbsencesFromStudent(Guid studentId);
     }
 }

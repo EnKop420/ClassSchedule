@@ -64,7 +64,7 @@ namespace SchoolScheduleLibrary.Service
             else throw new InternalErrorException("Something went wrong when setting the absences on the students!");
         }
 
-        public async Task<List<AbsenceDTO>> GetAllAbsences(Guid lessonId)
+        public async Task<List<AbsenceDTO>> GetAllAbsencesFromLesson(Guid lessonId)
         {
             return (await _absenceGenericRepository.GetAll(a => a.LessonId == lessonId))
                 .Select(a => new AbsenceDTO(a.Id, a.LessonId, a.StudentId, a.Status, a.RegisteredById))
