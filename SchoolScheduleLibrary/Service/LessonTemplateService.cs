@@ -13,17 +13,20 @@ namespace SchoolScheduleLibrary.Service
     public class LessonTemplateService : ILessonTemplateService
     {
         private readonly IGenericRepository<LessonTemplate> _lessonTemplateGenericRepository;
+        private readonly IGenericRepository<Lesson> _lessonGenericRepository;
         private readonly IGenericRepository<Hold> _holdGenericRepository;
         private readonly IGenericRepository<Period> _periodGenericRepository;
         private readonly IGenericRepository<Room> _roomGenericRepository;
         public LessonTemplateService(
             IGenericRepository<LessonTemplate> lessonTemplateGenericRepository,
+            IGenericRepository<Lesson> lessonGenericRepository,
             IGenericRepository<Hold> holdGenericRepository,
             IGenericRepository<Period> periodGenericRepository,
             IGenericRepository<Room> roomGenericRepository
         )
         {
             _lessonTemplateGenericRepository = lessonTemplateGenericRepository;
+            _lessonGenericRepository = lessonGenericRepository;
             _holdGenericRepository = holdGenericRepository;
             _periodGenericRepository = periodGenericRepository;
             _roomGenericRepository = roomGenericRepository;
@@ -182,6 +185,11 @@ namespace SchoolScheduleLibrary.Service
             if (!await _lessonTemplateGenericRepository.DoesValueExist(t => t.Id == id))
             {
                 throw new NotFoundException($"Could not find LessonTemplate with Id \"{id}\"");
+            }
+
+            if (await _lessonGenericRepository.DoesValueExist(l => l.TemplateId == id))
+            {
+                throw new ConflictException("Cannot delete this template as a lesson is already generated from it");
             }
 
             return await _lessonTemplateGenericRepository.Delete(lt => lt.Id == id);

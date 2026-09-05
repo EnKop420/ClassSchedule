@@ -12,7 +12,7 @@ namespace ClassSchedule.Controllers.Lesson
 {
     [Route("api/Absence")]
     [ApiController]
-    [Authorize(UserRoles.Teacher)]
+    
     public class AbsenceController : BaseController
     {
         private readonly IAbsenceService _absenceService;
@@ -22,6 +22,7 @@ namespace ClassSchedule.Controllers.Lesson
             _absenceService = absenceService;
         }
 
+        [Authorize(UserRoles.Teacher)]
         [HttpGet("get-all")]
         public async Task<IActionResult> GetAllAbsencesFromLesson([FromQuery] Guid lessonId)
         {
@@ -39,6 +40,7 @@ namespace ClassSchedule.Controllers.Lesson
             }
         }
 
+        [Authorize(UserRoles.Teacher)]
         [HttpPut("set-absence")]
         public async Task<IActionResult> SetLessonAbsence([FromQuery] Guid lessonId, [FromBody] List<SetAbsenceDTO> dtos)
         {
