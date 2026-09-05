@@ -3,6 +3,7 @@ using ClassSchedule.Inheritance;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using SchoolScheduleLibrary.DTO;
 using SchoolScheduleLibrary.Enums;
 using SchoolScheduleLibrary.Service;
 using SchoolScheduleLibrary.Service.Interface;
@@ -11,7 +12,7 @@ using System.Xml.Linq;
 
 namespace ClassSchedule.Controllers.Lesson
 {
-    [Route("api/terms/{termId}/lessons")]
+    [Route("api/Generator")]
     [ApiController]
     [Authorize(UserRoles.Admin)]
     public class LessonGeneratorController : BaseController
@@ -23,12 +24,30 @@ namespace ClassSchedule.Controllers.Lesson
         }
 
         [HttpPost("generate-lessons")]
-        public async Task<IActionResult> Generate(Guid termId)
+        public async Task<IActionResult> Generate(GenerateLessonDTO dto)
         {
             try
             {
-                int created = await _lessonGenerationService.GenerateForTermAsync(CurrentInstitutionId, termId);
+                int created = await _lessonGenerationService.GenerateForTermAsync(CurrentInstitutionId, dto);
                 return Ok(new { created });
+            }
+            catch (HttpResponseException hre)
+            {
+                return StatusCode((int)hre.StatusCode, hre.ResponseMessage);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpDelete("delete-lessons")]
+        public async Task<IActionResult> DeleteLessons([FromBody] DeleteLessonDTO dto)
+        {
+            try
+            {
+                int deleted = await _lessonGenerationService.DeleteGeneratedLessons(dto);
+                return Ok(new { deleted });
             }
             catch (HttpResponseException hre)
             {

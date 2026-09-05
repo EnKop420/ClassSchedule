@@ -1,4 +1,5 @@
-﻿using SchoolScheduleLibrary.Enums;
+﻿using SchoolScheduleLibrary.DTO;
+using SchoolScheduleLibrary.Enums;
 using SchoolScheduleLibrary.Model;
 using SchoolScheduleLibrary.Repository.Interface;
 using SchoolScheduleLibrary.Service.Interface;
@@ -37,8 +38,26 @@ namespace SchoolScheduleLibrary.Service
             _lessonGenericRepository = lessonGenericRepository;
         }
 
-        public async Task<int> GenerateForTermAsync(Guid institutionId, Guid termId)
+        public async Task<int> DeleteGeneratedLessons(DeleteLessonDTO dto)
         {
+            List<Lesson> deletable = await _lessonGenericRepository.GetAll(l => 
+                dto.LessonTemplateIds.Contains(l.TemplateId ?? Guid.Empty));
+
+            if (await _lessonGenericRepository.RemoveRange(deletable))
+            {
+                return deletable.Count;
+            }
+            else
+            {
+                return 0;
+            }
+        }
+
+        public async Task<int> GenerateForTermAsync(Guid institutionId, GenerateLessonDTO dto)
+        {
+            Guid termId = dto.termId;
+            List<Guid> lessonTemplateIds = dto.LessonTemplateIds;
+
             Term term = await _termGenericRepository.Get(t => t.Id == termId && t.InstitutionId == institutionId)
                 ?? throw new NotFoundException($"Could not get Term with Id \"{termId}\" in the Institution with Id \"{institutionId}\"");
 
@@ -46,9 +65,9 @@ namespace SchoolScheduleLibrary.Service
             List<Hold> holds = await _holdGenericRepository.GetAll(h => h.TermId == termId);
             HashSet<Guid> holdIds = holds.Select(h => h.Id).ToHashSet();
 
-            // Templates hang off holds. Filter by Hold
+            // Get the specific templates from the list of template ids
             List<LessonTemplate> lessonTemplates = 
-                await _lessonTemplateGenericRepository.GetAll(lt => holdIds.Contains(lt.HoldId));
+                await _lessonTemplateGenericRepository.GetAll(lt => lessonTemplateIds.Contains(lt.Id));
 
             // Period times keyed by id for quick lookup
             Dictionary<Guid, Period> periods = 
@@ -77,12 +96,11 @@ namespace SchoolScheduleLibrary.Service
                 .ToDictionary(g => g.Key, g => g.ToList());
 
             // All old auto generated lessons that hasnt been modified.
-            List<Lesson> deletable =
-                (await _lessonGenericRepository.GetAll(l => 
-                    holdIds.Contains(l.HoldId)
-                    && l.TemplateId != null
-                    && l.IsModified == false))
-                .ToList();
+            List<Lesson> deletable = await _lessonGenericRepository.GetAll(l =>
+                holdIds.Contains(l.HoldId)
+                && l.TemplateId.HasValue
+                && lessonTemplateIds.Contains(l.TemplateId.Value)
+                && l.IsModified == false);
 
             // Existing lessons that has been modified by a person.
             HashSet<(Guid, DateOnly)> keep =
