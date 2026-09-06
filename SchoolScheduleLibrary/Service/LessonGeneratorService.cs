@@ -80,7 +80,7 @@ namespace SchoolScheduleLibrary.Service
                 && ntd.StartDate <= term.EndDate
                 && ntd.EndDate >= term.StartDate);
 
-            // Converts the list of NonTeachingDay's into individual dates
+            // Converts the list of NonTeachingDay's ranges into individual dates. Turning a range spanding 10 days into 10 values
             HashSet<DateOnly> nonTeachingDays = new();
             foreach (NonTeachingDay r in ranges)
             {
@@ -90,7 +90,7 @@ namespace SchoolScheduleLibrary.Service
                 }
             }
 
-            // Each holds primary teachers. Grouped by Hold
+            // Each holds primary teachers. Grouped by Hold. Turned into a Dictionary < HoldId, List<Teacher> >
             Dictionary<Guid, List<GroupTeacher>> teachersByHold =
                 (await _groupTeacherGenericRepository.GetAll(gt => holdIds.Contains(gt.HoldId)))
                 .GroupBy(gt => gt.HoldId)
@@ -117,17 +117,18 @@ namespace SchoolScheduleLibrary.Service
             foreach (LessonTemplate lt in lessonTemplates)
             {
                 // Restrict the templates active period so it stays strictly within the terms start and end dates
-                DateOnly from = lt.ValidFrom > term.StartDate ? lt.ValidFrom : term.StartDate;
-                DateOnly to = lt.ValidTo < term.EndDate ? lt.ValidTo : term.EndDate;
+                DateOnly from = lt.ValidFrom > term.StartDate ? lt.ValidFrom : term.StartDate; // From is set to ValidFrom if its after Term's StartDate else it is set as the StartDate
+                DateOnly to = lt.ValidTo < term.EndDate ? lt.ValidTo : term.EndDate; // Same with To as it is set as either lesson template's ValidTo or Term's EndDate
 
-                for (DateOnly d = from; d <= to; d= d.AddDays(1))
+                for (DateOnly date = from; date <= to; date= date.AddDays(1)) // for loops through all the dates from the "From" to the "To" dates
                 {
                     // .NET DayOfWeek: Sunday=0..Saturday=6 -> ISO Monday=1..Sunday=7
-                    int isoDay = d.DayOfWeek == DayOfWeek.Sunday ? 7 : (int)d.DayOfWeek;
+                    // Translates the DayOfWeek from .NET's to ISO standard so it makes Sunday into 7 instead of 0. Making monday the first value that being 1
+                    int isoDay = date.DayOfWeek == DayOfWeek.Sunday ? 7 : (int)date.DayOfWeek;
 
                     if (isoDay != lt.WeekDay) continue; // wrong weekday
-                    if (nonTeachingDays.Contains(d)) continue; // non-teaching day
-                    if (keep.Contains((lt.Id, d))) continue; // Human modified data
+                    if (nonTeachingDays.Contains(date)) continue; // non-teaching day
+                    if (keep.Contains((lt.Id, date))) continue; // Human modified data
 
                     if (!periods.TryGetValue(lt.PeriodId, out Period? period))
                         throw new BadRequestException($"Lesson Template {lt.Id} points at a missing period!");
@@ -137,7 +138,7 @@ namespace SchoolScheduleLibrary.Service
                         InstitutionId = institutionId,
                         HoldId = lt.HoldId,
                         TemplateId = lt.Id,
-                        Date = d,
+                        Date = date,
                         StartTime = period.StartTime,
                         EndTime = period.EndTime,
                         RoomId = lt.RoomId,
