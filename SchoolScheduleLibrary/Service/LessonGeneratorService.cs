@@ -80,6 +80,7 @@ namespace SchoolScheduleLibrary.Service
                 && ntd.StartDate <= term.EndDate
                 && ntd.EndDate >= term.StartDate);
 
+            // Converts the list of NonTeachingDay's into individual dates
             HashSet<DateOnly> nonTeachingDays = new();
             foreach (NonTeachingDay r in ranges)
             {
