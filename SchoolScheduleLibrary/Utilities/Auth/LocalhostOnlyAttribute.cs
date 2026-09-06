@@ -25,7 +25,7 @@ namespace SchoolScheduleLibrary.Utilities.Auth
                 return;
             }
 
-            context.Result = new NotFoundResult(); // Return 404 so potential attackers dont even know it exists
+            context.Result = new NotFoundResult(); // Return 404 so potential attackers dont even know it exists. Fun little trick :)
         }
     }
 }
